@@ -1,0 +1,52 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+/// A web order. Amounts are in cents (SGD). DRINQ is not GST-registered: prices are nett.
+model Order {
+  id              Int         @id @default(autoincrement())
+  number          String      @unique // DQW-00001
+  token           String      @unique // private link for the customer's order page
+  status          String      @default("AWAITING_PAYMENT") // AWAITING_PAYMENT | PAID | CANCELLED
+  paymentMethod   String // PAYNOW | CARD
+  stripeSessionId String?
+  paidAt          DateTime?
+  name            String
+  email           String
+  phone           String
+  address         String
+  unit            String      @default("")
+  postal          String
+  deliveryDate    String // YYYY-MM-DD, Singapore time
+  deliverySlot    String // e.g. 10:00-13:00
+  notes           String      @default("")
+  subtotal        Int
+  deliveryFee     Int
+  total           Int
+  lines           OrderLine[]
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+}
+
+model OrderLine {
+  id        Int    @id @default(autoincrement())
+  orderId   Int
+  order     Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String
+  sku       String @default("")
+  name      String
+  size      String @default("")
+  unitPrice Int
+  qty       Int
+  lineTotal Int
+}
+
+model Counter {
+  name  String @id
+  value Int
+}

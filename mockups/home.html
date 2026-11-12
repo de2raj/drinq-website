@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DRINQ — Mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --yellow:#FFC515;      /* sampled from the logo */
+    --yellow-soft:#FFE07A;
+    --ink:#231F20;         /* logo black */
+    --black:#141213;
+    --paper:#FFFBEF;
+    --white:#fff;
+    --line:rgba(35,31,32,.14);
+    --red:#D7261E;
+    --r:18px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:Inter,system-ui,sans-serif;color:var(--ink);background:var(--paper);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  img{display:block;max-width:100%}
+  a{color:inherit;text-decoration:none}
+  button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+  .wrap{max-width:1200px;margin:0 auto;padding:0 24px}
+  .display{font-family:Montserrat,sans-serif;font-weight:900;letter-spacing:-.02em;line-height:.95;text-transform:uppercase}
+  h2.display{font-size:clamp(30px,4.4vw,48px)}
+
+  /* Top strip */
+  .strip{background:var(--black);color:var(--yellow);font-size:13px;font-weight:600}
+  .strip .wrap{display:flex;gap:28px;justify-content:center;padding-top:9px;padding-bottom:9px;white-space:nowrap;overflow:hidden}
+  .strip span:not(:first-child)::before{content:"●";font-size:7px;margin-right:28px;vertical-align:2px}
+  @media (max-width:760px){.strip span:not(:first-child){display:none}}
+
+  /* Header */
+  header{position:sticky;top:0;z-index:20;background:var(--yellow);border-bottom:2px solid var(--ink)}
+  header .wrap{display:flex;align-items:center;gap:28px;height:72px}
+  .logo img{height:34px;width:auto}
+  nav.main{display:flex;gap:4px;margin-left:8px}
+  nav.main a{font-weight:700;font-size:15px;padding:8px 14px;border-radius:999px}
+  nav.main a:hover{background:var(--ink);color:var(--yellow)}
+  .search{flex:1;max-width:340px;margin-left:auto;display:flex;align-items:center;gap:8px;background:var(--white);border:2px solid var(--ink);border-radius:999px;padding:0 16px;height:44px}
+  .search input{border:0;outline:0;font:inherit;font-size:15px;flex:1;min-width:0;background:none;color:var(--ink)}
+  .search input::placeholder{color:var(--ink);opacity:.75}
+  .icon-btn{width:44px;height:44px;border-radius:999px;display:grid;place-items:center;position:relative;flex:none}
+  .icon-btn:hover{background:rgba(35,31,32,.1)}
+  .cart-btn{background:var(--ink);color:var(--yellow)}
+  .cart-btn:hover{background:var(--black)}
+  .badge{position:absolute;top:-4px;right:-4px;min-width:22px;height:22px;border-radius:999px;background:var(--white);color:var(--ink);border:2px solid var(--ink);font-size:12px;font-weight:800;display:grid;place-items:center;padding:0 5px}
+  .menu-btn{display:none}
+  @media (max-width:980px){nav.main{display:none}.menu-btn{display:grid}.search{display:none}header .wrap{gap:10px;height:64px}.logo{margin-right:auto}.logo img{height:28px}}
+  .search-mobile{display:none}
+  @media (max-width:980px){.search-mobile{display:flex;max-width:none;margin:0 0 14px}}
+
+  /* Hero */
+  .hero{background:var(--yellow);position:relative;overflow:hidden;border-bottom:2px solid var(--ink)}
+  .hero .wrap{display:grid;grid-template-columns:1.1fr .9fr;gap:24px;align-items:center;padding-top:48px;padding-bottom:64px}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;background:var(--ink);color:var(--yellow);font-weight:700;font-size:13px;padding:7px 14px;border-radius:999px;margin-bottom:22px}
+  .eyebrow i{width:8px;height:8px;border-radius:50%;background:#3BD16F;box-shadow:0 0 0 3px rgba(59,209,111,.3)}
+  .hero h1{font-size:clamp(46px,7.6vw,96px)}
+  .hero h1 em{font-style:normal;display:inline-block;background:var(--ink);color:var(--yellow);padding:0 .14em;transform:rotate(-2deg)}
+  .hero p.lead{font-size:clamp(17px,1.6vw,20px);font-weight:500;max-width:30ch;margin:22px 0 30px;line-height:1.45}
+  .ctas{display:flex;gap:12px;flex-wrap:wrap}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;height:54px;padding:0 26px;border-radius:999px;font-weight:800;font-size:16px;border:2px solid var(--ink);transition:transform .15s}
+  .btn:hover{transform:translateY(-2px)}
+  .btn-ink{background:var(--ink);color:var(--yellow)}
+  .btn-line{background:transparent}
+  .btn-yellow{background:var(--yellow);color:var(--ink)}
+  .hero-facts{display:flex;gap:28px;margin-top:36px;flex-wrap:wrap}
+  .hero-facts div{font-weight:600;font-size:14px}
+  .hero-facts b{display:block;font-family:Montserrat;font-weight:900;font-size:26px}
+  .hero-art{position:relative;height:440px}
+  .hero-art .disc{position:absolute;inset:6% 4% 0 10%;background:var(--ink);border-radius:50%}
+  .hero-art svg{position:absolute;bottom:0}
+  .sticker{position:absolute;top:8%;right:2%;width:120px;height:120px;border-radius:50%;background:var(--white);border:2px solid var(--ink);display:grid;place-items:center;text-align:center;font-family:Montserrat;font-weight:900;font-size:14px;line-height:1.05;transform:rotate(12deg)}
+  .sticker b{font-size:30px;display:block}
+  @media (max-width:860px){.hero .wrap{grid-template-columns:1fr;padding-top:28px;padding-bottom:36px}.hero-art{height:300px;order:-1;margin:0 -8px}.sticker{width:96px;height:96px;font-size:12px}.sticker b{font-size:24px}}
+
+  /* Marquee */
+  .marquee{background:var(--ink);color:var(--yellow);overflow:hidden;border-bottom:2px solid var(--ink)}
+  .marquee .track{display:flex;gap:40px;width:max-content;animation:slide 30s linear infinite;padding:14px 0;font-family:Montserrat;font-weight:900;font-size:20px;text-transform:uppercase}
+  .marquee .track span::after{content:"✦";margin-left:40px}
+  @keyframes slide{to{transform:translateX(-50%)}}
+  @media (prefers-reduced-motion:reduce){.marquee .track{animation:none}}
+
+  section.block{padding:72px 0}
+  .head-row{display:flex;align-items:end;justify-content:space-between;gap:16px;margin-bottom:28px;flex-wrap:wrap}
+  .head-row a{font-weight:700;border-bottom:2px solid var(--ink)}
+
+  /* Categories */
+  .cats{display:grid;grid-template-columns:repeat(6,1fr);gap:14px}
+  .cat{background:var(--white);border:2px solid var(--ink);border-radius:var(--r);padding:18px 14px 14px;display:flex;flex-direction:column;align-items:center;gap:10px;font-weight:800;transition:background .15s,transform .15s}
+  .cat:hover{background:var(--yellow);transform:translateY(-3px)}
+  .cat svg{height:84px}
+  .cat small{font-weight:600;font-size:12px}
+  @media (max-width:900px){.cats{grid-template-columns:repeat(3,1fr)}}
+  @media (max-width:480px){.cats{gap:10px}.cat svg{height:64px}.cat{font-size:14px}}
+
+  /* Shop */
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px}
+  .chip{height:40px;padding:0 18px;border-radius:999px;border:2px solid var(--ink);font-weight:700;font-size:14px;background:var(--white)}
+  .chip[aria-pressed=true]{background:var(--ink);color:var(--yellow)}
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+  @media (max-width:1000px){.grid{grid-template-columns:repeat(3,1fr)}}
+  @media (max-width:720px){.grid{grid-template-columns:repeat(2,1fr);gap:12px}}
+  .card{background:var(--white);border:2px solid var(--ink);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column}
+  .card .img{background:var(--paper);aspect-ratio:1/1;display:grid;place-items:center;position:relative;border-bottom:2px solid var(--ink)}
+  .card .img svg{position:absolute;left:0;top:11%;width:100%;height:78%}
+  .tag{position:absolute;z-index:1;top:10px;left:10px;background:var(--ink);color:var(--yellow);font-size:12px;font-weight:800;padding:5px 10px;border-radius:999px}
+  .tag.red{background:var(--red);color:var(--white)}
+  .card .body{padding:14px;display:flex;flex-direction:column;gap:6px;flex:1}
+  .card .kind{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+  .card h3{font-size:16px;font-weight:700;line-height:1.25}
+  .card .price-row{display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:8px;gap:8px}
+  .price{font-family:Montserrat;font-weight:900;font-size:20px}
+  .price s{font-family:Inter;font-weight:600;font-size:13px;margin-left:4px}
+  .add{height:42px;min-width:42px;padding:0 14px;border-radius:999px;background:var(--yellow);border:2px solid var(--ink);font-weight:800;font-size:14px;display:inline-flex;align-items:center;gap:6px}
+  .add:hover{background:var(--ink);color:var(--yellow)}
+  .add.added{background:var(--ink);color:var(--yellow)}
+  .stock{font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px}
+  .stock i{width:7px;height:7px;border-radius:50%;background:#1F9D55}
+  .stock.low i{background:var(--red)}
+  @media (max-width:480px){.card .body{padding:10px}.card h3{font-size:14px}.price{font-size:17px}.add span{display:none}.price s{display:block;margin:2px 0 0}.price-row{align-items:end}.add{padding:0;width:40px;justify-content:center}}
+
+  /* Deal band */
+  .deal{background:var(--ink);color:var(--yellow);border-radius:28px;padding:44px;display:grid;grid-template-columns:1.2fr .8fr;gap:24px;align-items:center;position:relative;overflow:hidden}
+  .deal p{color:var(--white);font-size:17px;margin:14px 0 24px;max-width:42ch;line-height:1.5}
+  .deal .big{font-family:Montserrat;font-weight:900;font-size:clamp(70px,11vw,140px);line-height:.85;text-align:right}
+  .deal .big small{display:block;font-size:20px;color:var(--white)}
+  @media (max-width:760px){.deal{grid-template-columns:1fr;padding:30px 24px}.deal .big{text-align:left}}
+
+  /* Steps */
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  .step{border:2px solid var(--ink);border-radius:var(--r);padding:26px;background:var(--white)}
+  .step .n{width:48px;height:48px;border-radius:50%;background:var(--yellow);border:2px solid var(--ink);display:grid;place-items:center;font-family:Montserrat;font-weight:900;font-size:20px;margin-bottom:16px}
+  .step h3{font-family:Montserrat;font-weight:800;font-size:20px;margin-bottom:8px}
+  .step p{line-height:1.5}
+  @media (max-width:760px){.steps{grid-template-columns:1fr}}
+
+  /* Telegram */
+  .tg{background:var(--yellow);border:2px solid var(--ink);border-radius:28px;padding:40px;display:flex;align-items:center;gap:28px;justify-content:space-between;flex-wrap:wrap}
+  .tg p{font-size:17px;margin-top:10px;max-width:46ch;line-height:1.5;font-weight:500}
+  .tg-ico{width:72px;height:72px;border-radius:50%;background:var(--ink);display:grid;place-items:center;flex:none}
+
+  /* Footer */
+  footer{background:var(--black);color:var(--white);margin-top:72px;padding:56px 0 28px}
+  footer .cols{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:28px}
+  footer h4{color:var(--yellow);font-family:Montserrat;font-weight:800;font-size:14px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px}
+  footer li{list-style:none;margin-bottom:10px;font-size:15px}
+  footer .fine{border-top:1px solid rgba(255,255,255,.18);margin-top:40px;padding-top:20px;font-size:13px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;line-height:1.5}
+  .pay{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+  .pay span{border:1px solid rgba(255,255,255,.4);border-radius:6px;padding:4px 9px;font-size:12px;font-weight:700}
+  @media (max-width:760px){footer .cols{grid-template-columns:1fr 1fr}footer .cols>div:first-child{grid-column:1/-1}}
+
+  /* Cart drawer */
+  .scrim{position:fixed;inset:0;background:rgba(20,18,19,.5);opacity:0;pointer-events:none;transition:opacity .2s;z-index:40}
+  .drawer{position:fixed;top:0;right:0;height:100%;width:min(420px,100%);background:var(--paper);border-left:2px solid var(--ink);z-index:41;transform:translateX(100%);transition:transform .25s;display:flex;flex-direction:column}
+  body.cart-open .scrim{opacity:1;pointer-events:auto}
+  body.cart-open .drawer{transform:none}
+  .drawer .top{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;background:var(--yellow);border-bottom:2px solid var(--ink)}
+  .drawer .top h3{font-family:Montserrat;font-weight:900;font-size:22px;text-transform:uppercase}
+  .lines{flex:1;overflow:auto;padding:12px 20px}
+  .line{display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+  .line .th{width:56px;height:56px;border:2px solid var(--ink);border-radius:12px;background:var(--white);display:grid;place-items:center;flex:none}
+  .line .th svg{height:44px}
+  .line .nm{flex:1;font-weight:600;font-size:14px;line-height:1.3}
+  .qty{display:flex;align-items:center;border:2px solid var(--ink);border-radius:999px;height:34px}
+  .qty button{width:30px;height:100%;font-weight:800}
+  .qty span{min-width:20px;text-align:center;font-weight:700}
+  .empty{text-align:center;padding:60px 10px;font-weight:600}
+  .progress{padding:14px 20px;border-top:2px solid var(--ink);background:var(--white);font-size:14px;font-weight:600}
+  .bar{height:10px;border:2px solid var(--ink);border-radius:999px;margin-top:8px;overflow:hidden}
+  .bar i{display:block;height:100%;background:var(--yellow);transition:width .25s}
+  .checkout{padding:16px 20px 20px;background:var(--white)}
+  .checkout .tot{display:flex;justify-content:space-between;font-family:Montserrat;font-weight:900;font-size:22px;margin-bottom:12px}
+  .checkout .btn{width:100%}
+  .checkout small{display:block;text-align:center;margin-top:10px;font-size:12px;font-weight:600}
+
+  /* Age gate */
+  .gate{position:fixed;inset:0;z-index:60;background:var(--yellow);display:grid;place-items:center;padding:24px;text-align:center}
+  .gate img{height:52px;margin:0 auto 28px}
+  .gate h2{font-family:Montserrat;font-weight:900;font-size:clamp(28px,5vw,44px);text-transform:uppercase;margin-bottom:10px}
+  .gate p{font-weight:500;margin-bottom:26px}
+  .gate .ctas{justify-content:center}
+  .gate small{display:block;margin-top:22px;font-size:12px;font-weight:600;max-width:46ch;margin-inline:auto;line-height:1.5}
+  body.gated{overflow:hidden}
+
+  .toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,120px);background:var(--ink);color:var(--yellow);font-weight:700;padding:12px 20px;border-radius:999px;z-index:50;transition:transform .25s;white-space:nowrap}
+  .toast.show{transform:translate(-50%,0)}
+  :focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+  .mock-note{position:fixed;left:12px;bottom:12px;z-index:30;background:var(--white);border:2px solid var(--ink);border-radius:10px;padding:6px 10px;font-size:12px;font-weight:700}
+  @media (max-width:600px){.mock-note{display:none}}
+</style>
+</head>
+<body class="gated">
+
+<!-- Age gate -->
+<div class="gate" id="gate" role="dialog" aria-modal="true" aria-labelledby="gateTitle">
+  <div>
+    <img src="../assets/drinq-logo-black.png" alt="DRINQ">
+    <h2 id="gateTitle">Are you 18 or over?</h2>
+    <p>You must be of legal drinking age in Singapore to enter.</p>
+    <div class="ctas">
+      <button class="btn btn-ink" onclick="enter()">Yes, I'm 18+</button>
+      <a class="btn btn-line" href="https://www.google.com">No</a>
+    </div>
+    <small>By entering you agree to our Terms. Please drink responsibly. Retail sale of liquor is not allowed in Singapore between 10.30pm and 7am. Orders placed then are delivered from 7am.</small>
+  </div>
+</div>
+
+<div class="strip"><div class="wrap">
+  <span>Free delivery over $80</span><span>Same-day delivery across Singapore</span><span>Order on Telegram too</span>
+</div></div>
+
+<header><div class="wrap">
+  <button class="icon-btn menu-btn" aria-label="Menu"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  <a class="logo" href="#"><img src="../assets/drinq-logo-black.png" alt="DRINQ"></a>
+  <nav class="main">
+    <a href="#shop">Shop</a><a href="#cats">Spirits</a><a href="#cats">Wine</a><a href="#cats">Beer</a><a href="#deals">Deals</a>
+  </nav>
+  <label class="search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5" stroke-linecap="round"/></svg><input placeholder="Search drinks" aria-label="Search drinks"></label>
+  <button class="icon-btn" aria-label="Account"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" stroke-linecap="round"/></svg></button>
+  <button class="icon-btn cart-btn" aria-label="Cart" onclick="openCart()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linejoin="round"><path d="M5 7h14l-1.2 12.2a1 1 0 0 1-1 .8H7.2a1 1 0 0 1-1-.8z"/><path d="M9 10V6a3 3 0 0 1 6 0v4" stroke-linecap="round"/></svg><span class="badge" id="count">0</span></button>
+</div></header>
+
+<section class="hero"><div class="wrap">
+  <div>
+    <label class="search search-mobile"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5" stroke-linecap="round"/></svg><input placeholder="Search drinks" aria-label="Search drinks"></label>
+    <span class="eyebrow"><i></i>Delivering today · order by 6pm</span>
+    <h1 class="display">Drinks to<br>your door.<br><em>Fast.</em></h1>
+    <p class="lead">Spirits, wine and beer at warehouse prices, delivered across Singapore.</p>
+    <div class="ctas">
+      <a class="btn btn-ink" href="#shop">Shop now →</a>
+      <a class="btn btn-line" href="#telegram">Order on Telegram</a>
+    </div>
+    <div class="hero-facts">
+      <div><b>500+</b>drinks in stock</div>
+      <div><b>3 hrs</b>typical delivery</div>
+      <div><b>$80</b>free delivery from</div>
+    </div>
+  </div>
+  <div class="hero-art" aria-hidden="true">
+    <div class="disc"></div>
+    <svg viewBox="0 0 420 420" width="100%" height="100%" preserveAspectRatio="xMidYMax meet" id="heroBottles"></svg>
+    <div class="sticker"><div><b>20%</b>off<br>bundles</div></div>
+  </div>
+</div></section>
+
+<div class="marquee"><div class="track">
+  <span>Whisky</span><span>Gin</span><span>Champagne</span><span>Red wine</span><span>Craft beer</span><span>Vodka</span><span>Rum</span><span>Party packs</span>
+  <span>Whisky</span><span>Gin</span><span>Champagne</span><span>Red wine</span><span>Craft beer</span><span>Vodka</span><span>Rum</span><span>Party packs</span>
+</div></div>
+
+<main>
+<section class="block" id="cats"><div class="wrap">
+  <div class="head-row"><h2 class="display">Shop by type</h2></div>
+  <div class="cats" id="catGrid"></div>
+</div></section>
+
+<section class="block" id="shop" style="padding-top:0"><div class="wrap">
+  <div class="head-row"><h2 class="display">Best sellers</h2><a href="#">View all drinks</a></div>
+  <div class="chips" id="chips"></div>
+  <div class="grid" id="grid"></div>
+</div></section>
+
+<section id="deals" style="padding-bottom:72px"><div class="wrap">
+  <div class="deal">
+    <div>
+      <h2 class="display">Party bundle<br>deals</h2>
+      <p>Mix any 6 bottles of wine or 4 bottles of spirits and save up to 20%. Discount applies automatically in the cart.</p>
+      <a class="btn btn-yellow" href="#shop">Build a bundle →</a>
+    </div>
+    <div class="big">20%<small>off bundles</small></div>
+  </div>
+</div></section>
+
+<section class="block" style="padding-top:0"><div class="wrap">
+  <div class="head-row"><h2 class="display">How it works</h2></div>
+  <div class="steps">
+    <div class="step"><div class="n">1</div><h3>Pick your drinks</h3><p>Live stock and prices. What you see is what we have on the shelf.</p></div>
+    <div class="step"><div class="n">2</div><h3>Pay securely</h3><p>PayNow, cards, Apple Pay or Google Pay. Your receipt arrives by email.</p></div>
+    <div class="step"><div class="n">3</div><h3>Get it delivered</h3><p>Choose a time slot. ID is checked at the door, 18+ only.</p></div>
+  </div>
+</div></section>
+
+<section id="telegram"><div class="wrap">
+  <div class="tg">
+    <div style="display:flex;gap:22px;align-items:center;flex-wrap:wrap">
+      <div class="tg-ico"><svg width="34" height="34" viewBox="0 0 24 24" fill="#FFC515"><path d="M21.6 3.3 2.9 10.5c-1.3.5-1.3 1.2-.2 1.6l4.8 1.5 1.8 5.6c.2.6.1.9.8.9.5 0 .7-.2 1-.5l2.4-2.3 4.9 3.6c.9.5 1.6.2 1.8-.8l3.2-15.2c.3-1.3-.5-1.9-1.6-1.4zM8.4 13.2l9.9-6.2c.5-.3.9-.1.6.2l-8.5 7.7-.3 3.5z"/></svg></div>
+      <div><h2 class="display" style="font-size:clamp(26px,3.6vw,38px)">Prefer to chat?</h2><p>Message us on Telegram for quick orders, big events or anything not on the site.</p></div>
+    </div>
+    <a class="btn btn-ink" href="#">Open Telegram →</a>
+  </div>
+</div></section>
+</main>
+
+<footer><div class="wrap">
+  <div class="cols">
+    <div>
+      <img src="../assets/drinq-logo-yellow.png" alt="DRINQ" style="height:30px;margin-bottom:16px">
+      <p style="line-height:1.6;max-width:34ch">Drinks delivered across Singapore. Spirits, wine and beer at honest prices.</p>
+      <div class="pay"><span>PayNow</span><span>Visa</span><span>Mastercard</span><span>Apple Pay</span><span>Google Pay</span></div>
+    </div>
+    <div><h4>Shop</h4><ul><li>Spirits</li><li>Wine</li><li>Beer &amp; cider</li><li>Bundles</li></ul></div>
+    <div><h4>Help</h4><ul><li>Delivery</li><li>Returns</li><li>FAQ</li><li>Contact us</li></ul></div>
+    <div><h4>Follow</h4><ul><li>Telegram</li><li>Instagram</li><li>TikTok</li></ul></div>
+  </div>
+  <div class="fine">
+    <span>© 2026 DRINQSG PTE LTD · UEN 202016031N · Prices in SGD</span>
+    <span>18+ only. Please drink responsibly. No liquor sales 10.30pm – 7am.</span>
+  </div>
+</div></footer>
+
+<!-- Cart -->
+<div class="scrim" onclick="closeCart()"></div>
+<aside class="drawer" aria-label="Cart">
+  <div class="top"><h3>Your cart</h3><button class="icon-btn" aria-label="Close cart" onclick="closeCart()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+  <div class="lines" id="lines"></div>
+  <div class="progress" id="progress"></div>
+  <div class="checkout">
+    <div class="tot"><span>Total</span><span id="total">$0.00</span></div>
+    <button class="btn btn-ink">Checkout →</button>
+    <small>PayNow · Cards · Apple Pay · Google Pay</small>
+  </div>
+</aside>
+<div class="toast" id="toast"></div>
+<div class="mock-note">Mockup · sample products</div>
+
+<script>
+const INK="#231F20", Y="#FFC515";
+// Simple bottle illustrations until real product photos are in.
+function bottle(type, c1, c2){
+  const s={
+    wine:`<svg viewBox="0 0 60 200"><rect x="24" y="4" width="12" height="10" rx="2" fill="${INK}"/><path d="M25 14h10v38c0 8 15 14 15 32v104a8 8 0 0 1-8 8H18a8 8 0 0 1-8-8V84c0-18 15-24 15-32z" fill="${c1}" stroke="${INK}" stroke-width="3"/><rect x="13" y="112" width="34" height="46" rx="3" fill="${c2}" stroke="${INK}" stroke-width="2.5"/><rect x="19" y="122" width="22" height="4" fill="${INK}"/><rect x="19" y="131" width="15" height="3" fill="${INK}"/></svg>`,
+    whisky:`<svg viewBox="0 0 80 200"><rect x="31" y="6" width="18" height="18" rx="3" fill="${INK}"/><path d="M32 24h16v22c0 6 22 8 22 24v118a8 8 0 0 1-8 8H18a8 8 0 0 1-8-8V70c0-16 22-18 22-24z" fill="${c1}" stroke="${INK}" stroke-width="3"/><rect x="16" y="104" width="48" height="52" rx="4" fill="${c2}" stroke="${INK}" stroke-width="2.5"/><rect x="24" y="116" width="32" height="5" fill="${INK}"/><rect x="28" y="127" width="24" height="3" fill="${INK}"/><rect x="28" y="135" width="24" height="3" fill="${INK}"/></svg>`,
+    gin:`<svg viewBox="0 0 90 200"><rect x="35" y="10" width="20" height="14" rx="3" fill="${INK}"/><path d="M36 24h18v16h18a8 8 0 0 1 8 8v140a8 8 0 0 1-8 8H18a8 8 0 0 1-8-8V48a8 8 0 0 1 8-8h18z" fill="${c1}" stroke="${INK}" stroke-width="3"/><circle cx="45" cy="118" r="26" fill="${c2}" stroke="${INK}" stroke-width="2.5"/><rect x="31" y="114" width="28" height="5" fill="${INK}"/></svg>`,
+    beer:`<svg viewBox="0 0 70 200"><path d="M14 46c0-6 4-10 4-14h34c0 4 4 8 4 14v138a8 8 0 0 1-8 8H22a8 8 0 0 1-8-8z" fill="${c1}" stroke="${INK}" stroke-width="3"/><path d="M18 32l2-8h30l2 8" fill="#d9d9d9" stroke="${INK}" stroke-width="3"/><rect x="14" y="90" width="42" height="60" fill="${c2}" stroke="${INK}" stroke-width="2.5"/><rect x="22" y="112" width="26" height="6" fill="${INK}"/></svg>`,
+    bubbly:`<svg viewBox="0 0 64 200"><path d="M22 4h20v40H22z" fill="${c2}" stroke="${INK}" stroke-width="3"/><path d="M24 44h16v10c0 10 16 14 16 32v102a8 8 0 0 1-8 8H16a8 8 0 0 1-8-8V86c0-18 16-22 16-32z" fill="${c1}" stroke="${INK}" stroke-width="3"/><path d="M12 118h40v34H12z" fill="${c2}" stroke="${INK}" stroke-width="2.5"/><rect x="20" y="130" width="24" height="4" fill="${INK}"/></svg>`,
+    pack:`<svg viewBox="0 0 120 200"><g stroke="${INK}" stroke-width="3"><rect x="10" y="70" width="30" height="110" rx="5" fill="${c1}"/><rect x="45" y="60" width="30" height="120" rx="5" fill="${c1}"/><rect x="80" y="70" width="30" height="110" rx="5" fill="${c1}"/></g><rect x="4" y="120" width="112" height="72" rx="6" fill="${c2}" stroke="${INK}" stroke-width="3"/><rect x="34" y="146" width="52" height="8" fill="${INK}"/></svg>`
+  };
+  return s[type];
+}
+const CATS=[["Whisky","whisky","#C47A2C","#fff",120],["Gin","gin","#BFE3E6","#fff",64],["Wine","wine","#6E1B2B",Y,210],["Champagne","bubbly","#2E4B2A",Y,38],["Beer & cider","beer","#E89A2B","#fff",95],["Bundles","pack","#E89A2B",Y,12]];
+document.getElementById("catGrid").innerHTML=CATS.map(c=>`<a class="cat" href="#shop">${bottle(c[1],c[2],c[3])}<span>${c[0]}</span><small>${c[4]} items</small></a>`).join("");
+
+document.getElementById("heroBottles").innerHTML=`
+  <g transform="translate(40 120) scale(1.45)">${bottle("wine","#6E1B2B",Y).replace(/<\/?svg[^>]*>/g,"")}</g>
+  <g transform="translate(118 50) scale(1.85)">${bottle("whisky","#C47A2C","#fff").replace(/<\/?svg[^>]*>/g,"")}</g>
+  <g transform="translate(262 112) scale(1.5)">${bottle("gin","#BFE3E6",Y).replace(/<\/?svg[^>]*>/g,"")}</g>`;
+
+const P=[
+  {id:1,n:"Speyside Single Malt 12 Year 70cl",k:"Whisky",t:"whisky",c:["#C47A2C","#fff"],p:89,was:105,tag:"Best seller",stock:24},
+  {id:2,n:"London Dry Gin 70cl",k:"Gin",t:"gin",c:["#BFE3E6",Y],p:52,stock:40},
+  {id:3,n:"Marlborough Sauvignon Blanc 75cl",k:"Wine",t:"wine",c:["#E7E3A6","#fff"],p:29,was:36,tag:"-20%",red:1,stock:60},
+  {id:4,n:"Bordeaux Red Blend 75cl",k:"Wine",t:"wine",c:["#6E1B2B",Y],p:34,stock:4},
+  {id:5,n:"Brut Champagne NV 75cl",k:"Champagne",t:"bubbly",c:["#2E4B2A",Y],p:78,tag:"New",stock:15},
+  {id:6,n:"Craft Lager 24 × 330ml",k:"Beer",t:"beer",c:["#E89A2B","#fff"],p:69,stock:30},
+  {id:7,n:"Blended Scotch Whisky 1L",k:"Whisky",t:"whisky",c:["#8C4A1C",Y],p:62,stock:3},
+  {id:8,n:"Party Pack: 3 Spirits",k:"Bundle",t:"pack",c:["#C47A2C",Y],p:149,was:180,tag:"Bundle",stock:9},
+];
+const FILTERS=["All","Whisky","Gin","Wine","Champagne","Beer","Bundle"];
+let filter="All"; const cart={};
+const $=id=>document.getElementById(id);
+const money=n=>"$"+n.toFixed(2);
+
+function renderChips(){
+  $("chips").innerHTML=FILTERS.map(f=>`<button class="chip" aria-pressed="${f===filter}" onclick="setFilter('${f}')">${f}</button>`).join("");
+}
+function setFilter(f){filter=f;renderChips();renderGrid()}
+function renderGrid(){
+  $("grid").innerHTML=P.filter(p=>filter==="All"||p.k===filter).map(p=>`
+  <article class="card">
+    <div class="img">${p.tag?`<span class="tag ${p.red?"red":""}">${p.tag}</span>`:""}${bottle(p.t,p.c[0],p.c[1])}</div>
+    <div class="body">
+      <span class="kind">${p.k}</span>
+      <h3>${p.n}</h3>
+      <span class="stock ${p.stock<=5?"low":""}"><i></i>${p.stock<=5?`Only ${p.stock} left`:"In stock"}</span>
+      <div class="price-row">
+        <span class="price">${money(p.p)}${p.was?`<s>${money(p.was)}</s>`:""}</span>
+        <button class="add ${cart[p.id]?"added":""}" onclick="add(${p.id})" aria-label="Add ${p.n} to cart">${cart[p.id]?`✓<span> ${cart[p.id]}</span>`:`+<span> Add</span>`}</button>
+      </div>
+    </div>
+  </article>`).join("");
+}
+function add(id){cart[id]=(cart[id]||0)+1;update();toast("Added to cart")}
+function qty(id,d){cart[id]=(cart[id]||0)+d;if(cart[id]<=0)delete cart[id];update()}
+function update(){
+  const ids=Object.keys(cart), count=ids.reduce((a,i)=>a+cart[i],0);
+  const total=ids.reduce((a,i)=>a+cart[i]*P.find(p=>p.id==i).p,0);
+  $("count").textContent=count; $("total").textContent=money(total);
+  $("lines").innerHTML=ids.length?ids.map(i=>{const p=P.find(x=>x.id==i);return `
+    <div class="line"><div class="th">${bottle(p.t,p.c[0],p.c[1])}</div><div class="nm">${p.n}<br><b>${money(p.p*cart[i])}</b></div>
+    <div class="qty"><button onclick="qty(${i},-1)" aria-label="Less">−</button><span>${cart[i]}</span><button onclick="qty(${i},1)" aria-label="More">+</button></div></div>`}).join("")
+    :`<div class="empty">Your cart is empty.<br><br><button class="btn btn-ink" onclick="closeCart()">Start shopping</button></div>`;
+  const left=Math.max(0,80-total);
+  $("progress").innerHTML=(left?`Add <b>${money(left)}</b> more for free delivery`:`<b>Free delivery unlocked 🎉</b>`)+`<div class="bar"><i style="width:${Math.min(100,total/80*100)}%"></i></div>`;
+  renderGrid();
+}
+function openCart(){document.body.classList.add("cart-open")}
+function closeCart(){document.body.classList.remove("cart-open")}
+function enter(){$("gate").remove();document.body.classList.remove("gated")}
+let tt;function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");clearTimeout(tt);tt=setTimeout(()=>t.classList.remove("show"),1400)}
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeCart()});
+renderChips();update();
+</script>
+</body>
+</html>

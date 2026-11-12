@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DRINQ — Category Page Mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--yellow:#FFC515;--ink:#231F20;--black:#141213;--paper:#FFFBEF;--white:#fff;--line:rgba(35,31,32,.14);--red:#D7261E;--r:16px}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:Inter,system-ui,sans-serif;color:var(--ink);background:var(--paper);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  img{display:block;max-width:100%}
+  a{color:inherit;text-decoration:none}
+  button,select,input{font:inherit;color:inherit}
+  button{border:0;background:none;cursor:pointer}
+  .wrap{max-width:1280px;margin:0 auto;padding:0 24px}
+  @media (max-width:600px){.wrap{padding:0 16px}}
+  .display{font-family:Montserrat,sans-serif;font-weight:900;letter-spacing:-.02em;line-height:.95;text-transform:uppercase}
+
+  .strip{background:var(--black);color:var(--yellow);font-size:13px;font-weight:600;text-align:center;padding:8px 16px}
+  @media (max-width:600px){.strip .sd{display:none}}
+
+  /* Header + mega menu */
+  header{position:sticky;top:0;z-index:30;background:var(--yellow);border-bottom:2px solid var(--ink)}
+  .hbar{display:flex;align-items:center;gap:20px;height:68px}
+  .logo img{height:32px;width:auto}
+  .search{flex:1;max-width:520px;display:flex;align-items:center;gap:8px;background:var(--white);border:2px solid var(--ink);border-radius:999px;padding:0 16px;height:44px;margin-left:auto;position:relative}
+  .search input{border:0;outline:0;font-size:15px;flex:1;min-width:0;background:none}
+  .search input::placeholder{color:var(--ink);opacity:.75}
+  .suggest{position:absolute;left:-2px;right:-2px;top:48px;background:var(--white);border:2px solid var(--ink);border-radius:16px;padding:8px;display:none;max-height:420px;overflow:auto;scrollbar-width:none;box-shadow:0 12px 30px rgba(0,0,0,.15)}
+  .suggest.show{display:block}
+  .suggest h5{font-size:11px;text-transform:uppercase;letter-spacing:.08em;padding:8px 10px 4px}
+  .suggest a{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;font-size:14px;font-weight:600}
+  .suggest a:hover{background:var(--paper)}
+  .suggest img{width:34px;height:40px;object-fit:contain}
+  .suggest b{margin-left:auto;font-family:Montserrat;font-weight:900}
+  .icon-btn{width:44px;height:44px;border-radius:999px;display:grid;place-items:center;position:relative;flex:none}
+  .cart-btn{background:var(--ink);color:var(--yellow)}
+  .badge{position:absolute;top:-4px;right:-4px;min-width:22px;height:22px;border-radius:999px;background:var(--white);color:var(--ink);border:2px solid var(--ink);font-size:12px;font-weight:800;display:grid;place-items:center;padding:0 5px}
+  nav.cats{display:flex;gap:2px;height:46px;align-items:center;border-top:2px solid var(--ink)}
+  nav.cats>div{position:static}
+  nav.cats .top{height:34px;padding:0 14px;border-radius:999px;font-weight:700;font-size:14px;display:flex;align-items:center;gap:6px;white-space:nowrap}
+  nav.cats .top:hover,nav.cats>div:hover .top,nav.cats .top.on{background:var(--ink);color:var(--yellow)}
+  nav.cats .top.deal{color:var(--red)}
+  nav.cats .top.deal:hover{color:var(--yellow)}
+  .mega{position:absolute;left:0;right:0;top:100%;background:var(--white);border-bottom:2px solid var(--ink);display:none;padding:28px 0 32px}
+  nav.cats>div:hover .mega{display:block}
+  .mega .wrap{display:grid;grid-template-columns:repeat(4,1fr) 1.2fr;gap:28px}
+  .mega h6{font-family:Montserrat;font-weight:900;font-size:15px;text-transform:uppercase;margin-bottom:10px}
+  .mega a{display:flex;justify-content:space-between;padding:6px 0;font-weight:500;font-size:15px}
+  .mega a:hover{text-decoration:underline}
+  .mega a span{font-weight:600;font-size:13px}
+  .mega .promo{background:var(--yellow);border:2px solid var(--ink);border-radius:var(--r);padding:20px}
+  .mega .promo p{margin:8px 0 14px;font-weight:500}
+  .menu-btn{display:none}
+  @media (max-width:980px){nav.cats{display:none}.menu-btn{display:grid}.hbar{gap:8px;height:60px}.logo{margin-right:auto}.logo img{height:26px}.hbar .search{display:none}}
+  .msearch{display:none;padding:0 0 12px}
+  .msearch .search{display:flex;max-width:none;margin:0}
+  @media (max-width:980px){.msearch{display:block}}
+
+  /* Phone menu */
+  .sheet-scrim{position:fixed;inset:0;background:rgba(20,18,19,.5);z-index:50;opacity:0;pointer-events:none;transition:opacity .2s}
+  .side{position:fixed;top:0;left:0;bottom:0;width:min(360px,88%);background:var(--paper);z-index:51;transform:translateX(-100%);transition:transform .25s;overflow-y:auto;scrollbar-width:none;border-right:2px solid var(--ink)}
+  body.menu-open .side{transform:none}
+  body.menu-open .sheet-scrim,body.filters-open .sheet-scrim{opacity:1;pointer-events:auto}
+  .side .top{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;background:var(--yellow);border-bottom:2px solid var(--ink)}
+  .side details{border-bottom:1px solid var(--line)}
+  .side summary{list-style:none;padding:16px;font-weight:800;font-size:17px;display:flex;justify-content:space-between;cursor:pointer}
+  .side summary::after{content:"+";font-size:22px;line-height:1}
+  .side details[open] summary::after{content:"−"}
+  .side details a{display:flex;justify-content:space-between;padding:11px 16px 11px 28px;font-weight:500}
+
+  /* Category hero */
+  .crumbs{font-size:13px;font-weight:600;padding:18px 0 0}
+  .crumbs a{text-decoration:underline}
+  .chero{display:flex;align-items:end;justify-content:space-between;gap:20px;padding:14px 0 18px;flex-wrap:wrap}
+  .chero h1{font-size:clamp(40px,6vw,72px)}
+  .chero p{font-weight:500;max-width:52ch;line-height:1.5;margin-top:10px}
+  .count-pill{background:var(--ink);color:var(--yellow);font-weight:800;border-radius:999px;padding:8px 16px;font-size:14px;white-space:nowrap}
+  .subs{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;margin-bottom:22px}
+  .subs::-webkit-scrollbar{display:none}
+  .sub{flex:none;display:flex;align-items:center;gap:10px;height:56px;padding:0 18px 0 8px;border:2px solid var(--ink);border-radius:999px;background:var(--white);font-weight:700;font-size:14px}
+  .sub img{width:38px;height:38px;border-radius:50%;object-fit:contain;background:var(--paper)}
+  .sub small{font-weight:600}
+  .sub[aria-pressed=true]{background:var(--ink);color:var(--yellow)}
+
+  /* Layout */
+  .layout{display:grid;grid-template-columns:250px 1fr;gap:28px;align-items:start;padding-bottom:60px}
+  @media (max-width:980px){.layout{grid-template-columns:1fr}}
+  aside.filters{position:sticky;top:132px;max-height:calc(100vh - 150px);overflow:auto;scrollbar-width:none}
+  aside.filters::-webkit-scrollbar{display:none}
+  .fgroup{border-bottom:2px solid var(--ink);padding:16px 0}
+  .fgroup:first-child{padding-top:0}
+  .fgroup h4{font-family:Montserrat;font-weight:900;font-size:14px;text-transform:uppercase;margin-bottom:10px;display:flex;justify-content:space-between}
+  .fgroup label{display:flex;align-items:center;gap:10px;padding:6px 0;font-size:14px;font-weight:500;cursor:pointer}
+  .fgroup label span{margin-left:auto;font-size:12px;font-weight:600}
+  .fgroup input[type=checkbox]{appearance:none;width:20px;height:20px;border:2px solid var(--ink);border-radius:6px;background:var(--white);flex:none;display:grid;place-items:center}
+  .fgroup input[type=checkbox]:checked{background:var(--ink)}
+  .fgroup input[type=checkbox]:checked::after{content:"";width:9px;height:5px;border:2.5px solid var(--yellow);border-top:0;border-right:0;transform:rotate(-45deg) translate(1px,-1px)}
+  .bsearch{width:100%;height:38px;border:2px solid var(--ink);border-radius:10px;padding:0 12px;margin-bottom:8px;outline:0;background:var(--white)}
+  .more{font-weight:700;font-size:13px;text-decoration:underline;margin-top:4px}
+  .switch{display:flex;align-items:center;justify-content:space-between;font-weight:700;font-size:14px}
+  .tog{width:46px;height:28px;border-radius:999px;border:2px solid var(--ink);background:var(--white);position:relative;flex:none}
+  .tog::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:var(--ink);transition:left .15s}
+  .tog[aria-checked=true]{background:var(--yellow)}
+  .tog[aria-checked=true]::after{left:21px}
+
+  /* Toolbar */
+  .toolbar{display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+  .toolbar .res{font-weight:600;font-size:14px;margin-right:auto}
+  .sel{height:40px;border:2px solid var(--ink);border-radius:999px;padding:0 14px;font-weight:700;font-size:14px;background:var(--white)}
+  .fbtn{display:none;height:40px;padding:0 16px;border:2px solid var(--ink);border-radius:999px;font-weight:700;font-size:14px;background:var(--white);align-items:center;gap:8px}
+  .fbtn b{background:var(--ink);color:var(--yellow);border-radius:999px;min-width:20px;height:20px;font-size:12px;display:grid;place-items:center;padding:0 5px}
+  @media (max-width:980px){aside.filters{display:none}.fbtn{display:inline-flex}.toolbar{position:sticky;top:116px;z-index:5;background:var(--paper);padding:8px 0;margin:0 0 8px}.toolbar .res{width:100%;order:3;margin:0}}
+  .active{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+  .active:empty{display:none}
+  .achip{height:32px;padding:0 10px 0 14px;border-radius:999px;background:var(--yellow);border:2px solid var(--ink);font-size:13px;font-weight:700;display:inline-flex;align-items:center;gap:6px}
+  .clear{font-size:13px;font-weight:700;text-decoration:underline;height:32px}
+
+  /* Product grid */
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  @media (max-width:1180px){.grid{grid-template-columns:repeat(3,1fr)}}
+  @media (max-width:640px){.grid{grid-template-columns:repeat(2,1fr);gap:10px}}
+  .card{background:var(--white);border:2px solid var(--ink);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column;position:relative;transition:transform .15s}
+  .card:hover{transform:translateY(-3px)}
+  .card .img{aspect-ratio:1/1;display:grid;place-items:center;padding:14px;background:var(--white);border-bottom:2px solid var(--ink);position:relative}
+  .card .img img{width:100%;height:100%;object-fit:contain}
+  .tag{position:absolute;top:10px;left:10px;z-index:1;background:var(--red);color:var(--white);font-size:12px;font-weight:800;padding:4px 9px;border-radius:999px}
+  .card .body{padding:12px 14px 14px;display:flex;flex-direction:column;gap:5px;flex:1}
+  .brand{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.05em}
+  .card h3{font-size:15px;font-weight:600;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.6em}
+  .size{align-self:flex-start;font-size:12px;font-weight:700;border:1.5px solid var(--ink);border-radius:6px;padding:2px 7px}
+  .prow{display:flex;align-items:end;justify-content:space-between;gap:8px;margin-top:auto;padding-top:8px}
+  .price{font-family:Montserrat;font-weight:900;font-size:19px;line-height:1}
+  .price s{display:block;font-family:Inter;font-weight:600;font-size:12px;margin-top:3px}
+  .add{height:40px;min-width:40px;padding:0 14px;border-radius:999px;background:var(--yellow);border:2px solid var(--ink);font-weight:800;font-size:14px;flex:none}
+  .add:hover,.add.on{background:var(--ink);color:var(--yellow)}
+  .oos .img img{opacity:.35}
+  .oos .add{background:var(--white);font-size:12px}
+  @media (max-width:640px){.card .body{padding:10px}.card h3{font-size:13px}.price{font-size:16px}.add .t{display:none}.add{padding:0;width:38px;height:38px}.card .img{padding:10px}}
+  .loadmore{display:flex;flex-direction:column;align-items:center;gap:12px;margin-top:28px;font-weight:600;font-size:14px}
+  .bar{width:220px;height:8px;border:2px solid var(--ink);border-radius:999px;overflow:hidden}
+  .bar i{display:block;height:100%;background:var(--ink)}
+  .btn{display:inline-flex;align-items:center;justify-content:center;height:50px;padding:0 28px;border-radius:999px;font-weight:800;font-size:15px;border:2px solid var(--ink);background:var(--ink);color:var(--yellow)}
+  .empty{padding:60px 0;text-align:center;font-weight:600}
+
+  /* Phone filter sheet */
+  .fsheet{position:fixed;left:0;right:0;bottom:0;max-height:86vh;background:var(--paper);z-index:51;border-top:2px solid var(--ink);border-radius:22px 22px 0 0;transform:translateY(100%);transition:transform .25s;display:flex;flex-direction:column}
+  body.filters-open .fsheet{transform:none}
+  .fsheet .top{display:flex;justify-content:space-between;align-items:center;padding:16px 18px;border-bottom:2px solid var(--ink)}
+  .fsheet .top h3{font-family:Montserrat;font-weight:900;text-transform:uppercase}
+  .fsheet .inner{overflow:auto;padding:16px 18px;scrollbar-width:none}
+  .fsheet .foot{padding:12px 18px 18px;border-top:2px solid var(--ink);display:flex;gap:10px}
+  .fsheet .foot .btn{flex:1}
+  .btn-line{background:var(--white);color:var(--ink)}
+
+  footer{background:var(--black);color:var(--white);padding:28px 0;font-size:13px;text-align:center}
+  .toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,120px);background:var(--ink);color:var(--yellow);font-weight:700;padding:12px 20px;border-radius:999px;z-index:60;transition:transform .25s;white-space:nowrap}
+  .toast.show{transform:translate(-50%,0)}
+  .mock-note{position:fixed;right:12px;bottom:12px;z-index:20;background:var(--white);border:2px solid var(--ink);border-radius:10px;padding:6px 10px;font-size:12px;font-weight:700;max-width:260px}
+  @media (max-width:640px){.mock-note{display:none}}
+</style>
+</head>
+<body>
+<div class="strip">Free delivery over $80<span class="sd"> · Same-day delivery across Singapore</span></div>
+
+<header>
+  <div class="wrap hbar">
+    <button class="icon-btn menu-btn" aria-label="Menu" onclick="document.body.classList.add('menu-open')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    <a class="logo" href="home.html"><img src="../assets/drinq-logo-black.png" alt="DRINQ"></a>
+    <div class="search" data-search><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5" stroke-linecap="round"/></svg><input placeholder="Search 500+ drinks, brands…" aria-label="Search"><div class="suggest"></div></div>
+    <button class="icon-btn" aria-label="Account"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" stroke-linecap="round"/></svg></button>
+    <button class="icon-btn cart-btn" aria-label="Cart"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linejoin="round"><path d="M5 7h14l-1.2 12.2a1 1 0 0 1-1 .8H7.2a1 1 0 0 1-1-.8z"/><path d="M9 10V6a3 3 0 0 1 6 0v4" stroke-linecap="round"/></svg><span class="badge" id="count">0</span></button>
+  </div>
+  <div class="wrap msearch"><div class="search" data-search><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5" stroke-linecap="round"/></svg><input placeholder="Search 500+ drinks, brands…" aria-label="Search"><div class="suggest"></div></div></div>
+  <nav class="cats wrap" id="nav"></nav>
+</header>
+
+<div class="sheet-scrim" onclick="document.body.classList.remove('menu-open','filters-open')"></div>
+<aside class="side" id="side" aria-label="Menu"></aside>
+
+<main class="wrap">
+  <div class="crumbs" id="crumbs"></div>
+  <div class="chero">
+    <div><h1 class="display" id="title"></h1><p id="blurb"></p></div>
+    <span class="count-pill" id="countPill"></span>
+  </div>
+  <div class="subs" id="subs"></div>
+
+  <div class="layout">
+    <aside class="filters" id="filters"></aside>
+    <section>
+      <div class="toolbar">
+        <button class="fbtn" onclick="document.body.classList.add('filters-open')">Filter <b id="fcount">0</b></button>
+        <span class="res" id="res"></span>
+        <select class="sel" id="sort" aria-label="Sort">
+          <option value="pop">Sort: Best selling</option>
+          <option value="lo">Price: low to high</option>
+          <option value="hi">Price: high to low</option>
+          <option value="az">Name: A to Z</option>
+        </select>
+      </div>
+      <div class="active" id="active"></div>
+      <div class="grid" id="grid"></div>
+      <div class="loadmore" id="more"></div>
+    </section>
+  </div>
+</main>
+
+<div class="fsheet" aria-label="Filters">
+  <div class="top"><h3>Filters</h3><button class="icon-btn" aria-label="Close" onclick="document.body.classList.remove('filters-open')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+  <div class="inner" id="filtersM"></div>
+  <div class="foot"><button class="btn btn-line" onclick="clearAll()">Clear</button><button class="btn" id="showBtn" onclick="document.body.classList.remove('filters-open')">Show results</button></div>
+</div>
+
+<footer>© 2026 DRINQSG PTE LTD · 18+ only · Please drink responsibly</footer>
+<div class="toast" id="toast"></div>
+<div class="mock-note">Mockup · Botello's real catalogue &amp; photos</div>
+
+<script>
+/* DRINQ's menu: Botello's ~30 web categories grouped into 6 top-level sections.
+   Every entry is its own page, e.g. drinq.sg/whisky, drinq.sg/whisky/single-malt. */
+const MENU=[
+  {name:"Whisky",slug:"whisky",cats:["Whisky"],blurb:"Single malts, blends and world whiskies, from everyday pours to collector bottles.",
+   subs:[["Single Malt","Single Malt"],["Blended","Blended Whisky"],["Bourbon","Bourbon"],["Japanese","Japanese Whisky"],["Indian","Indian Whisky"]]},
+  {name:"Spirits",slug:"spirits",cats:["Gin","Vodka","Rum","Tequila & Mezcal","Brandy & Cognac","Liqueur"],blurb:"Gin, vodka, rum, tequila, cognac and liqueurs for every bar cart.",
+   subs:[["Gin","Gin"],["Vodka","Vodka"],["Rum","Rum"],["Tequila & Mezcal","Tequila & Mezcal"],["Cognac & Brandy","Brandy & Cognac"],["Liqueur","Liqueur"]]},
+  {name:"Wine & Champagne",slug:"wine",cats:["WINES & CHAMPAGNE","Red Wine","White Wine","Rose Wine","Champagne","Sparkling Wine","Prosecco"],blurb:"Reds, whites, rosé and bubbles for dinners and celebrations.",
+   subs:[["Red","Red Wine"],["White","White Wine"],["Rosé","Rose Wine"],["Champagne","Champagne"],["Sparkling & Prosecco",["Sparkling Wine","Prosecco"]]]},
+  {name:"Beer, Soju & RTD",slug:"beer",cats:["Beers","Soju & Sake","Ready To Drink"],blurb:"Cold cases of beer, soju, sake and ready-to-drink cocktails.",
+   subs:[["Beer","Beers"],["Soju & Sake","Soju & Sake"],["Ready To Drink","Ready To Drink"]]},
+  {name:"Mixers & Syrups",slug:"mixers",cats:["Syrup","MIXERS & BEVERAGES","Aperitif, Vermouth & Bitters","Alcohol Free"],blurb:"Syrups, tonics, juices, vermouth and bitters for cocktails at home or behind the bar.",
+   subs:[["Syrups","Syrup"],["Mixers & Soft Drinks","MIXERS & BEVERAGES"],["Vermouth & Bitters","Aperitif, Vermouth & Bitters"],["Alcohol Free","Alcohol Free"]]},
+  {name:"Party & Snacks",slug:"party",cats:["Snacks, Ice & Miscellaneous","Snacks","Party Essentials","Miscellaneous"],blurb:"Ice, snacks and party essentials to go with your order.",
+   subs:[["Snacks","Snacks"],["Ice & Party",["Party Essentials","Snacks, Ice & Miscellaneous"]]]},
+];
+const DEALS={name:"Deals",slug:"deals",cats:["Promotions"],blurb:"This week's promotions and bundle prices.",subs:[]};
+
+let ALL=[], cur=MENU[0], st={sub:null,brands:new Set(),price:new Set(),sizes:new Set(),stock:false,sort:"pop",shown:24};
+const cart={}; const $=id=>document.getElementById(id);
+const money=n=>"$"+n.toFixed(2);
+const PRICES=[["Under $30",0,30],["$30 – $60",30,60],["$60 – $100",60,100],["$100 – $200",100,200],["$200 and up",200,1e9]];
+const fmtSize=z=>z.replace(/(\d)l$/,"$1L").replace(/(\d)ml/g,"$1ml");
+const has=(p,c)=>(Array.isArray(c)?c:[c]).some(x=>p.c.includes(x));
+const inSec=(p,sec)=>sec.cats.some(c=>p.c.includes(c)) || sec.subs.some(s=>has(p,s[1]));
+
+function base(){return ALL.filter(p=>inSec(p,cur)&&(!st.sub||has(p,st.sub[1])))}
+function apply(list,skip){
+  return list.filter(p=>(skip==="b"||!st.brands.size||st.brands.has(p.b))
+    &&(skip==="p"||!st.price.size||[...st.price].some(i=>p.p>=PRICES[i][1]&&p.p<PRICES[i][2]))
+    &&(skip==="z"||!st.sizes.size||st.sizes.has(p.z))
+    &&(!st.stock||p.s));
+}
+function tally(list,key){const m=new Map();list.forEach(p=>{const k=p[key];if(k)m.set(k,(m.get(k)||0)+1)});return [...m].sort((a,b)=>b[1]-a[1])}
+
+function renderNav(){
+  const sections=[...MENU,DEALS];
+  $("nav").innerHTML=sections.map(s=>{
+    const n=ALL.filter(p=>inSec(p,s)).length;
+    if(!s.subs.length) return `<div><a class="top deal" href="#${s.slug}">${s.name} <span>(${n})</span></a></div>`;
+    return `<div><a class="top ${s===cur?"on":""}" href="#${s.slug}">${s.name}</a>
+      <div class="mega"><div class="wrap">
+        <div><h6>${s.name}</h6><a href="#${s.slug}">Shop all <span>${n}</span></a>${s.subs.map(x=>`<a href="#${s.slug}/${slug(x[0])}">${x[0]} <span>${ALL.filter(p=>has(p,x[1])).length}</span></a>`).join("")}</div>
+        <div><h6>Top brands</h6>${tally(ALL.filter(p=>inSec(p,s)),"b").slice(0,7).map(b=>`<a href="#${s.slug}">${b[0]} <span>${b[1]}</span></a>`).join("")}</div>
+        <div><h6>By price</h6>${PRICES.slice(0,4).map(x=>`<a href="#${s.slug}">${x[0]}</a>`).join("")}</div>
+        <div><h6>Popular sizes</h6>${tally(ALL.filter(p=>inSec(p,s)),"z").slice(0,5).map(b=>`<a href="#${s.slug}">${fmtSize(b[0])} <span>${b[1]}</span></a>`).join("")}</div>
+        <div class="promo"><h6>Deals this week</h6><p>Bundle prices and promotions across ${s.name.toLowerCase()}.</p><a class="btn" style="height:42px;font-size:14px;display:inline-flex" href="#deals">See deals →</a></div>
+      </div></div></div>`}).join("");
+  $("side").innerHTML=`<div class="top"><img src="../assets/drinq-logo-black.png" alt="DRINQ" style="height:24px"><button class="icon-btn" aria-label="Close menu" onclick="document.body.classList.remove('menu-open')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>`+
+    MENU.map(s=>`<details ${s===cur?"open":""}><summary>${s.name}</summary><a href="#${s.slug}" onclick="closeMenu()">Shop all <span>${ALL.filter(p=>inSec(p,s)).length}</span></a>${s.subs.map(x=>`<a href="#${s.slug}/${slug(x[0])}" onclick="closeMenu()">${x[0]} <span>${ALL.filter(p=>has(p,x[1])).length}</span></a>`).join("")}</details>`).join("")+
+    `<details><summary style="color:var(--red)">Deals</summary><a href="#deals" onclick="closeMenu()">All deals <span>${ALL.filter(p=>inSec(p,DEALS)).length}</span></a></details>`;
+}
+const slug=s=>s.toLowerCase().replace(/&/g,"and").replace(/[^a-z0-9]+/g,"-").replace(/-$/,"");
+function closeMenu(){document.body.classList.remove("menu-open")}
+
+function route(){
+  const [a,b]=(location.hash.slice(1)||"whisky").split("/");
+  cur=[...MENU,DEALS].find(s=>s.slug===a)||MENU[0];
+  st={sub:cur.subs.find(s=>slug(s[0])===b)||null,brands:new Set(),price:new Set(),sizes:new Set(),stock:false,sort:$("sort").value,shown:24};
+  renderNav();renderHead();render();window.scrollTo({top:0,behavior:"instant"});
+}
+function renderHead(){
+  const n=ALL.filter(p=>inSec(p,cur)).length;
+  $("crumbs").innerHTML=`<a href="home.html">Home</a> / ${st.sub?`<a href="#${cur.slug}">${cur.name}</a> / ${st.sub[0]}`:cur.name}`;
+  $("title").textContent=st.sub?st.sub[0]:cur.name;
+  $("blurb").textContent=cur.blurb;
+  $("subs").innerHTML=cur.subs.length?[`<a class="sub" href="#${cur.slug}" aria-pressed="${!st.sub}" style="padding-left:18px">All <small>${n}</small></a>`].concat(cur.subs.map(s=>{
+    const items=ALL.filter(p=>has(p,s[1])); const pic=(items.find(p=>p.i)||{}).i||"";
+    return `<a class="sub" href="#${cur.slug}/${slug(s[0])}" aria-pressed="${st.sub===s}"><img src="${pic}" alt="" loading="lazy">${s[0]} <small>${items.length}</small></a>`})).join(""):"";
+}
+function filterHTML(list){
+  const brands=tally(apply(list,"b"),"b"), sizes=tally(apply(list,"z"),"z").slice(0,8), pl=apply(list,"p");
+  const bq=(document.querySelector(".bsearch")||{}).value||"";
+  return `
+  <div class="fgroup"><div class="switch">In stock only <button class="tog" role="switch" aria-checked="${st.stock}" onclick="st.stock=!st.stock;render()"></button></div></div>
+  <div class="fgroup"><h4>Brand <span>${brands.length}</span></h4>
+    <input class="bsearch" placeholder="Find a brand" value="${bq}" oninput="filterBrands(this)">
+    <div class="blist">${brands.map((b,i)=>`<label data-b="${b[0].toLowerCase()}" ${i>=8&&!st.brands.has(b[0])?'data-x="1" hidden':""}><input type="checkbox" ${st.brands.has(b[0])?"checked":""} onchange="tog(st.brands,'${b[0].replace(/'/g,"\\'")}')">${b[0]}<span>${b[1]}</span></label>`).join("")}</div>
+    ${brands.length>8?`<button class="more" onclick="this.previousElementSibling.querySelectorAll('[data-x]').forEach(l=>l.hidden=false);this.remove()">Show all ${brands.length} brands</button>`:""}
+  </div>
+  <div class="fgroup"><h4>Price</h4>${PRICES.map((r,i)=>{const n=pl.filter(p=>p.p>=r[1]&&p.p<r[2]).length;return n||st.price.has(i)?`<label><input type="checkbox" ${st.price.has(i)?"checked":""} onchange="tog(st.price,${i})">${r[0]}<span>${n}</span></label>`:""}).join("")}</div>
+  ${sizes.length>1?`<div class="fgroup" style="border:0"><h4>Size</h4>${sizes.map(s=>`<label><input type="checkbox" ${st.sizes.has(s[0])?"checked":""} onchange="tog(st.sizes,'${s[0]}')">${fmtSize(s[0])}<span>${s[1]}</span></label>`).join("")}</div>`:""}`;
+}
+function filterBrands(inp){const q=inp.value.toLowerCase();inp.nextElementSibling.querySelectorAll("label").forEach(l=>{l.hidden=q?!l.dataset.b.includes(q):!!l.dataset.x})}
+function tog(set,v){set.has(v)?set.delete(v):set.add(v);st.shown=24;render()}
+function clearAll(){st.brands.clear();st.price.clear();st.sizes.clear();st.stock=false;render()}
+
+function render(){
+  const list=base(); let res=apply(list);
+  const s=st.sort;
+  res=[...res].sort((a,b)=>(b.s-a.s)||(s==="lo"?a.p-b.p:s==="hi"?b.p-a.p:s==="az"?a.n.localeCompare(b.n):0));
+  $("filters").innerHTML=filterHTML(list); $("filtersM").innerHTML=filterHTML(list);
+  const nf=st.brands.size+st.price.size+st.sizes.size+(st.stock?1:0);
+  $("fcount").textContent=nf; $("showBtn").textContent=`Show ${res.length} results`;
+  $("countPill").textContent=`${list.length} products`;
+  $("res").textContent=`${res.length} ${res.length===1?"product":"products"}${nf?" match your filters":""}`;
+  $("active").innerHTML=[...[...st.brands].map(b=>[b,`tog(st.brands,'${b.replace(/'/g,"\\'")}')`]),...[...st.price].map(i=>[PRICES[i][0],`tog(st.price,${i})`]),...[...st.sizes].map(z=>[fmtSize(z),`tog(st.sizes,'${z}')`]),...(st.stock?[["In stock","st.stock=false;render()"]]:[])]
+    .map(([l,f])=>`<button class="achip" onclick="${f}">${l} ✕</button>`).join("")+(nf?`<button class="clear" onclick="clearAll()">Clear all</button>`:"");
+  const page=res.slice(0,st.shown);
+  $("grid").innerHTML=page.length?page.map(p=>{const k=ALL.indexOf(p);return `
+    <article class="card ${p.s?"":"oos"}">
+      <div class="img">${p.r>p.p?`<span class="tag">-${Math.round((1-p.p/p.r)*100)}%</span>`:""}<img src="${p.i}" alt="" loading="lazy"></div>
+      <div class="body"><span class="brand">${p.b}</span><h3>${p.n.replace(/\s*-\s*\d+.*$/,"").replace(/\s+\d+(\.\d+)?\s*(ML|L|CL)$/i,"")}</h3>${p.z?`<span class="size">${fmtSize(p.z)}</span>`:""}
+        <div class="prow"><span class="price">${money(p.p)}${p.r>p.p?`<s>${money(p.r)}</s>`:""}</span>
+        ${p.s?`<button class="add ${cart[k]?"on":""}" onclick="add(${k},this)" aria-label="Add to cart">${cart[k]?"✓ "+cart[k]:"+<span class='t'> Add</span>"}</button>`:`<button class="add" disabled>Sold out</button>`}</div>
+      </div>
+    </article>`}).join(""):`<div class="empty" style="grid-column:1/-1">No products match. <button class="clear" onclick="clearAll()">Clear filters</button></div>`;
+  $("more").innerHTML=res.length>st.shown?`<span>Showing ${page.length} of ${res.length}</span><div class="bar"><i style="width:${page.length/res.length*100}%"></i></div><button class="btn" onclick="st.shown+=24;render()">Load more</button>`:(res.length?`<span>Showing all ${res.length}</span>`:"");
+}
+function add(k,btn){cart[k]=(cart[k]||0)+1;$("count").textContent=Object.values(cart).reduce((a,b)=>a+b,0);btn.classList.add("on");btn.textContent="✓ "+cart[k];toast("Added to cart")}
+let tt;function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");clearTimeout(tt);tt=setTimeout(()=>t.classList.remove("show"),1300)}
+
+/* Search across everything: brands, categories, products */
+document.querySelectorAll("[data-search]").forEach(box=>{
+  const inp=box.querySelector("input"), sug=box.querySelector(".suggest");
+  inp.addEventListener("input",()=>{
+    const q=inp.value.trim().toLowerCase(); if(q.length<2){sug.classList.remove("show");return}
+    const prods=ALL.filter(p=>p.n.toLowerCase().includes(q)).slice(0,6);
+    const brands=tally(ALL.filter(p=>p.b.toLowerCase().includes(q)),"b").slice(0,3);
+    const secs=MENU.flatMap(s=>[[s.name,s.slug],...s.subs.map(x=>[x[0]+" · "+s.name,s.slug+"/"+slug(x[0])])]).filter(x=>x[0].toLowerCase().includes(q)).slice(0,3);
+    sug.innerHTML=(secs.length?`<h5>Categories</h5>${secs.map(x=>`<a href="#${x[1]}">${x[0]}</a>`).join("")}`:"")+
+      (brands.length?`<h5>Brands</h5>${brands.map(b=>`<a href="#">${b[0]} <b style="font-family:Inter;font-weight:600;font-size:13px">${b[1]} products</b></a>`).join("")}`:"")+
+      (prods.length?`<h5>Products</h5>${prods.map(p=>`<a href="#"><img src="${p.i}" alt="">${p.n}<b>${money(p.p)}</b></a>`).join("")}`:"")||`<h5>No matches</h5>`;
+    sug.classList.add("show");
+  });
+  inp.addEventListener("blur",()=>setTimeout(()=>sug.classList.remove("show"),150));
+});
+$("sort").onchange=()=>{st.sort=$("sort").value;render()};
+document.addEventListener("keydown",e=>{if(e.key==="Escape")document.body.classList.remove("menu-open","filters-open")});
+addEventListener("hashchange",()=>{document.body.classList.remove("menu-open");route()});
+fetch("botello-products.json").then(r=>r.json()).then(d=>{d.forEach(p=>{if(p.b==="I")p.b="I Love"});ALL=d;route()});
+</script>
+</body>
+</html>

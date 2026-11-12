@@ -332,10 +332,13 @@ aside.filters::-webkit-scrollbar { display: none; }
 .field input:focus, .field textarea:focus { box-shadow: 0 0 0 3px var(--yellow); }
 .field.bad input { border-color: var(--red); }
 .err { color: var(--red); font-weight: 700; font-size: 13px; margin-top: 6px; }
-.days { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 4px; margin-bottom: 12px; }
-.days::-webkit-scrollbar { display: none; }
+.days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-bottom: 12px; }
+@media (max-width: 600px) { .days { grid-template-columns: repeat(4, 1fr); } }
+.later { font-weight: 700; font-size: 14px; text-decoration: underline; margin: -2px 0 14px; }
 .day, .slot, .pay { border: 2px solid var(--ink); background: var(--white); border-radius: 14px; font-weight: 700; }
-.day { flex: none; padding: 10px 16px; font-size: 14px; white-space: nowrap; }
+.day { padding: 8px 4px; font-size: 14px; line-height: 1.2; min-width: 0; }
+.day small { display: block; font-size: 12px; font-weight: 600; }
+@media (max-width: 600px) { .day { font-size: 12.5px; padding: 8px 2px; } }
 .day[aria-pressed="true"], .slot[aria-pressed="true"] { background: var(--ink); color: var(--yellow); }
 .slots { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
 @media (max-width: 600px) { .slots { grid-template-columns: 1fr 1fr; } }

@@ -17,6 +17,7 @@ export function CheckoutForm({ days, cardEnabled }: { days: DeliveryDay[]; cardE
   const [f, setF] = useState(blank);
   const [date, setDate] = useState(days[0]?.date ?? "");
   const [slot, setSlot] = useState("");
+  const [allDays, setAllDays] = useState(false);
   const [payment, setPayment] = useState<"PAYNOW" | "CARD">(cardEnabled ? "CARD" : "PAYNOW");
   const [over18, setOver18] = useState(false);
   const [errors, setErrors] = useState<Errors>({});
@@ -110,11 +111,14 @@ export function CheckoutForm({ days, cardEnabled }: { days: DeliveryDay[]; cardE
           <div className="panel">
             <h2><span className="n">3</span>Delivery time</h2>
             <div className="days" role="group" aria-label="Delivery day">
-              {days.map((d) => (
-                <button type="button" key={d.date} className="day" aria-pressed={d.date === date}
-                  onClick={() => { setDate(d.date); if (!d.slots.some((s) => s.id === slot)) setSlot(""); }}>{d.label}</button>
+              {(allDays ? days : days.slice(0, 7)).map((d) => (
+                <button type="button" key={d.date} className="day" aria-pressed={d.date === date} aria-label={d.label}
+                  onClick={() => { setDate(d.date); if (!d.slots.some((s) => s.id === slot)) setSlot(""); }}>{d.top}<small>{d.dm}</small></button>
               ))}
             </div>
+            {days.length > 7 && (
+              <button type="button" className="later" onClick={() => { if (allDays && days.findIndex((d) => d.date === date) >= 7) { setDate(days[0].date); setSlot(""); } setAllDays(!allDays); }}>{allDays ? "Fewer dates" : "Later dates"}</button>
+            )}
             <div className="slots" role="group" aria-label="Delivery slot">
               {day?.slots.map((s) => (
                 <button type="button" key={s.id} className="slot" aria-pressed={s.id === slot}

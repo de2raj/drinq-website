@@ -6,7 +6,7 @@ const sgNow = (now = Date.now()) => new Date(now + SG_OFFSET); // read with getU
 
 const ymd = (d: Date) => d.toISOString().slice(0, 10);
 
-export type DeliveryDay = { date: string; label: string; slots: { id: string; label: string }[] };
+export type DeliveryDay = { date: string; label: string; top: string; dm: string; slots: { id: string; label: string }[] };
 
 /** Days and slots still bookable, in Singapore time. */
 export function deliveryDays(now = Date.now()): DeliveryDay[] {
@@ -22,7 +22,8 @@ export function deliveryDays(now = Date.now()): DeliveryDay[] {
     if (!slots.length) continue;
     const wd = d.toLocaleDateString("en-SG", { weekday: "short", timeZone: "UTC" });
     const dm = d.toLocaleDateString("en-SG", { day: "numeric", month: "short", timeZone: "UTC" });
-    days.push({ date, label: i === 0 ? `Today, ${dm}` : i === 1 ? `Tomorrow, ${dm}` : `${wd}, ${dm}`, slots });
+    const top = i === 0 ? "Today" : i === 1 ? "Tomorrow" : wd;
+    days.push({ date, label: `${top}, ${dm}`, top, dm, slots });
   }
   return days;
 }

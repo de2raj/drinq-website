@@ -400,3 +400,6 @@ footer.ft .fine { border-top: 1px solid rgba(255, 255, 255, 0.18); margin-top: 4
 
 /* Grid children may hold sideways-scrolling rows (days, sub-categories): never let them widen the page. */
 .co > *, .layout > *, .pdp > *, .hero .wrap > * { min-width: 0; }
+
+/* Staging only */
+.testbar { background: var(--red); color: var(--white); text-align: center; font-weight: 800; font-size: 13px; padding: 7px 12px; letter-spacing: 0.02em; }

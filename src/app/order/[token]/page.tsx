@@ -34,7 +34,8 @@ export default async function OrderPage({ params, searchParams }: P) {
   }
 
   const paid = order.status === "PAID";
-  const qr = !paid && order.status === "AWAITING_PAYMENT"
+  const staging = !!process.env.STAGING_PASSWORD;
+  const qr = !paid && !staging && order.status === "AWAITING_PAYMENT"
     ? await QRCode.toDataURL(
         paynowPayload({ uen: process.env.PAYNOW_UEN || SHOP.uen, name: process.env.PAYNOW_NAME || SHOP.company, amountCents: order.total, reference: order.number }),
         { margin: 1, width: 480, color: { dark: "#231F20", light: "#FFFFFF" } })
@@ -50,6 +51,8 @@ export default async function OrderPage({ params, searchParams }: P) {
       </div>
 
       {sp.cancelled && !paid && <div className="notice">Card payment was cancelled. Your order is saved — you can pay by PayNow below.</div>}
+
+      {staging && !paid && <div className="notice">Test site: no PayNow QR is shown, and nothing should be paid. Staff can mark this test order paid in /admin.</div>}
 
       {qr && (
         <div className="panel">

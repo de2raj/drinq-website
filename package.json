@@ -8,7 +8,9 @@
     "start": "next start -p 3100",
     "lint": "eslint",
     "db:push": "prisma db push",
-    "catalogue:botello": "tsx scripts/pull-botello-catalogue.ts"
+    "catalogue:botello": "tsx scripts/pull-botello-catalogue.ts",
+    "db:sql": "node scripts/make-init-sql.mjs",
+    "package:godaddy": "bash scripts/package-godaddy.sh"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",

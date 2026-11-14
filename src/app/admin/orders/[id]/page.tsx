@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { headers } from "next/headers";
+import { CopyLink } from "@/components/AdminButtons";
 import { AdminNav } from "@/components/AdminNav";
 import { Timeline } from "@/components/Timeline";
 import { db } from "@/lib/db";
@@ -25,6 +27,10 @@ export default async function OrderDetail({ params }: { params: Promise<{ id: st
     db.order.findFirst({ where: { id: { gt: o.id } }, orderBy: { id: "asc" }, select: { id: true } }),
     db.order.findFirst({ where: { id: { lt: o.id } }, orderBy: { id: "desc" }, select: { id: true } }),
   ]);
+  const h = await headers();
+  const link = `${h.get("x-forwarded-proto") ?? "http"}://${h.get("host")}/order/${o.token}`;
+  const waText = `Hi ${o.name.split(" ")[0]}, here is your DRINQ order ${o.number} (${money(o.total)}). Please pay here: ${link}`;
+  const waPhone = o.phone.replace(/\D/g, "").replace(/^(?!65)(\d{8})$/, "65$1");
   const t = (d: Date) => d.toLocaleString("en-SG", { timeZone: "Asia/Singapore", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" });
 
   return (
@@ -39,9 +45,24 @@ export default async function OrderDetail({ params }: { params: Promise<{ id: st
         <div className="onav">
           {prev && <Link className="btn btn-sm btn-line" href={`/admin/orders/${prev.id}`}>← Newer</Link>}
           {after && <Link className="btn btn-sm btn-line" href={`/admin/orders/${after.id}`}>Older →</Link>}
+          <Link className="btn btn-sm" href={`/admin/orders/${o.id}/edit`}>Edit order</Link>
+          <Link className="btn btn-sm btn-line" href={`/admin/orders/${o.id}/invoice`}>Print invoice</Link>
           <a className="btn btn-sm btn-line" href={`/order/${o.token}`} target="_blank" rel="noopener">Customer page ↗</a>
         </div>
       </div>
+
+      {o.status === "AWAITING_PAYMENT" && (
+        <section className="panel paylink">
+          <h2>Payment link</h2>
+          <p>Send this link to the customer. They see their order and pay {money(o.total)} there{process.env.STAGING_PASSWORD ? " (test site: they need the test password)" : ""}.</p>
+          <div className="plrow">
+            <input readOnly value={link} aria-label="Payment link" />
+            <CopyLink url={link} />
+            <a className="btn btn-sm btn-line" href={`https://wa.me/${waPhone}?text=${encodeURIComponent(waText)}`} target="_blank" rel="noopener">WhatsApp</a>
+            {o.email && <a className="btn btn-sm btn-line" href={`mailto:${o.email}?subject=${encodeURIComponent(`Your DRINQ order ${o.number}`)}&body=${encodeURIComponent(waText)}`}>Email</a>}
+          </div>
+        </section>
+      )}
 
       <div className="pgrid">
         <div>
@@ -88,7 +109,7 @@ export default async function OrderDetail({ params }: { params: Promise<{ id: st
               </form>
             )}
             {o.events.some((e) => e.note) && (
-              <ul className="enotes">{o.events.filter((e) => e.note).map((e) => <li key={e.id}><b>{statusLabel(e.status)}</b> · {e.note} <small>{t(e.at)}</small></li>)}</ul>
+              <ul className="enotes">{o.events.filter((e) => e.note).map((e) => <li key={e.id}><b>{e.status === "EDITED" ? "Edited" : statusLabel(e.status)}</b> · {e.note} <small>{t(e.at)}</small></li>)}</ul>
             )}
           </section>
           <section className="panel">

@@ -39,6 +39,7 @@ export default async function Orders({ searchParams }: { searchParams: Promise<{
           <button className="btn btn-sm">Search</button>
           {q && <Link className="clear" href={href(f[0])}>Clear</Link>}
         </form>
+        <Link className="btn btn-sm" href="/admin/orders/new">+ New order</Link>
       </div>
       <div className="chips">
         {FILTERS.map(([k, label, st]) => (
@@ -48,6 +49,7 @@ export default async function Orders({ searchParams }: { searchParams: Promise<{
         ))}
       </div>
       <div className="olist big">
+        {list.length > 0 && <div className="ohdr orow"><span>Order</span><span>Customer</span><span>Delivery</span><span>Total</span><span>Status</span><span>Next step</span></div>}
         {list.map((o) => {
           const next = nextStatus(o.status, o.deliveryMethod);
           return (

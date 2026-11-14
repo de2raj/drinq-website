@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { STATUS } from "@/lib/order-status";
 import { setStatus } from "@/lib/orders";
+import { saveStaffOrder, type StaffOrderInput, type StaffOrderResult } from "@/lib/staff-orders";
 
 export async function changeStatus(fd: FormData) {
   const id = Number(fd.get("id"));
@@ -18,4 +19,10 @@ export async function saveNote(fd: FormData) {
   if (!id) return;
   await db.order.update({ where: { id }, data: { adminNote: String(fd.get("adminNote") ?? "").slice(0, 2000) } });
   revalidatePath(`/admin/orders/${id}`);
+}
+
+export async function saveOrder(input: StaffOrderInput): Promise<StaffOrderResult> {
+  const r = await saveStaffOrder(input);
+  if (r.ok) revalidatePath("/admin", "layout");
+  return r;
 }

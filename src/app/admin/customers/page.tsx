@@ -30,16 +30,21 @@ export default async function Customers({ searchParams }: { searchParams: Promis
           <button className="btn btn-sm">Search</button>
           {q && <Link className="clear" href="/admin/customers">Clear</Link>}
         </form>
+        <Link className="btn btn-sm" href="/admin/orders/new">+ New order</Link>
       </div>
       <p className="acount">{list.length} customers</p>
       <div className="olist big">
+        {list.length > 0 && <div className="ohdr orow crow"><span>Customer</span><span>Phone</span><span>Orders</span><span>Total paid</span><span /></div>}
         {list.map((c) => (
           <div className="orow crow" key={c.email}>
             <span className="ocell"><b>{c.name}</b>{c.test && <i className="ttag">TEST</i>}<small>{c.email}</small></span>
             <span className="ocell"><a className="u" href={`tel:${c.phone}`}>{c.phone}</a></span>
             <span className="ocell"><b>{c.orders} {c.orders === 1 ? "order" : "orders"}</b><small>last {c.last.toLocaleDateString("en-SG", { timeZone: "Asia/Singapore", day: "numeric", month: "short" })}</small></span>
             <span className="ocell"><b>{money(c.spent)}</b><small>paid</small></span>
-            <Link className="btn btn-sm btn-line" href={`/admin/orders?q=${encodeURIComponent(c.email)}`}>Orders</Link>
+            <span className="obtns">
+              <Link className="btn btn-sm btn-line" href={`/admin/orders?q=${encodeURIComponent(c.email)}`}>Orders</Link>
+              <Link className="btn btn-sm" href={`/admin/orders/new?customer=${encodeURIComponent(c.email)}`}>New order</Link>
+            </span>
           </div>
         ))}
         {!list.length && <p className="empty">No customers yet.</p>}

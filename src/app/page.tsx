@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { IconTelegram } from "@/components/Icons";
+import { HeroSlider, type HeroSlide } from "@/components/HeroSlider";
 import { ProductCard } from "@/components/ProductCard";
 import { allProducts, inSection, lite, menu, sectionProducts } from "@/lib/catalogue";
 import { SHOP } from "@/lib/config";
@@ -14,8 +15,11 @@ export default async function Home() {
   const sections = (await menu()).filter((s) => !s.deal);
   const [store, delivery] = await Promise.all([getSetting("store"), getSetting("delivery")]);
   const badge = deliveryHeadline(delivery);
-  // Homepage bottles: chosen in Admin → Settings → Homepage.
-  const heroes = store.heroSlugs.map((s) => all.find((p) => p.slug === s && p.image)).filter((p) => !!p).slice(0, 3);
+  // Rotating banner: set up in Admin → Settings → Homepage.
+  const slides: HeroSlide[] = store.slides.filter((x) => x.show).flatMap((x) => {
+    const p = all.find((q) => q.slug === x.slug);
+    return p ? [{ pill: x.pill, title: x.title || p.name, highlight: x.highlight, text: x.text, theme: x.theme, image: x.image, product: lite(p) }] : [];
+  });
   const pics = Object.fromEntries(sections.map((s) => [s.slug, all.find((p) => p.inStock && p.thumb && inSection(p, findSection(s.slug)!))?.thumb]));
   const tilePic = (slug: string) => pics[slug];
 
@@ -37,10 +41,8 @@ export default async function Home() {
               <div><b>$200*</b>free delivery from</div>
             </div>
           </div>
-          <div className="hero-art" aria-hidden="true">
-            <div className="disc">
-              <div className={`bottles n${heroes.length}`}>{heroes.map((p) => <img key={p.id} src={p.image} alt="" />)}</div>
-            </div>
+          <div className="hero-slides">
+            <HeroSlider slides={slides} />
             {deals.length > 0 && <Link className="sticker" href="/deals"><div><b>{deals.length}</b>deals<br />this week</div></Link>}
           </div>
         </div>

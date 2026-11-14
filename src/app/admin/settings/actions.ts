@@ -3,7 +3,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { toCents } from "@/lib/admin-products";
 import { allProducts } from "@/lib/catalogue";
-import { getSetting, saveSetting, WEEKDAYS, type DeliveryMethod } from "@/lib/settings";
+import { db } from "@/lib/db";
+import { getSetting, saveSetting, THEMES, WEEKDAYS, type DeliveryMethod, type Slide } from "@/lib/settings";
 
 const str = (fd: FormData, k: string, max = 500) => String(fd.get(k) ?? "").trim().slice(0, max);
 const time = (v: string, d: string) => (/^([01]\d|2[0-3]):[0-5]\d$/.test(v) ? v : d);
@@ -12,11 +13,28 @@ const done = (section: string) => { revalidatePath("/", "layout"); redirect(`/ad
 export async function saveStore(fd: FormData) {
   const store = await getSetting("store");
   const products = await allProducts();
-  const heroSlugs = [0, 1, 2].map((i) => {
-    const v = str(fd, `hero${i}`, 200);
-    return products.find((p) => p.name === v || p.slug === v)?.slug ?? store.heroSlugs[i] ?? "";
-  }).filter(Boolean);
-  await saveSetting("store", { ...store, announcement: str(fd, "announcement", 200), freeNote: str(fd, "freeNote", 300), heroSlugs });
+  const slides: Slide[] = [];
+  for (let i = 0; i < 5; i++) {
+    const k = (f: string) => `slide${i}.${f}`;
+    const old = store.slides[i];
+    const name = str(fd, k("product"), 200);
+    const p = products.find((x) => x.name === name || x.slug === name);
+    let image = str(fd, k("image"), 300);
+    const file = fd.get(k("file"));
+    if (file instanceof File && file.size > 0 && /^image\/(webp|png|jpeg)$/.test(file.type) && file.size < 4 * 1024 * 1024) {
+      const img = await db.productImage.create({ data: { type: file.type, data: Buffer.from(await file.arrayBuffer()) } });
+      image = `/img/${img.id}`;
+    }
+    const theme = str(fd, k("theme"), 20);
+    slides.push({
+      show: fd.get(k("show")) === "on" && !!(p ?? old?.slug),
+      slug: p?.slug ?? (name ? old?.slug ?? "" : ""),
+      pill: str(fd, k("pill"), 40), title: str(fd, k("title"), 60), highlight: str(fd, k("highlight"), 60), text: str(fd, k("text"), 160),
+      theme: (theme in THEMES ? theme : "white") as Slide["theme"],
+      image,
+    });
+  }
+  await saveSetting("store", { ...store, announcement: str(fd, "announcement", 200), freeNote: str(fd, "freeNote", 300), slides });
   done("homepage");
 }
 
@@ -38,6 +56,8 @@ export async function saveDelivery(fd: FormData) {
       notice: str(fd, k("notice"), 800),
       closedMessage: str(fd, k("closedMessage"), 300),
       ...(m.id === "COLLECT" ? { address: str(fd, k("address"), 200) } : {}),
+      todayUntil: m.pickDate ? time(str(fd, k("todayUntil"), 5), m.todayUntil) : m.todayUntil,
+      serviceDays: Object.fromEntries(WEEKDAYS.map(({ key }) => [key, fd.get(k(`${key}.service`)) === "on"])) as DeliveryMethod["serviceDays"],
       windows: Object.fromEntries(WEEKDAYS.map(({ key }) => [key, {
         on: fd.get(k(`${key}.on`)) === "on",
         from: time(str(fd, k(`${key}.from`), 5), m.windows[key].from),

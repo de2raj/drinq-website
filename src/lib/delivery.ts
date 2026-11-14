@@ -18,18 +18,16 @@ export function isOpen(m: DeliveryMethod, now = Date.now()) {
   return !!w?.on && t >= w.from && t <= w.to;
 }
 
-/** Dates a customer can pick for an option (Sundays excluded when it's closed on Sundays). */
+/** Dates a customer can pick for an option: only days it is serviced (e.g. Mon–Sat). */
 export function pickDates(m: DeliveryMethod, now = Date.now(), count = 14) {
   if (!m.pickDate) return [];
   const today = sgNow(now);
   const out: { date: string; label: string }[] = [];
-  const closedSunday = !m.windows.sun.on;
-  // Self-collection today only while still open today.
-  let start = m.firstDay;
-  if (start === 0 && !isOpen(m, now)) start = 1;
-  for (let i = start; out.length < count && i < count + 7; i++) {
+  const service = m.serviceDays ?? { mon: true, tue: true, wed: true, thu: true, fri: true, sat: true, sun: false };
+  for (let i = m.firstDay; out.length < count && i < count + 10; i++) {
     const d = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() + i));
-    if (closedSunday && d.getUTCDay() === 0) continue;
+    if (!service[KEYS[d.getUTCDay()]]) continue;
+    if (i === 0 && hm(today) > (m.todayUntil || "23:59")) continue; // too late for today
     const dm = d.toLocaleDateString("en-SG", { day: "numeric", month: "short", timeZone: "UTC" });
     const wd = d.toLocaleDateString("en-SG", { weekday: "short", timeZone: "UTC" });
     out.push({ date: ymd(d), label: i === 0 ? `Today|${dm}` : i === 1 ? `Tomorrow|${dm}` : `${wd}|${dm}` });
@@ -83,10 +81,11 @@ export function deliveryHeadline(methods: DeliveryMethod[], now = Date.now()): {
     if (end >= "23:59" && t.on && t.from === "00:00") end = t.to;
     return { text: `Express delivery · order by ${clock(end)}`, open: true };
   }
-  // A day with no next-day, same-day or collection is a closed day.
-  const closedDay = [next, same, collect].every((m) => !m || !m.windows[today].on);
-  const nextTo = next ? clock(Object.values(next.windows).find((w) => w.on)?.to ?? "23:59") : "11:59PM";
-  if (closedDay) return { text: `Closed on ${DAY_NAMES[today]} · Next-day delivery, order by ${nextTo}`, open: false };
-  if (next && isOpen(next, now)) return { text: `Next-day delivery · order by ${clock(next.windows[today].to)}`, open: true };
-  return { text: `Next-day delivery · order by ${nextTo}`, open: false };
+  // A day we don't deliver or hand over is a closed day (orders can still be placed for later).
+  const closedDay = [next, same, collect].every((m) => !m || !m.serviceDays?.[today]);
+  if (next && isOpen(next, now)) {
+    const by = `order by ${clock(next.windows[today].to)}`;
+    return closedDay ? { text: `Closed on ${DAY_NAMES[today]} · Next-day delivery, ${by}`, open: false } : { text: `Next-day delivery · ${by}`, open: true };
+  }
+  return { text: closedDay ? `Closed on ${DAY_NAMES[today]}` : "Order now for next-day delivery", open: false };
 }

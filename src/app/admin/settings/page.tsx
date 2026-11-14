@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { AdminNav } from "@/components/AdminNav";
 import { PayIcon } from "@/components/PayIcon";
 import { allProducts } from "@/lib/catalogue";
-import { getSetting, WEEKDAYS } from "@/lib/settings";
+import { SlideImage } from "@/components/SlideImage";
+import { getSetting, THEMES, WEEKDAYS } from "@/lib/settings";
 import { saveDelivery, savePayments, saveStore } from "./actions";
 
 export const metadata: Metadata = { title: "Settings · Admin", robots: { index: false } };
@@ -13,7 +14,6 @@ export default async function Settings({ searchParams }: { searchParams: Promise
   const saved = (await searchParams).saved;
   const [store, delivery, payments, products] = await Promise.all([getSetting("store"), getSetting("delivery"), getSetting("payments"), allProducts()]);
   const withPhoto = products.filter((p) => p.image);
-  const heroes = [0, 1, 2].map((i) => withPhoto.find((p) => p.slug === store.heroSlugs[i]));
   const ok = (s: string) => saved === s && <div className="notice">Saved.</div>;
 
   return (
@@ -21,23 +21,38 @@ export default async function Settings({ searchParams }: { searchParams: Promise
       <AdminNav active="settings" />
       <nav className="snav"><a href="#homepage">Homepage</a><a href="#delivery">Delivery</a><a href="#payments">Payments</a></nav>
 
-      <form action={saveStore} className="panel" id="homepage">
+      <form action={saveStore} className="panel" id="homepage" encType="multipart/form-data">
         <h2>Homepage</h2>
         {ok("homepage")}
         <div className="fields">
           <div className="field full"><label htmlFor="announcement">Top bar text</label><input id="announcement" name="announcement" defaultValue={store.announcement} /></div>
           <div className="field full"><label htmlFor="freeNote">Free-delivery footnote (the *)</label><input id="freeNote" name="freeNote" defaultValue={store.freeNote} /></div>
         </div>
-        <h3 className="sub-h">Bottles in the homepage circle</h3>
+        <h3 className="sub-h">Rotating banner (up to 5 slides)</h3>
         <datalist id="plist">{withPhoto.map((p) => <option key={p.id} value={p.name} />)}</datalist>
-        <div className="heropick">
-          {heroes.map((p, i) => (
-            <div key={i} className="hp">
-              <div className="hpimg">{p && <img src={p.image} alt="" />}</div>
-              <label htmlFor={`hero${i}`}>{["Left", "Middle", "Right"][i]} bottle</label>
-              <input id={`hero${i}`} name={`hero${i}`} list="plist" defaultValue={p?.name ?? ""} />
-            </div>
-          ))}
+        <div className="slides-ed">
+          {store.slides.map((sl, i) => {
+            const p = withPhoto.find((x) => x.slug === sl.slug);
+            const k = (f: string) => `slide${i}.${f}`;
+            return (
+              <fieldset key={i} className="dm sl">
+                <legend><label className="agree"><input type="checkbox" className="check" name={k("show")} defaultChecked={sl.show} />Slide {i + 1}</label></legend>
+                <SlideImage name={`slide${i}`} current={sl.image} fallback={p?.thumb ?? ""} />
+                <div className="fields">
+                  <div className="field full"><label>Product</label><input name={k("product")} list="plist" defaultValue={p?.name ?? ""} /></div>
+                  <div className="field"><label>Small label</label><input name={k("pill")} defaultValue={sl.pill} /></div>
+                  <div className="field"><label>Colour</label>
+                    <select name={k("theme")} defaultValue={sl.theme} className="sel" style={{ width: "100%", height: 50, borderRadius: 12 }}>
+                      {Object.entries(THEMES).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+                    </select>
+                  </div>
+                  <div className="field"><label>Headline</label><input name={k("title")} defaultValue={sl.title} /></div>
+                  <div className="field"><label>Headline, 2nd line (accent colour)</label><input name={k("highlight")} defaultValue={sl.highlight} /></div>
+                  <div className="field full"><label>Text</label><input name={k("text")} defaultValue={sl.text} /></div>
+                </div>
+              </fieldset>
+            );
+          })}
         </div>
         <button className="btn">Save homepage</button>
       </form>
@@ -61,17 +76,19 @@ export default async function Settings({ searchParams }: { searchParams: Promise
                     <option value="0">Today</option><option value="1">Tomorrow</option>
                   </select>
                 </div>
+                {m.pickDate && <div className="field"><label>Today can be picked until</label><input type="time" name={k("todayUntil")} defaultValue={m.todayUntil} /></div>}
                 {m.id === "COLLECT" && <div className="field full"><label>Collection address</label><input name={k("address")} defaultValue={m.address} /></div>}
                 <div className="field full"><label>Rules shown at checkout (one per line)</label><textarea name={k("notice")} defaultValue={m.notice} rows={3} /></div>
                 <div className="field full"><label>Message when it can&apos;t be chosen</label><input name={k("closedMessage")} defaultValue={m.closedMessage} /></div>
               </div>
               <div className="wins">
-                <span className="wh">Can be ordered</span><span className="wh">From</span><span className="wh">To</span>
+                <span className="wh">Can be ordered</span><span className="wh">From</span><span className="wh">To</span><span className="wh">{m.id === "COLLECT" ? "Collection day" : "Delivery day"}</span>
                 {WEEKDAYS.map(({ key, label }) => (
                   <div key={key} className="wrow">
                     <label className="agree"><input type="checkbox" className="check" name={k(`${key}.on`)} defaultChecked={m.windows[key].on} />{label}</label>
                     <input name={k(`${key}.from`)} type="time" defaultValue={m.windows[key].from} aria-label={`${label} from`} />
                     <input name={k(`${key}.to`)} type="time" defaultValue={m.windows[key].to} aria-label={`${label} to`} />
+                    <label className="agree"><input type="checkbox" className="check" name={k(`${key}.service`)} defaultChecked={m.serviceDays[key]} aria-label={`${label} ${m.id === "COLLECT" ? "collection" : "delivery"} day`} /></label>
                   </div>
                 ))}
               </div>

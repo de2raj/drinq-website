@@ -6,7 +6,7 @@
 export async function register() {
   if (process.env.NEXT_RUNTIME !== "nodejs") return;
   const { db } = await import("./lib/db");
-  const { DB_PROVIDER, INIT_SQL } = await import("./lib/init-sql");
+  const { DB_PROVIDER, INIT_SQL } = await import("./lib/db-init.generated");
   try {
     const rows = await db.$queryRawUnsafe<Record<string, string>[]>(
       DB_PROVIDER === "mysql"

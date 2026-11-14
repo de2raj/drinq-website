@@ -88,6 +88,7 @@ export function ProductForm({ init, groups, returnTo }: { init: ProductInit; gro
               }} />
             </label>
             {e.photo && <div className="err">{e.photo}</div>}
+            <p className="small" style={{ marginTop: 10 }}>Best size: <b>1200 × 1400 px</b> (portrait, 6:7). Bottle centred, filling about 90% of the height, plain background (it&apos;s removed automatically). JPG, PNG or WebP.</p>
           </div>
 
           <div className="panel">

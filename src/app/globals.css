@@ -781,3 +781,19 @@ form.panel > .fields + .btn, form.panel > .field + .btn { margin-top: 20px; }
 form.panel > .notice { margin-bottom: 14px; }
 .side .acctlink { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; font-weight: 800; border-bottom: 2px solid var(--ink); background: var(--white); }
 .side .acctlink b { background: var(--yellow); border: 2px solid var(--ink); border-radius: 999px; padding: 2px 10px; font-size: 13px; }
+/* wide screens: use the space */
+@media (min-width: 1500px) {
+  .wrap { max-width: 1640px; padding: 0 40px; }
+  .grid { grid-template-columns: repeat(5, 1fr); }
+  .grid.five { grid-template-columns: repeat(6, 1fr); }
+}
+@media (min-width: 1900px) {
+  .wrap { max-width: 1840px; }
+  .grid { grid-template-columns: repeat(6, 1fr); }
+  .grid.five { grid-template-columns: repeat(7, 1fr); }
+}
+/* no hover bounce anywhere */
+.card:hover, .tile:hover, .btn:hover:not(:disabled) { transform: none; }
+/* product photos fill their box: Botello photos are 300×351 (6:7), so the box matches */
+.card .img { aspect-ratio: 6 / 7; padding: 0; }
+.card .img img { inset: 6px; width: calc(100% - 12px); height: calc(100% - 12px); }

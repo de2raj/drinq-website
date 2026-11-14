@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DRINQ menu options</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@800;900&display=swap" rel="stylesheet">
+<style>
+:root{--y:#FFC515;--ink:#231F20;--paper:#FFFBEF;--red:#D7262E;--line:rgba(35,31,32,.14)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,sans-serif;color:var(--ink);background:#EFEBDF;padding:28px 20px 60px}
+h1{font:900 30px/1 Montserrat,sans-serif;text-transform:uppercase;margin-bottom:6px}
+.lead{font-weight:600;margin-bottom:26px;max-width:860px}
+.opts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:26px;max-width:1260px}
+@media(max-width:1100px){.opts{grid-template-columns:1fr}}
+.opt h2{font:900 20px Montserrat;text-transform:uppercase;margin-bottom:4px}
+.opt p.what{font-size:14px;font-weight:500;margin-bottom:12px;line-height:1.45;min-height:62px}
+.phone{width:340px;height:690px;border:3px solid var(--ink);border-radius:36px;overflow:hidden;background:var(--paper);position:relative;box-shadow:0 14px 40px rgba(0,0,0,.12);margin:0 auto}
+.bar{height:28px;background:var(--ink);color:var(--y);font:700 10px/28px Inter;text-align:center}
+.hd{background:var(--y);padding:10px 12px;display:flex;align-items:center;gap:10px;border-bottom:2px solid var(--ink)}
+.logo{font:900 22px Montserrat;letter-spacing:-.03em}
+.sp{flex:1}
+.pill{border:2px solid var(--ink);border-radius:999px;padding:4px 10px;font-weight:800;font-size:12px;background:#fff}
+.cart{width:34px;height:34px;border-radius:50%;background:var(--ink)}
+.search{margin:10px 12px;height:38px;border:2px solid var(--ink);border-radius:999px;background:#fff;font-size:13px;padding:0 14px;line-height:34px;font-weight:500}
+/* A: drawer with tiles */
+.drawer{position:absolute;inset:28px 0 0 0;background:var(--paper);display:flex;flex-direction:column}
+.dtop{background:var(--y);padding:12px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid var(--ink)}
+.x{font-size:22px;font-weight:800}
+.me{margin:12px;border:2px solid var(--ink);border-radius:16px;background:#fff;padding:10px 12px;display:flex;align-items:center;gap:10px}
+.me .av{width:36px;height:36px;border-radius:50%;background:var(--y);border:2px solid var(--ink);display:grid;place-items:center;font-weight:900}
+.me b{display:block;font-size:14px}.me small{font-size:12px;font-weight:600}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 12px}
+.tile{border:2px solid var(--ink);border-radius:16px;background:#fff;height:92px;position:relative;overflow:hidden;padding:10px}
+.tile b{font:900 13px/1.1 Montserrat;text-transform:uppercase;position:relative;z-index:1;display:block;max-width:60%}
+.tile small{position:relative;z-index:1;font-size:11px;font-weight:700}
+.tile img{position:absolute;right:-4px;bottom:-6px;height:96px;width:auto}
+.tile.deal{background:var(--y);grid-column:1/-1;height:62px}
+.tile.deal b{color:var(--red);max-width:none}
+.links{margin-top:auto;border-top:2px solid var(--ink);display:flex;justify-content:space-around;padding:12px;font-weight:700;font-size:13px;background:#fff}
+/* B: drill-down */
+.list a{display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:1px solid var(--line);font-weight:800;font-size:16px}
+.list .th{width:46px;height:46px;border-radius:12px;background:#fff;border:2px solid var(--ink);position:relative;overflow:hidden;flex:none}
+.list .th img{position:absolute;inset:3px;width:calc(100% - 6px);height:calc(100% - 6px);object-fit:contain}
+.list small{font-weight:600;font-size:12px;display:block}
+.list .chev{margin-left:auto;font-size:20px}
+.list a.hot{color:var(--red)}
+.sub{position:absolute;inset:28px 0 0 170px;background:#fff;border-left:2px solid var(--ink);box-shadow:-10px 0 30px rgba(0,0,0,.12);padding:12px}
+.sub .back{font-weight:700;font-size:13px;margin-bottom:8px}
+.sub h3{font:900 18px Montserrat;text-transform:uppercase;margin-bottom:8px}
+.sub a{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);font-weight:600;font-size:13px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chip{border:2px solid var(--ink);border-radius:999px;padding:3px 9px;font-size:11px;font-weight:700;background:var(--paper)}
+/* C: chips + sheet */
+.crow{display:flex;gap:8px;overflow:hidden;padding:0 12px 10px}
+.cc{flex:none;display:grid;justify-items:center;gap:4px;width:64px}
+.cc .ci{width:58px;height:58px;border-radius:50%;border:2px solid var(--ink);background:#fff;position:relative;overflow:hidden}
+.cc .ci img{position:absolute;inset:4px;width:calc(100% - 8px);height:calc(100% - 8px);object-fit:contain}
+.cc span{font-size:11px;font-weight:800;text-align:center;line-height:1.1}
+.cc.on .ci{background:var(--y)}
+.feed{padding:4px 12px;display:grid;grid-template-columns:1fr 1fr;gap:8px;opacity:.5}
+.feed div{height:150px;border:2px solid var(--ink);border-radius:14px;background:#fff}
+.sheet{position:absolute;left:0;right:0;bottom:0;height:430px;background:#fff;border-top:2px solid var(--ink);border-radius:24px 24px 0 0;padding:10px 14px;box-shadow:0 -14px 40px rgba(0,0,0,.18)}
+.grab{width:44px;height:5px;border-radius:5px;background:var(--ink);margin:0 auto 10px;opacity:.35}
+.sheet h3{font:900 18px Montserrat;text-transform:uppercase;margin-bottom:10px}
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sgrid a{border:2px solid var(--ink);border-radius:12px;padding:9px 10px;font-weight:700;font-size:13px;display:flex;justify-content:space-between;background:var(--paper)}
+.sgrid a span{font-weight:600;font-size:11px}
+.sheet .brands{margin-top:12px;font:900 12px Montserrat;text-transform:uppercase}
+.dim{position:absolute;inset:0;background:rgba(0,0,0,.35)}
+/* desktop bars */
+.desk{max-width:1260px;margin-top:40px}
+.desk h2{font:900 20px Montserrat;text-transform:uppercase;margin-bottom:12px}
+.dbar{border:2px solid var(--ink);border-radius:16px;overflow:hidden;background:var(--y);margin-bottom:8px}
+.dbar .lbl{background:var(--ink);color:var(--y);font:800 11px Inter;padding:4px 12px;text-transform:uppercase;letter-spacing:.05em}
+.dnav{display:flex;gap:8px;padding:10px 14px;align-items:center;flex-wrap:wrap}
+.dnav .t{display:flex;align-items:center;gap:8px;border:2px solid var(--ink);border-radius:999px;background:#fff;padding:4px 14px 4px 4px;font-weight:800;font-size:14px}
+.dnav .t i{width:30px;height:30px;border-radius:50%;background:var(--paper);border:2px solid var(--ink);position:relative;overflow:hidden;display:inline-block}
+.dnav .t i img{position:absolute;inset:2px;width:calc(100% - 4px);height:calc(100% - 4px);object-fit:contain}
+.dnav .t.hot{background:var(--red);color:#fff}
+.dnav .t.on{background:var(--ink);color:var(--y)}
+.dnav.plain a{font-weight:800;font-size:15px;padding:6px 10px}
+.dnav.plain a.hot{color:var(--red)}
+.note{font-size:13px;font-weight:600;margin:4px 0 22px}
+</style></head><body>
+<h1>Menu &amp; categories: 3 options</h1>
+<p class="lead">Phone menus first (most customers shop on phones), then how the category bar would look on a computer for each option. All three keep the yellow/black look and put the account and points at the top.</p>
+
+<div class="opts">
+  <div class="opt">
+    <h2>A · Picture tiles</h2>
+    <p class="what">The menu opens to big category tiles with a bottle photo in each. Tap a tile to go to that category. Deals is a full-width yellow tile. Account &amp; points card on top; Delivery / FAQ / Contact as a bottom bar.</p>
+    <div class="phone"><div class="bar">Free delivery* from $200</div>
+      <div class="drawer">
+        <div class="dtop"><span class="logo">DRINQ</span><span class="x">✕</span></div>
+        <div class="me"><span class="av">T</span><span><b>Hi Test</b><small>300 points · $15 to use</small></span><span class="sp"></span><span class="pill">My account</span></div>
+        <div class="tiles">
+          <div class="tile deal"><b>Deals of the week (18) →</b><small>Bundles &amp; promo prices</small></div>
+          <div class="tile"><b>Whisky</b><small>90</small><img src="https://botello.sg/wp-content/uploads/2024/07/Chivas-Regal-12-Years-700ML-300x351.png"></div>
+          <div class="tile"><b>Spirits</b><small>140</small><img src="https://botello.sg/wp-content/uploads/2025/10/1906-Vodka-700ML-2-300x351.png"></div>
+          <div class="tile"><b>Wine &amp; Champagne</b><small>40</small><img src="https://botello.sg/wp-content/uploads/2024/07/Billecart-Salmon-Brut-Reserve-300x381.jpg"></div>
+          <div class="tile"><b>Beer, Soju &amp; RTD</b><small>74</small><img src="https://botello.sg/wp-content/uploads/2025/10/Carlsberg-Short-Cans-24-cans-x-320ML-300x351.png"></div>
+          <div class="tile"><b>Mixers</b><small>60</small><img src="https://botello.sg/wp-content/uploads/2025/10/100-Plus-Isotonic-Drink-24-cans-x-325ML-e1759255622414-300x326.webp"></div>
+          <div class="tile"><b>Party &amp; Snacks</b><small>25</small><img src="https://botello.sg/wp-content/uploads/2025/09/Botello-Ice-bag-3KG-300x351.png"></div>
+        </div>
+        <div class="links"><span>Delivery</span><span>FAQ</span><span>Contact</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="opt">
+    <h2>B · List with sub-menu</h2>
+    <p class="what">A clean list with a small photo and item count per category. Tapping one slides in its sub-categories plus top-brand shortcuts, with a Back link. No more + and accordions.</p>
+    <div class="phone"><div class="bar">Free delivery* from $200</div>
+      <div class="drawer">
+        <div class="dtop"><span class="logo">DRINQ</span><span class="x">✕</span></div>
+        <div class="me"><span class="av">T</span><span><b>Hi Test</b><small>300 points</small></span></div>
+        <div class="list">
+          <a class="hot"><span class="th" style="background:var(--y)"></span>Deals<small>18 offers</small><span class="chev">›</span></a>
+          <a><span class="th"><img src="https://botello.sg/wp-content/uploads/2024/07/Chivas-Regal-12-Years-700ML-300x351.png"></span><span>Whisky<small>90 items</small></span><span class="chev">›</span></a>
+          <a><span class="th"><img src="https://botello.sg/wp-content/uploads/2025/10/1906-Vodka-700ML-2-300x351.png"></span><span>Spirits<small>140 items</small></span><span class="chev">›</span></a>
+          <a><span class="th"><img src="https://botello.sg/wp-content/uploads/2024/07/Billecart-Salmon-Brut-Reserve-300x381.jpg"></span><span>Wine<small>40 items</small></span><span class="chev">›</span></a>
+          <a><span class="th"><img src="https://botello.sg/wp-content/uploads/2025/10/Carlsberg-Short-Cans-24-cans-x-320ML-300x351.png"></span><span>Beer &amp; RTD<small>74 items</small></span><span class="chev">›</span></a>
+          <a><span class="th"><img src="https://botello.sg/wp-content/uploads/2025/10/100-Plus-Isotonic-Drink-24-cans-x-325ML-e1759255622414-300x326.webp"></span><span>Mixers<small>60 items</small></span><span class="chev">›</span></a>
+        </div>
+      </div>
+      <div class="sub"><div class="back">‹ Back</div><h3>Spirits</h3>
+        <a>Shop all <span>140</span></a><a>Gin <span>19</span></a><a>Vodka <span>14</span></a><a>Rum <span>23</span></a><a>Tequila <span>32</span></a><a>Liqueur <span>41</span></a>
+        <div class="chips"><span class="chip">Absolut</span><span class="chip">1906</span><span class="chip">Bacardi</span><span class="chip">Patrón</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="opt">
+    <h2>C · Category bubbles + sheet</h2>
+    <p class="what">Round category bubbles sit right under the search bar on every page, so shoppers jump straight in without opening a menu. Tapping one opens a sheet from the bottom with sub-categories and brands.</p>
+    <div class="phone"><div class="bar">Free delivery* from $200</div>
+      <div class="hd"><span>☰</span><span class="logo">DRINQ</span><span class="sp"></span><span class="pill">300 pts</span><span class="cart"></span></div>
+      <div class="search">Search 500+ drinks, brands…</div>
+      <div class="crow">
+        <div class="cc"><span class="ci" style="background:var(--red)"></span><span>Deals</span></div>
+        <div class="cc"><span class="ci"><img src="https://botello.sg/wp-content/uploads/2024/07/Chivas-Regal-12-Years-700ML-300x351.png"></span><span>Whisky</span></div>
+        <div class="cc on"><span class="ci"><img src="https://botello.sg/wp-content/uploads/2025/10/1906-Vodka-700ML-2-300x351.png"></span><span>Spirits</span></div>
+        <div class="cc"><span class="ci"><img src="https://botello.sg/wp-content/uploads/2024/07/Billecart-Salmon-Brut-Reserve-300x381.jpg"></span><span>Wine</span></div>
+        <div class="cc"><span class="ci"><img src="https://botello.sg/wp-content/uploads/2025/10/Carlsberg-Short-Cans-24-cans-x-320ML-300x351.png"></span><span>Beer</span></div>
+      </div>
+      <div class="feed"><div></div><div></div><div></div><div></div></div>
+      <div class="dim"></div>
+      <div class="sheet"><div class="grab"></div><h3>Spirits · 140</h3>
+        <div class="sgrid"><a>Gin <span>19</span></a><a>Vodka <span>14</span></a><a>Rum <span>23</span></a><a>Tequila <span>32</span></a><a>Cognac <span>11</span></a><a>Liqueur <span>41</span></a></div>
+        <div class="brands">Top brands</div>
+        <div class="chips"><span class="chip">Absolut</span><span class="chip">1906</span><span class="chip">Bacardi</span><span class="chip">Patrón</span><span class="chip">Hennessy</span></div>
+        <div class="chips" style="margin-top:12px"><span class="pill" style="background:var(--ink);color:var(--y)">Shop all Spirits →</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="desk">
+  <h2>On a computer: the category bar</h2>
+  <div class="dbar"><div class="lbl">Now</div><div class="dnav plain"><a>Whisky</a><a>Spirits</a><a>Wine &amp; Champagne</a><a>Beer, Soju &amp; RTD</a><a>Mixers &amp; Syrups</a><a>Party &amp; Snacks</a><a class="hot">Deals (18)</a></div></div>
+  <div class="dbar"><div class="lbl">With A, B or C</div><div class="dnav">
+    <span class="t hot"><i style="background:var(--y)"></i>Deals 18</span>
+    <span class="t"><i><img src="https://botello.sg/wp-content/uploads/2024/07/Chivas-Regal-12-Years-700ML-300x351.png"></i>Whisky</span>
+    <span class="t on"><i><img src="https://botello.sg/wp-content/uploads/2025/10/1906-Vodka-700ML-2-300x351.png"></i>Spirits</span>
+    <span class="t"><i><img src="https://botello.sg/wp-content/uploads/2024/07/Billecart-Salmon-Brut-Reserve-300x381.jpg"></i>Wine &amp; Champagne</span>
+    <span class="t"><i><img src="https://botello.sg/wp-content/uploads/2025/10/Carlsberg-Short-Cans-24-cans-x-320ML-300x351.png"></i>Beer, Soju &amp; RTD</span>
+    <span class="t"><i><img src="https://botello.sg/wp-content/uploads/2025/10/100-Plus-Isotonic-Drink-24-cans-x-325ML-e1759255622414-300x326.webp"></i>Mixers</span>
+    <span class="t"><i><img src="https://botello.sg/wp-content/uploads/2025/09/Botello-Ice-bag-3KG-300x351.png"></i>Party &amp; Snacks</span>
+  </div></div>
+  <p class="note">Pill buttons with a bottle photo, Deals first in red, the current category in black. Hovering still opens the drop-down with sub-categories and brands.</p>
+</div>
+</body></html>

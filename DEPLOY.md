@@ -35,17 +35,19 @@ Makes `deploy/drinq-source.zip` (~200 KB, source code only — never `.env`, dat
 | Name | Value |
 |---|---|
 | `SITE_URL` | `https://staging.drinq.sg` |
-| `STAGING_PASSWORD` | a password for testers (user name `drinq`) |
+| `STAGING_PASSWORD` | the tester password (typed on the site's "Test site" page) |
 | `ADMIN_PASSWORD` | a different, strong password for `/admin` (user name `admin`) |
 | `PAYNOW_UEN` | `202016031N` |
 | `PAYNOW_NAME` | `DRINQSG PTE LTD` |
 
    Secrets are set separately for **preview** and **production** — add them to both.
 4. **Restart** the app (and redeploy once if the Telegram link was added after the first build).
-5. Open the **preview** link (only you, signed in to GoDaddy, can see it). The browser asks for the tester password.
+5. Open the **preview** link (only you, signed in to GoDaddy, can see it). The site shows a yellow "Test site" page: enter the tester password.
    If checkout shows an error, the database isn't connected yet — check step 2 and send the app log to Claude.
 
 ## 3. Staging address for testers
+
+GoDaddy's publish health check needs the home page to answer normally, which is why the test-site lock is a password **page** (not a browser pop-up). Settings → General → Root path is `/api/health`.
 
 1. **Publish** the app (uses 1 of the Deluxe plan's 10 app slots).
 2. Attach the domain **`staging.drinq.sg`**. Because drinq.sg is at GoDaddy, the DNS record and SSL certificate are set up automatically.
@@ -120,7 +122,7 @@ cPanel → **Setup Node.js App** → **Create Application**
 | `NODE_ENV` | `production` |
 | `DATABASE_URL` | `file:/home/YOUR-CPANEL-USERNAME/drinq-data/drinq.db` |
 | `SITE_URL` | `https://staging.drinq.sg` |
-| `STAGING_PASSWORD` | a password for testers (user name `drinq`) |
+| `STAGING_PASSWORD` | the tester password (typed on the site's "Test site" page) |
 | `ADMIN_PASSWORD` | a different, strong password for `/admin` (user name `admin`) |
 | `PAYNOW_UEN` | `202016031N` |
 | `PAYNOW_NAME` | `DRINQSG PTE LTD` |
@@ -128,7 +130,7 @@ cPanel → **Setup Node.js App** → **Create Application**
 Your cPanel user name is shown in cPanel's right-hand column ("Current User").
 **Do not** click "Run NPM Install": everything the site needs is already in the zip.
 
-Click **Create**, then **Restart**. Open https://staging.drinq.sg: the browser asks for the test password.
+Click **Create**, then **Restart**. Open https://staging.drinq.sg: the site shows the "Test site" password page.
 The order tables are created automatically the first time the app starts.
 
 ## 3. Updating (cPanel)
@@ -146,6 +148,6 @@ and `www` to `drinq.sg`. Run AutoSSL for both.
 
 ## If something goes wrong
 
-- **"Sign in required" loop** — check `STAGING_PASSWORD`; user name is `drinq`.
+- **Password page keeps coming back** — check `STAGING_PASSWORD`, and that cookies are allowed in the browser.
 - **Error page / 503** — Setup Node.js App → the app → open the log file shown there (`stderr.log` in the app folder), and send it to Claude.
 - **Database error** — the `drinq-data` folder must exist and `DATABASE_URL` must use the full path with your cPanel user name.

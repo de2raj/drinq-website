@@ -1,11 +1,15 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { loginPage, TEST_COOKIE, testToken } from "@/lib/test-site";
 
 /**
- * Sign-in gates (browser password box):
- *  - /admin: user "admin", password ADMIN_PASSWORD. No password set = admin is off.
- *  - Whole site while STAGING_PASSWORD is set (test site): user "drinq", or the admin login.
- * Stripe's webhook is never gated.
+ * Locks:
+ *  - /admin: browser sign-in box, user "admin", password ADMIN_PASSWORD. No password set = admin is off.
+ *  - Whole site while STAGING_PASSWORD is set (test site): a password page (status 200, so hosting
+ *    health checks pass) that sets a cookie. The admin login also gets in.
+ * Never locked: Stripe's webhook, /api/health, the password form itself and the logo it shows.
  */
+const OPEN = ["/api/stripe/webhook", "/api/health", "/api/test-site-login", "/drinq-logo-black.png"];
+
 function creds(req: NextRequest) {
   const auth = req.headers.get("authorization") ?? "";
   if (!auth.startsWith("Basic ")) return null;
@@ -18,12 +22,9 @@ function creds(req: NextRequest) {
   }
 }
 
-const ask = (realm: string, msg = "Sign in required") =>
-  new NextResponse(msg, { status: 401, headers: { "WWW-Authenticate": `Basic realm="${realm}", charset="UTF-8"` } });
-
-export function proxy(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const path = req.nextUrl.pathname;
-  if (path.startsWith("/api/stripe/webhook") || path === "/api/health") return NextResponse.next();
+  if (OPEN.some((p) => path === p || path.startsWith(p + "/"))) return NextResponse.next();
 
   const c = creds(req);
   const admin = process.env.ADMIN_PASSWORD;
@@ -31,12 +32,21 @@ export function proxy(req: NextRequest) {
 
   if (path.startsWith("/admin")) {
     if (!admin) return new NextResponse("Admin is turned off", { status: 401 });
-    return isAdmin ? NextResponse.next() : ask("DRINQ admin");
+    if (isAdmin) return NextResponse.next();
+    return new NextResponse("Sign in required", { status: 401, headers: { "WWW-Authenticate": 'Basic realm="DRINQ admin", charset="UTF-8"' } });
   }
 
   const staging = process.env.STAGING_PASSWORD;
-  if (staging && !isAdmin && !(c?.user === "drinq" && c.pw === staging)) return ask("DRINQ test site");
-  return NextResponse.next();
+  if (!staging || isAdmin) return NextResponse.next();
+  if (req.cookies.get(TEST_COOKIE)?.value === (await testToken(staging))) return NextResponse.next();
+
+  if (req.method !== "GET" && req.method !== "HEAD") return new NextResponse("Test site: sign in first", { status: 401 });
+  const wrong = req.nextUrl.searchParams.get("testpw") === "wrong";
+  const next = req.nextUrl.pathname + req.nextUrl.search.replace(/[?&]testpw=wrong/, "").replace(/^&/, "?");
+  return new NextResponse(loginPage(next, wrong), {
+    status: 200,
+    headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store", "X-Robots-Tag": "noindex, nofollow" },
+  });
 }
 
 export const config = { matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"] };

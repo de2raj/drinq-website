@@ -5,6 +5,7 @@ const TABS = [
   ["orders", "Orders", "/admin/orders"],
   ["products", "Products", "/admin/products"],
   ["customers", "Customers", "/admin/customers"],
+  ["emails", "Emails", "/admin/emails"],
   ["settings", "Settings", "/admin/settings"],
 ] as const;
 export type AdminTab = (typeof TABS)[number][0];

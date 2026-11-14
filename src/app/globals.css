@@ -671,3 +671,12 @@ a.orow:hover { background: var(--paper); }
 .wins2 input:not([type="checkbox"]) { height: 38px; border: 2px solid var(--ink); border-radius: 10px; padding: 0 10px; background: var(--white); font-size: 14px; min-width: 0; }
 .dayhours { margin-top: 10px; font-weight: 700; font-size: 14px; }
 .field input[type="time"] { width: 100%; }
+.mtabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 12px; }
+.mtabs a { border: 2px solid var(--ink); border-radius: 999px; padding: 8px 14px; font-weight: 700; font-size: 14px; background: var(--white); }
+.mtabs a[aria-current="page"] { background: var(--ink); color: var(--yellow); }
+.mtabs.small a { padding: 5px 11px; font-size: 13px; }
+.mailbox { border: 2px solid var(--ink); border-radius: 18px; overflow: hidden; background: var(--white); margin-bottom: 30px; }
+.mailhead { padding: 14px 18px; border-bottom: 2px solid var(--ink); display: grid; gap: 4px; }
+.mailhead div { display: flex; gap: 10px; font-size: 14px; }
+.mailhead span { width: 64px; flex: none; font-weight: 600; }
+.mailframe { width: 100%; height: 1500px; border: 0; display: block; background: #F3EFE3; }

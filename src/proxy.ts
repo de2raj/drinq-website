@@ -10,7 +10,7 @@ import { loginPage, TEST_COOKIE, testToken } from "@/lib/test-site";
  *    health checks pass) that sets a cookie. The admin login also gets in.
  * Never locked: Stripe's webhook, /api/health, the password form itself and the logo it shows.
  */
-const OPEN = ["/api/stripe/webhook", "/api/health", "/api/test-site-login", "/drinq-logo-black.png"];
+const OPEN = ["/api/stripe/webhook", "/api/health", "/api/test-site-login", "/drinq-logo-black.png", "/drinq-logo-yellow.png"];
 
 function creds(req: NextRequest) {
   const auth = req.headers.get("authorization") ?? "";

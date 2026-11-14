@@ -31,10 +31,13 @@ function dayName(d: Date, today: Date) {
   const diff = Math.round((d.getTime() - day(today, 0).getTime()) / 86400_000);
   const dm = d.toLocaleDateString("en-SG", { day: "numeric", month: "short", timeZone: "UTC" });
   const wd = d.toLocaleDateString("en-SG", { weekday: "short", timeZone: "UTC" });
-  return { top: diff === 0 ? "Today" : diff === 1 ? "Tomorrow" : wd, dm, long: diff === 0 ? "today" : diff === 1 ? "tomorrow" : `${wd} ${dm}` };
+  return { top: diff === 0 ? "Today" : diff === 1 ? "Tomorrow" : wd, dm, long: fullDate(d) };
 }
 
-export type DateOpt = { date: string; label: string; detail: string; slots?: { id: string; label: string }[] };
+/** "Monday, 16 November 2026" */
+export const fullDate = (d: Date) => d.toLocaleDateString("en-SG", { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
+
+export type DateOpt = { date: string; label: string; full: string; detail: string; slots?: { id: string; label: string }[] };
 export type Arrival = {
   pick: "none" | "date" | "slot"; // what the customer chooses
   date: string; // the date when nothing is chosen (YYYY-MM-DD)
@@ -64,48 +67,46 @@ export function arrival(m: DeliveryMethod, now = Date.now()): Arrival {
       const d = todayOk ? day(today, 0) : serviceDates(m, today, 1, 1)[0];
       const n = dayName(d, today);
       return { pick: "none", date: ymd(d), slotText: rangesLabel(hoursOf(d)), dates: [],
-        summary: todayOk ? `Arrives today, ${rangesLabel(hoursOf(d))}`
-          : m.serviceDays[wk(today)] ? `After today's ${clock(m.cutoff)} cut-off · arrives ${n.long}` : `No same-day today · arrives ${n.long}` };
+        summary: `Arrives ${n.long}` };
     }
     case "EXPRESS": {
       // Running now? Otherwise the next time it opens.
       for (let i = 0; i < 8; i++) {
         const d = day(today, i);
         for (const r of hoursOf(d)) {
-          if (i === 0 && t >= r.from && t <= r.to) return { pick: "none", date: ymd(d), slotText: "Within 2 hours", dates: [], summary: "Arrives within 2 hours" };
+          if (i === 0 && t >= r.from && t <= r.to) return { pick: "none", date: ymd(d), slotText: "Within 2 hours", dates: [], summary: `Arrives ${fullDate(d)}, within 2 hours` };
           if (at(d, r.from) > now) {
             const n = dayName(d, today);
             return { pick: "none", date: ymd(d), slotText: `Within 2 hours from ${clock(r.from)}`, dates: [],
-              summary: `Express opens ${n.long === "today" ? "" : n.long + " "}at ${clock(r.from)} · arrives within 2 hours of that` };
+              summary: `Arrives ${n.long}, within 2 hours from ${clock(r.from)}` };
           }
         }
       }
-      return { pick: "none", date: ymd(today), slotText: "Within 2 hours", dates: [], summary: "Arrives within 2 hours" };
+      return { pick: "none", date: ymd(today), slotText: "Within 2 hours", dates: [], summary: `Arrives ${fullDate(today)}, within 2 hours` };
     }
     case "COLLECT": {
       const startToday = m.serviceDays[wk(today)] && t < m.cutoff;
       const ds = serviceDates(m, today, startToday ? 0 : 1).filter((d) => hoursOf(d).length);
-      const dates = ds.map((d) => ({ date: ymd(d), label: label(d), detail: rangesLabel(hoursOf(d)) }));
+      const dates = ds.map((d) => ({ date: ymd(d), label: label(d), full: fullDate(d), detail: rangesLabel(hoursOf(d)) }));
       return { pick: "date", date: dates[0]?.date ?? "", slotText: dates[0]?.detail ?? "", dates,
-        summary: dates[0] ? `Collect from ${dayName(ds[0], today).long}, ${dates[0].detail}` : "" };
+        summary: dates[0] ? `Collect from ${dates[0].full}` : "" };
     }
     case "TIMED": {
       const earliest = now + m.leadHours * 3600_000;
       const dates: DateOpt[] = [];
       for (const d of serviceDates(m, today, 0, 20)) {
         const slots = m.slots.filter((r) => at(d, r.from) >= earliest).map((r) => ({ id: `${r.from}-${r.to}`, label: rangeLabel(r) }));
-        if (slots.length) dates.push({ date: ymd(d), label: label(d), detail: `${slots.length} slots`, slots });
+        if (slots.length) dates.push({ date: ymd(d), label: label(d), full: fullDate(d), detail: `${slots.length} slots`, slots });
         if (dates.length >= 14) break;
       }
       return { pick: "slot", date: dates[0]?.date ?? "", slotText: "", dates,
-        summary: dates[0]?.slots ? `Choose a 3-hour slot · earliest ${dates[0].label.replace("|", " ")}, ${dates[0].slots[0].label}` : "" };
+        summary: dates[0]?.slots ? `Choose a 3-hour slot · earliest ${dates[0].full}, ${dates[0].slots[0].label}` : "" };
     }
     default: { // NEXT_DAY: the next delivery day after today (Saturday and Sunday orders: Monday)
       const ds = serviceDates(m, today, 1);
-      const dates = ds.map((d) => ({ date: ymd(d), label: label(d), detail: rangesLabel(hoursOf(d)) }));
-      const n = dayName(ds[0], today);
+      const dates = ds.map((d) => ({ date: ymd(d), label: label(d), full: fullDate(d), detail: rangesLabel(hoursOf(d)) }));
       return { pick: "date", date: dates[0].date, slotText: dates[0].detail, dates,
-        summary: `Arrives ${n.long}, ${dates[0].detail}` };
+        summary: `Arrives ${dates[0].full}` };
     }
   }
 }
@@ -126,7 +127,7 @@ export const freeGoals = (methods: DeliveryMethod[], now = Date.now()) =>
 
 export function dayLabel(date: string) {
   if (!date) return "";
-  return new Date(date + "T00:00:00Z").toLocaleDateString("en-SG", { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" });
+  return fullDate(new Date(date + "T00:00:00Z"));
 }
 
 const DAY_NAMES: Record<Weekday, string> = { sun: "Sundays", mon: "Mondays", tue: "Tuesdays", wed: "Wednesdays", thu: "Thursdays", fri: "Fridays", sat: "Saturdays" };

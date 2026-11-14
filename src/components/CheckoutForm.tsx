@@ -168,7 +168,7 @@ export function CheckoutForm({ methods, payments, testMode }: { methods: MethodO
                   }}>{allDays ? "Fewer dates" : "Later dates"}</button>
                 )}
                 {errors.date && <div className="err">{errors.date}</div>}
-                {a.pick === "date" && dayOpt && <p className="dayhours">{collect ? "Collect" : "Delivered"} {dayOpt.label.split("|")[0].toLowerCase() === "today" ? "today" : `on ${dayOpt.label.replace("|", " ")}`}, {dayOpt.detail}</p>}
+                {a.pick === "date" && dayOpt && <p className="dayhours">{collect ? "Collect on" : "Arrives"} {dayOpt.full}, {dayOpt.detail}</p>}
                 {a.pick === "slot" && dayOpt?.slots && (
                   <>
                     <h3 className="sub-h">Time slot</h3>

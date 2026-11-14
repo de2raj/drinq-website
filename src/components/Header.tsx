@@ -4,12 +4,12 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import type { Menu } from "@/lib/catalogue";
 import { useCart } from "./CartProvider";
-import { CartDrawer } from "./CartDrawer";
+import { CartDrawer, FreeDeliveryBar } from "./CartDrawer";
 import { IconBag, IconClose, IconMenu } from "./Icons";
 import { SearchBox } from "./SearchBox";
 
 export function Header({ menu, announcement }: { menu: Menu; announcement: string }) {
-  const { count, setOpen, ready } = useCart();
+  const { count, setOpen, ready, subtotal, tiers } = useCart();
   const [side, setSide] = useState(false);
   const [hoverOff, setHoverOff] = useState(false);
   const path = usePathname();
@@ -28,7 +28,11 @@ export function Header({ menu, announcement }: { menu: Menu; announcement: strin
 
   return (
     <>
-      <div className="strip">{announcement.split(" · ").map((part, i) => <span key={i} className={i ? "sd" : ""}>{i ? " · " : ""}{part}</span>)}</div>
+      {ready && count > 0 && tiers.length ? (
+        <div className="strip prog"><FreeDeliveryBar subtotal={subtotal} /></div>
+      ) : (
+        <div className="strip">{announcement.split(" · ").map((part, i) => <span key={i} className={i ? "sd" : ""}>{i ? " · " : ""}{part}</span>)}</div>
+      )}
       <header className="hdr">
         <div className="wrap hbar">
           <button className="icon-btn menu-btn" aria-label="Menu" onClick={() => setSide(true)}><IconMenu /></button>

@@ -130,6 +130,14 @@ export function CheckoutForm({ methods, payments, testMode }: { methods: MethodO
               })}
             </div>
             {errors.method && <div className="err">{errors.method}</div>}
+            {m && m.freeFrom > 0 && (
+              <div className="dfree">
+                {subtotal >= m.freeFrom
+                  ? <b>FREE {m.name.toLowerCase().replace(/(\w+) day/, "$1-day")} unlocked 🎉</b>
+                  : <>Add <b>{money(m.freeFrom - subtotal)}</b> more for FREE {m.name.toLowerCase().replace(/(\w+) day/, "$1-day")}</>}
+                <div className="pbar"><i style={{ width: `${Math.min(100, (subtotal / m.freeFrom) * 100)}%` }} /></div>
+              </div>
+            )}
             {m && (
               <ul className="dnotice">{m.notice.map((l) => <li key={l}>{l}</li>)}</ul>
             )}

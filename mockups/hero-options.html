@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DRINQ — homepage hero options</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root { --yellow:#FFC515; --ink:#231F20; --black:#141213; --paper:#FFFBEF; --white:#fff; --red:#D7261E; --rose:#F4A7B9; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Inter, system-ui, sans-serif; color: var(--ink); background: #e9e4d6; -webkit-font-smoothing: antialiased; }
+  .display { font-family: Montserrat, sans-serif; font-weight: 900; letter-spacing: -0.02em; line-height: 0.95; text-transform: uppercase; }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+  .intro { padding: 32px 0 8px; }
+  .intro h1 { font-size: 34px; }
+  .intro p { margin-top: 8px; font-weight: 500; max-width: 70ch; line-height: 1.5; }
+  .opt { margin: 34px auto 10px; }
+  .label { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+  .label b { font-family: Montserrat; font-weight: 900; font-size: 22px; text-transform: uppercase; }
+  .label span { font-weight: 600; font-size: 14px; }
+  .frame { border: 2px solid var(--ink); border-radius: 22px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,.12); }
+  .bar { background: var(--black); color: var(--yellow); font-size: 12px; font-weight: 700; text-align: center; padding: 6px; }
+  .nav { background: var(--yellow); border-bottom: 2px solid var(--ink); height: 54px; display: flex; align-items: center; padding: 0 20px; }
+  .nav img { height: 24px; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; height: 50px; padding: 0 24px; border-radius: 999px; font-weight: 800; font-size: 15px; border: 2px solid var(--ink); background: var(--ink); color: var(--yellow); text-decoration: none; white-space: nowrap; }
+  .btn.line { background: transparent; color: var(--ink); }
+  .btn.yellow { background: var(--yellow); color: var(--ink); }
+  .eyebrow { display: inline-flex; align-items: center; gap: 8px; background: var(--ink); color: var(--yellow); font-weight: 700; font-size: 12px; padding: 6px 12px; border-radius: 999px; margin-bottom: 16px; }
+  .eyebrow i { width: 8px; height: 8px; border-radius: 50%; background: #3bd16f; }
+  .ctas { display: flex; gap: 10px; flex-wrap: wrap; }
+  .note { font-size: 13px; font-weight: 600; margin-top: 10px; }
+  .pros { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 24px; margin-top: 12px; font-size: 14px; font-weight: 500; }
+  .pros li { list-style: none; padding-left: 20px; position: relative; line-height: 1.45; }
+  .pros li::before { content: "✓"; position: absolute; left: 0; font-weight: 900; }
+  .pros li.con::before { content: "–"; }
+  @media (max-width: 700px) { .pros { grid-template-columns: 1fr; } }
+
+  /* ---------- A: bottle group on yellow ---------- */
+  .a { background: var(--yellow); display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 20px; padding: 44px 48px 0; min-height: 470px; position: relative; overflow: hidden; }
+  .a h2 { font-size: clamp(40px, 6vw, 78px); }
+  .a h2 em { font-style: normal; background: var(--ink); color: var(--yellow); padding: 0 .12em; display: inline-block; transform: rotate(-2deg); }
+  .a p { font-size: 18px; font-weight: 500; margin: 16px 0 24px; max-width: 30ch; }
+  .a .text { padding-bottom: 44px; }
+  .a .group { position: relative; height: 430px; align-self: end; }
+  .a .group::after { content: ""; position: absolute; left: 10%; right: 10%; bottom: 10px; height: 34px; border-radius: 50%; background: radial-gradient(closest-side, rgba(0,0,0,.28), transparent); }
+  .a .group img { position: absolute; bottom: 22px; filter: drop-shadow(0 18px 18px rgba(0,0,0,.25)); }
+  .a .g1 { height: 74%; left: 6%; transform: rotate(-6deg); z-index: 1; }
+  .a .g2 { height: 92%; left: 50%; transform: translateX(-50%); z-index: 3; }
+  .a .g3 { height: 80%; right: 4%; transform: rotate(6deg); z-index: 2; }
+  .a .tag { position: absolute; z-index: 4; background: var(--white); border: 2px solid var(--ink); border-radius: 999px; font-weight: 800; font-size: 13px; padding: 6px 12px; box-shadow: 0 4px 0 var(--ink); }
+  .a .t1 { left: 0; top: 40%; } .a .t2 { left: 50%; top: 0; transform: translateX(-50%); } .a .t3 { right: 0; top: 30%; }
+  @media (max-width: 800px) { .a { grid-template-columns: 1fr; padding: 28px 20px 0; } .a .group { height: 320px; } .a .text { padding-bottom: 0; } }
+
+  /* ---------- B: one hero bottle ---------- */
+  .b { background: var(--black); color: var(--white); display: grid; grid-template-columns: 1.1fr 0.9fr; min-height: 480px; position: relative; overflow: hidden; }
+  .b .pic { position: relative; height: 480px; overflow: hidden; display: grid; place-items: end center; background: radial-gradient(circle at 50% 62%, #3a2a1c 0, #1c1612 46%, var(--black) 70%); }
+  .b .pic img { height: 86%; width: auto; position: relative; z-index: 1; filter: drop-shadow(0 24px 30px rgba(0,0,0,.6)); margin-bottom: 30px; }
+  .b .pic .glow { position: absolute; bottom: 28px; width: 60%; height: 40px; background: radial-gradient(closest-side, rgba(255,197,21,.35), transparent); }
+  .b .info { padding: 48px 44px; display: flex; flex-direction: column; justify-content: center; }
+  .b .kicker { color: var(--yellow); font-weight: 800; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; }
+  .b h2 { font-size: clamp(36px, 5vw, 64px); margin: 10px 0 12px; color: var(--yellow); }
+  .b .desc { font-size: 16px; line-height: 1.55; max-width: 38ch; opacity: .92; }
+  .b .price { font-family: Montserrat; font-weight: 900; font-size: 40px; margin: 22px 0 18px; }
+  .b .price small { font-family: Inter; font-size: 14px; font-weight: 600; margin-left: 8px; opacity: .8; }
+  .b .switch { display: flex; gap: 10px; margin-top: 26px; }
+  .b .switch button { width: 64px; height: 64px; border-radius: 14px; border: 2px solid rgba(255,255,255,.25); background: rgba(255,255,255,.06); display: grid; place-items: center; cursor: pointer; padding: 6px; }
+  .b .switch button[aria-pressed="true"] { border-color: var(--yellow); background: rgba(255,197,21,.12); }
+  .b .switch img { height: 100%; }
+  .b .pic img { position: absolute; left: 50%; bottom: 30px; transform: translateX(-50%); height: 84% !important; width: auto; margin: 0; }
+  .b .switch img { height: auto; max-height: 52px; width: auto; max-width: 100%; }
+  .b .switch button { overflow: hidden; }
+  @media (max-width: 800px) { .b { grid-template-columns: 1fr; } .b .pic { height: 360px; } .b .info { padding: 28px 22px 34px; } }
+
+  /* ---------- C: photo banner ---------- */
+  .c { position: relative; min-height: 500px; display: flex; align-items: center; color: var(--white); overflow: hidden;
+       background:
+         radial-gradient(circle at 15% 20%, rgba(255,197,21,.55) 0 2px, transparent 3px),
+         radial-gradient(circle at 25% 65%, rgba(255,160,90,.35) 0 18px, transparent 40px),
+         radial-gradient(circle at 70% 18%, rgba(255,220,150,.30) 0 22px, transparent 50px),
+         radial-gradient(circle at 88% 40%, rgba(244,167,185,.30) 0 26px, transparent 60px),
+         radial-gradient(circle at 40% 30%, rgba(255,197,21,.22) 0 30px, transparent 70px),
+         linear-gradient(180deg, #2a1d14 0%, #120c09 60%, #2b1b10 61%, #1a110b 100%); }
+  .c .shelf { position: absolute; left: 0; right: 0; bottom: 0; height: 39%; background: linear-gradient(180deg, #5a3a22, #2b1b10 18%, #1a110b); border-top: 3px solid #7a4f2c; }
+  .c .bottles { position: absolute; right: 6%; bottom: 30%; height: 70%; display: flex; align-items: flex-end; gap: 0; }
+  .c .bottles img { height: 100%; margin: 0 -14px; filter: drop-shadow(0 14px 16px rgba(0,0,0,.7)); }
+  .c .bottles img:nth-child(1) { height: 82%; } .c .bottles img:nth-child(3) { height: 88%; }
+  .c .shade { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(10,8,6,.85) 0%, rgba(10,8,6,.45) 45%, transparent 70%); }
+  .c .text { position: relative; z-index: 2; padding: 0 48px; max-width: 560px; }
+  .c h2 { font-size: clamp(40px, 6vw, 76px); color: var(--white); }
+  .c h2 span { color: var(--yellow); }
+  .c p { font-size: 18px; font-weight: 500; margin: 16px 0 24px; opacity: .92; }
+  .c .stamp { position: absolute; z-index: 3; top: 16px; right: 16px; background: rgba(255,255,255,.9); color: var(--ink); font-size: 12px; font-weight: 800; border-radius: 8px; padding: 6px 10px; }
+  @media (max-width: 800px) { .c { min-height: 560px; align-items: flex-start; padding-top: 34px; } .c .text { padding: 0 22px; } .c .bottles { right: 50%; transform: translateX(50%); height: 46%; bottom: 22%; } .c .shade { background: linear-gradient(180deg, rgba(10,8,6,.85) 0%, rgba(10,8,6,.35) 55%, transparent 75%); } }
+
+  /* ---------- D: rotating banner ---------- */
+  .d { position: relative; height: 480px; overflow: hidden; }
+  .slide { position: absolute; inset: 0; display: grid; grid-template-columns: 1fr 1fr; align-items: center; padding: 0 56px; opacity: 0; transition: opacity .6s; pointer-events: none; }
+  .slide.on { opacity: 1; pointer-events: auto; }
+  .slide .bigimg { height: 420px; justify-self: center; align-self: end; filter: drop-shadow(0 20px 22px rgba(0,0,0,.3)); }
+  .slide h2 { font-size: clamp(36px, 5.4vw, 70px); }
+  .slide p { font-size: 17px; font-weight: 500; margin: 14px 0 22px; max-width: 34ch; line-height: 1.5; }
+  .slide .pill { display: inline-block; font-weight: 800; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; padding: 6px 12px; border-radius: 999px; margin-bottom: 14px; }
+  .s1 { background: linear-gradient(120deg, #ffd6df, var(--rose)); } .s1 .pill { background: var(--ink); color: #ffd6df; } .s1 h2 em { font-style: normal; color: #c2185b; }
+  .s2 { background: var(--black); color: var(--white); } .s2 .pill { background: var(--yellow); color: var(--ink); } .s2 h2 em { font-style: normal; color: var(--yellow); }
+  .s3 { background: var(--yellow); } .s3 .pill { background: var(--red); color: var(--white); } .s3 h2 em { font-style: normal; color: var(--red); }
+  .s2 .btn { background: var(--yellow); color: var(--ink); border-color: var(--yellow); }
+  .dots { position: absolute; left: 56px; bottom: 26px; display: flex; gap: 8px; z-index: 5; }
+  .dots button { width: 34px; height: 8px; border-radius: 999px; border: 0; background: rgba(35,31,32,.25); cursor: pointer; }
+  .dots button.on { background: var(--ink); }
+  .d.dark .dots button { background: rgba(255,255,255,.3); } .d.dark .dots button.on { background: var(--yellow); }
+  .arrows { position: absolute; right: 20px; bottom: 18px; display: flex; gap: 8px; z-index: 5; }
+  .arrows button { width: 42px; height: 42px; border-radius: 50%; border: 2px solid var(--ink); background: var(--white); font-weight: 900; cursor: pointer; }
+  @media (max-width: 800px) {
+    .d { height: 640px; }
+    .slide { grid-template-columns: 1fr; padding: 28px 22px 70px; align-items: start; }
+    .slide .bigimg { height: 300px; order: -1; align-self: center; }
+    .dots { left: 22px; }
+  }
+  footer { text-align: center; padding: 40px 0 60px; font-weight: 600; font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="wrap intro">
+  <h1 class="display">Homepage top — 4 options</h1>
+  <p>Mockups using DRINQ's main products: <b>Tequila Rose</b>, <b>Black Tears</b> and <b>1906 Vodka</b>. The bottles have been cut out onto transparent backgrounds, the same way photo uploads in the admin now work. Whichever you choose, the products and text will be changeable in <b>Admin → Settings → Homepage</b>.</p>
+</div>
+
+<!-- A -->
+<section class="wrap opt">
+  <div class="label"><b>Option A — Bottle group</b><span>Big bottles standing together on the yellow</span></div>
+  <div class="frame">
+    <div class="bar">Free delivery* from $200 · Same-day delivery across Singapore</div>
+    <div class="nav"><img src="../assets/drinq-logo-black.png" alt="DRINQ"></div>
+    <div class="a">
+      <div class="text">
+        <span class="eyebrow"><i></i>Same-day delivery · order by 11am</span>
+        <h2 class="display">Drinks to<br>your door.<br><em>Fast.</em></h2>
+        <p>Spirits, wine, beer and mixers delivered across Singapore.</p>
+        <div class="ctas"><a class="btn" href="#">Shop now →</a><a class="btn line" href="#">Order on Telegram</a></div>
+      </div>
+      <div class="group">
+        <img class="g1" src="hero/tequila-rose.webp" alt="Tequila Rose">
+        <img class="g2" src="hero/black-tears.webp" alt="Black Tears">
+        <img class="g3" src="hero/1906-vodka.webp" alt="1906 Vodka">
+        <span class="tag t1">Tequila Rose · $45</span>
+        <span class="tag t2">Black Tears · $68</span>
+        <span class="tag t3">1906 Vodka · $42.50</span>
+      </div>
+    </div>
+  </div>
+  <ul class="pros"><li>Bold and full — no empty space</li><li>Shows 3 products and their prices at once</li><li>Stays on brand (yellow + black)</li><li class="con">Works best with transparent bottle photos</li></ul>
+</section>
+
+<!-- B -->
+<section class="wrap opt">
+  <div class="label"><b>Option B — One hero bottle</b><span>A single featured product you can buy straight away</span></div>
+  <div class="frame">
+    <div class="bar">Free delivery* from $200 · Same-day delivery across Singapore</div>
+    <div class="nav"><img src="../assets/drinq-logo-black.png" alt="DRINQ"></div>
+    <div class="b">
+      <div class="pic"><div class="glow"></div><img id="bImg" src="hero/black-tears.webp" alt=""></div>
+      <div class="info">
+        <span class="kicker" id="bKick">This week's pick</span>
+        <h2 class="display" id="bName">Black Tears<br>Spiced Rum</h2>
+        <p class="desc" id="bDesc">Cuban spiced rum with cacao, coffee and aji dulce pepper. Smooth on ice, brilliant in a cola.</p>
+        <div class="price" id="bPrice">$68.00<small>700ml</small></div>
+        <div class="ctas"><a class="btn yellow" href="#">Add to cart</a><a class="btn line" style="color:#fff;border-color:#fff" href="#">See all deals</a></div>
+        <div class="switch" role="group" aria-label="Featured product">
+          <button aria-pressed="false" data-i="0"><img src="hero/tequila-rose.webp" alt="Tequila Rose"></button>
+          <button aria-pressed="true" data-i="1"><img src="hero/black-tears.webp" alt="Black Tears"></button>
+          <button aria-pressed="false" data-i="2"><img src="hero/1906-vodka.webp" alt="1906 Vodka"></button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <ul class="pros"><li>Premium, focused — one product, one button</li><li>Customers can add to cart right from the top</li><li>Small thumbnails switch between your 3 products</li><li class="con">Shows only one product at a time</li></ul>
+</section>
+
+<!-- C -->
+<section class="wrap opt">
+  <div class="label"><b>Option C — Photo banner</b><span>A full-width photo you upload, with the headline over it</span></div>
+  <div class="frame">
+    <div class="bar">Free delivery* from $200 · Same-day delivery across Singapore</div>
+    <div class="nav"><img src="../assets/drinq-logo-black.png" alt="DRINQ"></div>
+    <div class="c">
+      <div class="shelf"></div>
+      <div class="bottles"><img src="hero/1906-vodka.webp" alt=""><img src="hero/black-tears.webp" alt=""><img src="hero/tequila-rose.webp" alt=""></div>
+      <div class="shade"></div>
+      <span class="stamp">Example scene — your own photo goes here</span>
+      <div class="text">
+        <span class="eyebrow"><i></i>Delivered in 2 hours with Express</span>
+        <h2 class="display">Tonight's<br><span>sorted.</span></h2>
+        <p>Spirits, wine, beer and mixers delivered across Singapore.</p>
+        <div class="ctas"><a class="btn yellow" href="#">Shop now →</a><a class="btn line" style="color:#fff;border-color:#fff" href="#">Order on Telegram</a></div>
+      </div>
+    </div>
+  </div>
+  <ul class="pros"><li>Most atmospheric — sells the mood, not just the bottle</li><li>Swap the photo any time for seasons and events</li><li class="con">Needs a good-quality photo (bar, party, delivery)</li><li class="con">Less "DRINQ yellow" on the first screen</li></ul>
+</section>
+
+<!-- D -->
+<section class="wrap opt">
+  <div class="label"><b>Option D — Rotating banner</b><span>3 slides, one per product, changing every 5 seconds</span></div>
+  <div class="frame">
+    <div class="bar">Free delivery* from $200 · Same-day delivery across Singapore</div>
+    <div class="nav"><img src="../assets/drinq-logo-black.png" alt="DRINQ"></div>
+    <div class="d" id="d">
+      <div class="slide s1 on">
+        <div><span class="pill">New favourite</span><h2 class="display">Tequila Rose<br><em>Strawberry Cream</em></h2><p>Creamy strawberry with a tequila kick. Dessert in a glass — $45.00</p><div class="ctas"><a class="btn" href="#">Add to cart</a><a class="btn line" href="#">Shop liqueurs</a></div></div>
+        <img class="bigimg" src="hero/tequila-rose.webp" alt="">
+      </div>
+      <div class="slide s2">
+        <div><span class="pill">Rum of the week</span><h2 class="display">Black Tears<br><em>Spiced Rum</em></h2><p>Cuban spiced rum with cacao and coffee — $68.00</p><div class="ctas"><a class="btn" href="#">Add to cart</a></div></div>
+        <img class="bigimg" src="hero/black-tears.webp" alt="">
+      </div>
+      <div class="slide s3">
+        <div><span class="pill">Party staple</span><h2 class="display">1906<br><em>Vodka</em></h2><p>Clean, smooth and great value — $42.50. Free next-day delivery from $200.</p><div class="ctas"><a class="btn" href="#">Add to cart</a><a class="btn line" href="#">Shop vodka</a></div></div>
+        <img class="bigimg" src="hero/1906-vodka.webp" alt="">
+      </div>
+      <div class="dots"><button class="on" aria-label="Slide 1"></button><button aria-label="Slide 2"></button><button aria-label="Slide 3"></button></div>
+      <div class="arrows"><button aria-label="Previous">‹</button><button aria-label="Next">›</button></div>
+    </div>
+  </div>
+  <ul class="pros"><li>Each product gets its own colours and message</li><li>Great for promotions and new arrivals</li><li>Slides are added and edited in Settings</li><li class="con">Customers may not wait for every slide</li></ul>
+</section>
+
+<footer>Mockup only — nothing on the real site has changed. Tell Claude which option (or mix) you'd like.</footer>
+
+<script>
+  // B: switch the featured product
+  const B = [
+    { img: "hero/tequila-rose.webp", kick: "New favourite", name: "Tequila Rose<br>Strawberry Cream", desc: "Creamy strawberry liqueur with a tequila kick. Over ice or in a milkshake.", price: "$45.00<small>700ml</small>" },
+    { img: "hero/black-tears.webp", kick: "This week's pick", name: "Black Tears<br>Spiced Rum", desc: "Cuban spiced rum with cacao, coffee and aji dulce pepper. Smooth on ice, brilliant in a cola.", price: "$68.00<small>700ml</small>" },
+    { img: "hero/1906-vodka.webp", kick: "Party staple", name: "1906<br>Vodka", desc: "Clean, smooth vodka at a great price. The one for parties.", price: "$42.50<small>700ml</small>" },
+  ];
+  document.querySelectorAll(".b .switch button").forEach((btn) => btn.onclick = () => {
+    const p = B[+btn.dataset.i];
+    document.getElementById("bImg").src = p.img; document.getElementById("bKick").textContent = p.kick;
+    document.getElementById("bName").innerHTML = p.name; document.getElementById("bDesc").textContent = p.desc; document.getElementById("bPrice").innerHTML = p.price;
+    document.querySelectorAll(".b .switch button").forEach((b) => b.setAttribute("aria-pressed", b === btn));
+  });
+  // D: rotating slides
+  const d = document.getElementById("d"), slides = [...d.querySelectorAll(".slide")], dots = [...d.querySelectorAll(".dots button")];
+  let i = 0, t;
+  const show = (n) => { i = (n + slides.length) % slides.length; slides.forEach((s, k) => s.classList.toggle("on", k === i)); dots.forEach((b, k) => b.classList.toggle("on", k === i)); d.classList.toggle("dark", i === 1); clearInterval(t); t = setInterval(() => show(i + 1), 5000); };
+  dots.forEach((b, k) => b.onclick = () => show(k));
+  d.querySelectorAll(".arrows button")[0].onclick = () => show(i - 1);
+  d.querySelectorAll(".arrows button")[1].onclick = () => show(i + 1);
+  show(0);
+</script>
+</body>
+</html>

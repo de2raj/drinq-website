@@ -5,13 +5,15 @@ import { allProducts, inSection, lite, menu, sectionProducts } from "@/lib/catal
 import { SHOP } from "@/lib/config";
 import { findSection } from "@/lib/sections";
 import { getSetting } from "@/lib/settings";
+import { deliveryHeadline } from "@/lib/delivery";
 
 export default async function Home() {
   const all = await allProducts();
   const best = all.filter((p) => p.inStock).slice(0, 10).map(lite);
   const deals = (await sectionProducts(findSection("deals")!)).filter((p) => p.inStock).slice(0, 10).map(lite);
   const sections = (await menu()).filter((s) => !s.deal);
-  const store = await getSetting("store");
+  const [store, delivery] = await Promise.all([getSetting("store"), getSetting("delivery")]);
+  const badge = deliveryHeadline(delivery);
   // Homepage bottles: chosen in Admin → Settings → Homepage.
   const heroes = store.heroSlugs.map((s) => all.find((p) => p.slug === s && p.image)).filter((p) => !!p).slice(0, 3);
   const pics = Object.fromEntries(sections.map((s) => [s.slug, all.find((p) => p.inStock && p.thumb && inSection(p, findSection(s.slug)!))?.thumb]));
@@ -22,7 +24,7 @@ export default async function Home() {
       <section className="hero">
         <div className="wrap">
           <div>
-            <span className="eyebrow"><i />Same-day delivery · order by 11am</span>
+            <span className={`eyebrow ${badge.open ? "" : "shut"}`}><i />{badge.text}</span>
             <h1 className="display">Drinks to<br />your door.<br /><em>Fast.</em></h1>
             <p className="lead">Spirits, wine, beer and mixers at honest prices, delivered across Singapore.</p>
             <div className="ctas">

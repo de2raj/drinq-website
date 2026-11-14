@@ -64,6 +64,12 @@ export const searchIndex = async () =>
   (await allProducts()).map((p) => ({ s: p.slug, n: p.name, b: p.brand, t: p.thumb, p: p.price, k: p.inStock ? 1 : 0 }));
 
 /** Menu counts and a picture per sub, for the header and category pages. */
+/** The photo shown for each category in the menu (falls back to its best seller). */
+const SECTION_PIC: Record<string, string> = {
+  whisky: "chivas-regal-12-years", spirits: "1906-vodka", wine: "billecart-salmon-brut-reserve-champagne-750ml",
+  beer: "carlsberg-short-cans-24-cans-x-320ml-2", mixers: "100-plus-isotonic-drink-24-cans-x-325ml", party: "ice-bag-3kg",
+};
+
 export async function menu() {
   const all = await allProducts();
   return SECTIONS.map((s) => {
@@ -75,6 +81,7 @@ export async function menu() {
     };
     return {
       name: s.name, slug: s.slug, deal: !!s.deal, count: items.length,
+      pic: all.find((p) => p.slug === SECTION_PIC[s.slug])?.thumb ?? [...items].sort((a, b) => a.rank - b.rank).find((p) => p.thumb)?.thumb ?? "",
       subs: s.subs.map((x) => {
         const ps = all.filter((p) => inSub(p, x));
         return { name: x.name, slug: x.slug, count: ps.length, pic: ps.find((p) => p.thumb)?.thumb ?? "" };

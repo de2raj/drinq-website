@@ -13,19 +13,21 @@ export type HeaderMember = { first: string; points: number } | null;
 export function Header({ menu, announcement, member }: { menu: Menu; announcement: string; member: HeaderMember }) {
   const { count, setOpen, ready, subtotal, tiers } = useCart();
   const [side, setSide] = useState(false);
+  const [sub, setSub] = useState<string | null>(null);
   const [hoverOff, setHoverOff] = useState(false);
   const path = usePathname();
   const current = path.split("/")[1];
   // Close menus after navigating (and let the desktop dropdown close on click).
   // eslint-disable-next-line react-hooks/set-state-in-effect
-  useEffect(() => { setSide(false); setHoverOff(true); }, [path]);
+  useEffect(() => { setSide(false); setSub(null); setHoverOff(true); }, [path]);
   useEffect(() => {
     if (!side) return;
-    const esc = (e: KeyboardEvent) => e.key === "Escape" && setSide(false);
+    const esc = (e: KeyboardEvent) => { if (e.key === "Escape") { if (sub) setSub(null); else setSide(false); } };
     addEventListener("keydown", esc);
     return () => removeEventListener("keydown", esc);
-  }, [side]);
+  }, [side, sub]);
 
+  const ordered = [...menu].sort((a, b) => Number(b.deal) - Number(a.deal)); // Deals first
   const cats = menu.flatMap((s) => [{ name: s.name, href: `/${s.slug}` }, ...s.subs.map((x) => ({ name: `${x.name} · ${s.name}`, href: `/${s.slug}/${x.slug}` }))]);
 
   return (
@@ -50,10 +52,10 @@ export function Header({ menu, announcement, member }: { menu: Menu; announcemen
         </div>
         <div className="wrap msearch"><SearchBox cats={cats} /></div>
         <nav className="cats wrap" aria-label="Categories" onMouseMove={() => hoverOff && setHoverOff(false)}>
-          {menu.map((s) => (
+          {ordered.map((s) => (
             <div className="item" key={s.slug}>
               <Link className={`top ${s.deal ? "hot" : ""} ${current === s.slug ? "on" : ""}`} href={`/${s.slug}`}>
-                {s.name}{s.deal && <span>({s.count})</span>}
+                {s.deal ? <i className="pdeal">%</i> : <i>{s.pic && <img src={s.pic} alt="" />}</i>}{s.name}{s.deal && <span>{s.count}</span>}
               </Link>
               {!s.deal && !hoverOff && (
                 <div className="mega">
@@ -77,25 +79,43 @@ export function Header({ menu, announcement, member }: { menu: Menu; announcemen
         </nav>
       </header>
 
-      <div className={`scrim ${side ? "on" : ""}`} onClick={() => setSide(false)} />
+      <div className={`scrim ${side ? "on" : ""}`} onClick={() => { setSide(false); setSub(null); }} />
       <aside className={`side ${side ? "on" : ""}`} aria-label="Menu" aria-hidden={!side} inert={!side}>
         <div className="top">
           <img src="/drinq-logo-black.png" alt="DRINQ" style={{ height: 24, width: "auto" }} />
           <button className="icon-btn" aria-label="Close menu" onClick={() => setSide(false)}><IconClose /></button>
         </div>
-        <Link className="acctlink" href="/account">{member ? <>My account <b>{member.points} pts</b></> : <>Sign in / Create account <b>Earn points</b></>}</Link>
-        {menu.map((s) => s.deal ? (
-          <Link key={s.slug} className="plain" href={`/${s.slug}`} style={{ color: "var(--red)", fontWeight: 800, fontSize: 17 }}>Deals ({s.count})</Link>
-        ) : (
-          <details key={s.slug} open={current === s.slug}>
-            <summary>{s.name}</summary>
-            <Link href={`/${s.slug}`}>Shop all <span>{s.count}</span></Link>
-            {s.subs.map((x) => <Link key={x.slug} href={`/${s.slug}/${x.slug}`}>{x.name} <span>{x.count}</span></Link>)}
-          </details>
+        <Link className="me" href="/account">
+          <span className="av">{member ? member.first.slice(0, 1).toUpperCase() : "★"}</span>
+          <span className="mt"><b>{member ? `Hi ${member.first}` : "Sign in / Create account"}</b><small>{member ? `${member.points} points` : "Earn points on every order"}</small></span>
+          <span className="pill">{member ? "My account" : "Sign in"}</span>
+        </Link>
+        <nav className="mlist" aria-label="Categories">
+          {ordered.map((s) => s.deal ? (
+            <Link key={s.slug} href={`/${s.slug}`} className="hot">
+              <span className="th deal">%</span><span className="nm">Deals<small>{s.count} offers</small></span><span className="chev">›</span>
+            </Link>
+          ) : (
+            <button key={s.slug} type="button" onClick={() => setSub(s.slug)} aria-expanded={sub === s.slug}>
+              <span className="th">{s.pic && <img src={s.pic} alt="" />}</span><span className="nm">{s.name}<small>{s.count} items</small></span><span className="chev">›</span>
+            </button>
+          ))}
+        </nav>
+        <div className="mfoot"><Link href="/delivery">Delivery</Link><Link href="/faq">FAQ</Link><Link href="/contact">Contact us</Link></div>
+        {menu.filter((s) => !s.deal).map((s) => (
+          <div key={s.slug} className={`msub ${sub === s.slug ? "on" : ""}`} aria-hidden={sub !== s.slug} inert={sub !== s.slug}>
+            <button type="button" className="back" onClick={() => setSub(null)}>‹ Back</button>
+            <h3>{s.name}</h3>
+            <Link className="all" href={`/${s.slug}`}>Shop all {s.name} <span>{s.count}</span></Link>
+            {s.subs.map((x) => (
+              <Link key={x.slug} href={`/${s.slug}/${x.slug}`}><span className="th">{x.pic && <img src={x.pic} alt="" />}</span><span className="nm">{x.name}</span><span className="n">{x.count}</span></Link>
+            ))}
+            {s.brands.length > 0 && <>
+              <h4>Top brands</h4>
+              <div className="bchips">{s.brands.map(([b]) => <Link key={b} href={`/${s.slug}?brand=${encodeURIComponent(b)}`}>{b}</Link>)}</div>
+            </>}
+          </div>
         ))}
-        <Link className="plain" href="/delivery">Delivery</Link>
-        <Link className="plain" href="/faq">FAQ</Link>
-        <Link className="plain" href="/contact">Contact us</Link>
       </aside>
       <CartDrawer />
     </>

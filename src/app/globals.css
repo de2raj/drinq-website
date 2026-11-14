@@ -797,3 +797,44 @@ form.panel > .notice { margin-bottom: 14px; }
 /* product photos fill their box: Botello photos are 300×351 (6:7), so the box matches */
 .card .img { aspect-ratio: 6 / 7; padding: 0; }
 .card .img img { inset: 6px; width: calc(100% - 12px); height: calc(100% - 12px); }
+/* Category bar (computer): pills with a bottle photo, Deals first in red */
+nav.cats { gap: 6px; height: 58px; }
+nav.cats .top { height: 40px; padding: 0 14px 0 4px; border: 2px solid var(--ink); background: var(--white); font-weight: 800; }
+nav.cats .top i { width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--ink); background: var(--paper); position: relative; overflow: hidden; flex: none; display: inline-grid; place-items: center; font-style: normal; font-weight: 900; }
+nav.cats .top i img { position: absolute; inset: 2px; width: calc(100% - 4px); height: calc(100% - 4px); object-fit: contain; }
+nav.cats .top.hot { background: var(--red); color: var(--white); border-color: var(--ink); }
+nav.cats .top.hot i.pdeal { background: var(--yellow); color: var(--ink); }
+nav.cats .top.hot span { background: var(--yellow); color: var(--ink); border-radius: 999px; padding: 0 7px; font-size: 12px; }
+nav.cats .item:hover .top.hot, nav.cats .top.hot.on { background: var(--ink); color: var(--yellow); }
+@media (max-width: 1240px) { nav.cats .top { padding: 0 10px 0 4px; font-size: 13px; } nav.cats .top i { width: 26px; height: 26px; } }
+
+/* Phone menu: list with slide-in sub-menus */
+.side { overflow-x: hidden; display: flex; flex-direction: column; }
+.side .me { margin: 12px; border: 2px solid var(--ink); border-radius: 16px; background: var(--white); padding: 10px 12px; display: flex; align-items: center; gap: 10px; }
+.side .me .av { width: 38px; height: 38px; border-radius: 50%; background: var(--yellow); border: 2px solid var(--ink); display: grid; place-items: center; font-weight: 900; flex: none; }
+.side .me .mt { flex: 1; min-width: 0; }
+.side .me b { display: block; font-size: 15px; }
+.side .me small { font-size: 12px; font-weight: 600; }
+.side .me .pill { border: 2px solid var(--ink); border-radius: 999px; padding: 4px 10px; font-weight: 800; font-size: 12px; background: var(--yellow); white-space: nowrap; }
+.mlist { display: grid; }
+.mlist > a, .mlist > button { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border: 0; border-bottom: 1px solid var(--line); background: none; width: 100%; text-align: left; font: inherit; font-weight: 800; font-size: 17px; color: var(--ink); cursor: pointer; }
+.mlist .hot { color: var(--red); }
+.side .th { width: 48px; height: 48px; border-radius: 12px; background: var(--white); border: 2px solid var(--ink); position: relative; overflow: hidden; flex: none; display: grid; place-items: center; }
+.side .th img { position: absolute; inset: 3px; width: calc(100% - 6px); height: calc(100% - 6px); object-fit: contain; }
+.side .th.deal { background: var(--yellow); color: var(--red); font-weight: 900; font-size: 20px; }
+.mlist .nm { flex: 1; min-width: 0; }
+.mlist .nm small { display: block; font-weight: 600; font-size: 12px; color: var(--ink); margin-top: 2px; }
+.mlist .chev { font-size: 24px; line-height: 1; }
+.mfoot { margin-top: auto; display: flex; justify-content: space-around; padding: 14px 10px; border-top: 2px solid var(--ink); background: var(--white); font-weight: 700; font-size: 14px; }
+.msub { position: absolute; inset: 0; background: var(--paper); transform: translateX(100%); transition: transform 0.22s; overflow-y: auto; scrollbar-width: none; padding: 0 0 24px; z-index: 2; }
+.msub.on { transform: none; }
+.msub .back { display: block; width: 100%; text-align: left; padding: 16px; font: inherit; font-weight: 800; font-size: 15px; background: var(--yellow); border: 0; border-bottom: 2px solid var(--ink); cursor: pointer; color: var(--ink); }
+.msub h3 { font-family: var(--display); font-weight: 900; font-size: 24px; text-transform: uppercase; padding: 16px 16px 8px; }
+.msub > a { display: flex; align-items: center; gap: 12px; padding: 8px 16px; border-bottom: 1px solid var(--line); font-weight: 700; font-size: 15px; }
+.msub > a .nm { flex: 1; }
+.msub > a .n { font-size: 13px; font-weight: 600; }
+.msub > a.all { padding: 14px 16px; font-weight: 800; justify-content: space-between; background: var(--white); }
+.msub > a .th { width: 40px; height: 40px; border-radius: 10px; }
+.msub h4 { font-family: var(--display); font-weight: 900; font-size: 13px; text-transform: uppercase; padding: 18px 16px 8px; }
+.bchips { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 16px; }
+.bchips a { border: 2px solid var(--ink); border-radius: 999px; padding: 4px 11px; font-size: 13px; font-weight: 700; background: var(--white); }

@@ -1,0 +1,12 @@
+{
+  "name": "drinq-coming-soon",
+  "version": "1.0.0",
+  "private": true,
+  "description": "drinq.sg coming-soon page until the DRINQ shop launches",
+  "main": "server.js",
+  "scripts": {
+    "build": "echo build",
+    "start": "node server.js"
+  },
+  "engines": { "node": ">=20" }
+}

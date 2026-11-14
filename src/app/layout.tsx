@@ -5,6 +5,8 @@ import { AgeGate } from "@/components/AgeGate";
 import { CartProvider } from "@/components/CartProvider";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
+import { currentCustomer } from "@/lib/customers";
+import { pointsOf } from "@/lib/loyalty";
 import { menu } from "@/lib/catalogue";
 import { freeGoals } from "@/lib/delivery";
 import { getSetting } from "@/lib/settings";
@@ -35,11 +37,17 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <CartProvider tiers={tiers}>
           {!!process.env.STAGING_PASSWORD && <div className="testbar">TEST SITE · orders here are not real · please don&apos;t pay</div>}
           <AgeGate verified={verified} />
-          <Header menu={await menu()} announcement={store.announcement} />
+          <Header menu={await menu()} announcement={store.announcement} member={await headerMember()} />
           <main>{children}</main>
           <Footer />
         </CartProvider>
       </body>
     </html>
   );
+}
+
+async function headerMember() {
+  const me = await currentCustomer().catch(() => null);
+  if (!me) return null;
+  return { first: me.name.split(" ")[0] || "Account", points: (await pointsOf(me.id)).balance };
 }

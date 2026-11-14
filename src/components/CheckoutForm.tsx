@@ -13,12 +13,16 @@ export type MethodOption = {
   id: string; name: string; fee: number; freeFrom: number; address: string; notice: string[]; arrival: Arrival;
 };
 export type PaymentChoice = { id: string; name: string; detail: string };
+export type Member = { name: string; email: string; phone: string; address: string; unit: string; postal: string; points: number } | null;
+export type LoyaltyInfo = { enabled: boolean; block: number; blockValue: number; earnPerDollar: number };
 
 type Errors = Partial<Record<keyof CheckoutInput | "form", string>>;
 const DRAFT = "drinq-checkout-v2";
 const blank = { name: "", email: "", phone: "", address: "", unit: "", postal: "", notes: "" };
 
-export function CheckoutForm({ methods, payments, testMode }: { methods: MethodOption[]; payments: PaymentChoice[]; testMode: boolean }) {
+export function CheckoutForm({ methods, payments, testMode, member, loyalty }: {
+  methods: MethodOption[]; payments: PaymentChoice[]; testMode: boolean; member: Member; loyalty: LoyaltyInfo;
+}) {
   const { lines, subtotal, ready, clear } = useCart();
   const [f, setF] = useState(blank);
   const [method, setMethod] = useState(methods[0]?.id ?? "");
@@ -29,12 +33,17 @@ export function CheckoutForm({ methods, payments, testMode }: { methods: MethodO
   const [over18, setOver18] = useState(false);
   const [errors, setErrors] = useState<Errors>({});
   const [pending, start] = useTransition();
+  const [usePts, setUsePts] = useState(0);
 
   // Keep what the customer typed (saved on this device) so nothing is lost on errors or a refresh.
   useEffect(() => {
+    let saved = {};
+    try { saved = JSON.parse(localStorage.getItem(DRAFT) || "{}"); } catch {}
+    // A signed-in customer starts with their account details.
+    const mine = member ? { name: member.name, email: member.email, phone: member.phone, address: member.address, unit: member.unit, postal: member.postal } : {};
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    try { setF({ ...blank, ...JSON.parse(localStorage.getItem(DRAFT) || "{}") }); } catch {}
-  }, []);
+    setF({ ...blank, ...saved, ...Object.fromEntries(Object.entries(mine).filter(([, v]) => v)) });
+  }, [member]);
   const set = (k: keyof typeof blank) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const n = { ...f, [k]: e.target.value };
     setF(n);
@@ -49,6 +58,12 @@ export function CheckoutForm({ methods, payments, testMode }: { methods: MethodO
   const picks = a && a.pick !== "none";
   const shownDays = picks ? (allDays ? a.dates : a.dates.slice(0, 7)) : [];
   const dayOpt = a?.dates.find((d) => d.date === date);
+  // Loyalty points: whole blocks only, never more than the products cost.
+  const maxPts = member && loyalty.enabled ? Math.min(Math.floor(member.points / loyalty.block), Math.floor(subtotal / loyalty.blockValue)) * loyalty.block : 0;
+  const pts = Math.min(usePts, maxPts);
+  const ptsOff = Math.floor(pts / loyalty.block) * loyalty.blockValue;
+  const total = subtotal - ptsOff + fee;
+  const earn = loyalty.enabled ? Math.floor(((subtotal - ptsOff) / 100) * loyalty.earnPerDollar) : 0;
 
   function choose(x: MethodOption) {
     setMethod(x.id);
@@ -68,7 +83,7 @@ export function CheckoutForm({ methods, payments, testMode }: { methods: MethodO
     if (!over18) local.over18 = "Please confirm you are 18 or over.";
     if (Object.keys(local).length) { setErrors(local); scrollToError(); return; }
     start(async () => {
-      const r = await submitOrder({ ...f, method, date, slot, payment, over18, lines: lines.map((l) => ({ id: l.id, qty: l.qty })) });
+      const r = await submitOrder({ ...f, method, date, slot, payment, over18, points: pts, lines: lines.map((l) => ({ id: l.id, qty: l.qty })) });
       if (r.ok) {
         clear();
         location.href = r.redirect;
@@ -232,9 +247,33 @@ export function CheckoutForm({ methods, payments, testMode }: { methods: MethodO
             </div>
             <div className="row"><span>Subtotal</span><span>{money(subtotal)}</span></div>
             <div className="row"><span>{m ? m.name : "Delivery"}</span><span>{m ? (fee ? money(fee) : "Free") : "—"}</span></div>
-            <div className="row total"><span>Total</span><span>{money(subtotal + fee)}</span></div>
+            {ptsOff > 0 && <div className="row"><span>Points ({pts})</span><span>−{money(ptsOff)}</span></div>}
+            <div className="row total"><span>Total</span><span>{money(total)}</span></div>
+            {loyalty.enabled && (
+              <div className="ptsbox">
+                {member ? (
+                  member.points >= loyalty.block ? (
+                    <>
+                      <p><b>You have {member.points} points</b> (worth {money(Math.floor(member.points / loyalty.block) * loyalty.blockValue)}).{maxPts ? " Use them on this order?" : ""}</p>
+                      {maxPts > 0 && (
+                        <select className="sel" value={pts} onChange={(e) => setUsePts(+e.target.value)} aria-label="Points to use">
+                          <option value={0}>Don&apos;t use points</option>
+                          {Array.from({ length: maxPts / loyalty.block }, (_, i) => (i + 1) * loyalty.block).map((v) => (
+                            <option key={v} value={v}>Use {v} points · −{money((v / loyalty.block) * loyalty.blockValue)}</option>
+                          ))}
+                        </select>
+                      )}
+                      {errors.points && <div className="err">{errors.points}</div>}
+                    </>
+                  ) : <p>You have <b>{member.points} points</b>. {loyalty.block} points = {money(loyalty.blockValue)} off.</p>
+                ) : (
+                  <p><Link className="u" href="/account/login?next=/checkout">Sign in</Link> to use your points, or <Link className="u" href="/account/register?next=/checkout">create an account</Link> to collect them.</p>
+                )}
+                {earn > 0 && <p className="earn">You&apos;ll earn <b>{earn} points</b> with this order.</p>}
+              </div>
+            )}
             <button className="btn btn-block" style={{ marginTop: 16 }} disabled={pending}>
-              {pending ? "Placing order…" : `Place order · ${money(subtotal + fee)}`}
+              {pending ? "Placing order…" : `Place order · ${money(total)}`}
             </button>
             <Link className="u" href="/cart" style={{ display: "block", textAlign: "center", marginTop: 12, fontWeight: 700, fontSize: 14 }}>Edit cart</Link>
           </div>

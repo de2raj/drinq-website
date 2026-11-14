@@ -36,6 +36,11 @@ model Order {
   events          OrderEvent[]
   adminNote       String? // @text staff-only note
   isTest          Boolean     @default(false) // placed on the test site
+  customerId      Int? // the customer record (linked by email, else phone)
+  customer        Customer?   @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  pointsUsed      Int         @default(0) // loyalty points taken off this order
+  pointsDiscount  Int         @default(0) // cents off for those points
+  pointsEarned    Int         @default(0) // points given when paid
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
 }
@@ -103,4 +108,41 @@ model Setting {
   key       String   @id
   value     String // @text JSON
   updatedAt DateTime @updatedAt
+}
+
+/// A shopper: created on their first order (guest), or when they sign up. The CRM in /admin/customers.
+model Customer {
+  id           Int           @id @default(autoincrement())
+  email        String?       @unique
+  name         String        @default("")
+  phone        String        @default("")
+  address      String        @default("")
+  unit         String        @default("")
+  postal       String        @default("")
+  birthday     String        @default("") // YYYY-MM-DD
+  passwordHash String        @default("") // blank = guest (no account yet)
+  tags         String        @default("") // joined with "|", e.g. VIP|Corporate
+  marketing    Boolean       @default(false) // agreed to offers
+  notes        String? // @text staff-only notes
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  orders       Order[]
+  points       PointsEntry[]
+
+  @@index([phone])
+}
+
+/// The loyalty points ledger: + earned / given back, − used / taken back. Balance = what's left of unexpired + entries.
+model PointsEntry {
+  id         Int       @id @default(autoincrement())
+  customerId Int
+  customer   Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  orderId    Int?
+  change     Int
+  reason     String
+  expiresAt  DateTime?
+  by         String    @default("") // "staff" for hand adjustments
+  createdAt  DateTime  @default(now())
+
+  @@index([customerId])
 }

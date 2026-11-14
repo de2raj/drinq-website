@@ -4,7 +4,7 @@ import { PayIcon } from "@/components/PayIcon";
 import { allProducts } from "@/lib/catalogue";
 import { SlideImage } from "@/components/SlideImage";
 import { getSetting, THEMES, WEEKDAYS } from "@/lib/settings";
-import { saveDelivery, savePayments, saveStore } from "./actions";
+import { saveDelivery, saveLoyalty, savePayments, saveStore } from "./actions";
 
 export const metadata: Metadata = { title: "Settings · Admin", robots: { index: false } };
 export const dynamic = "force-dynamic";
@@ -12,14 +12,14 @@ const dollars = (c: number) => (c ? (c / 100).toFixed(2) : "");
 
 export default async function Settings({ searchParams }: { searchParams: Promise<{ saved?: string }> }) {
   const saved = (await searchParams).saved;
-  const [store, delivery, payments, products] = await Promise.all([getSetting("store"), getSetting("delivery"), getSetting("payments"), allProducts()]);
+  const [store, delivery, payments, products, loyalty] = await Promise.all([getSetting("store"), getSetting("delivery"), getSetting("payments"), allProducts(), getSetting("loyalty")]);
   const withPhoto = products.filter((p) => p.image);
   const ok = (s: string) => saved === s && <div className="notice">Saved.</div>;
 
   return (
     <div className="wrap admin">
       <AdminNav active="settings" />
-      <nav className="snav"><a href="#homepage">Homepage</a><a href="#delivery">Delivery</a><a href="#payments">Payments</a></nav>
+      <nav className="snav"><a href="#homepage">Homepage</a><a href="#delivery">Delivery</a><a href="#payments">Payments</a><a href="#loyalty">Loyalty</a></nav>
 
       <form action={saveStore} className="panel" id="homepage" encType="multipart/form-data">
         <h2>Homepage</h2>
@@ -114,6 +114,20 @@ export default async function Settings({ searchParams }: { searchParams: Promise
           ))}
         </div>
         <button className="btn">Save payments</button>
+      </form>
+
+      <form action={saveLoyalty} className="panel" id="loyalty">
+        <h2>Loyalty points</h2>
+        {ok("loyalty")}
+        <label className="agree tmode"><input type="checkbox" className="check" name="enabled" defaultChecked={loyalty.enabled} /><span><b>Loyalty points on</b>: customers earn on paid orders and use points at checkout.</span></label>
+        <div className="fields three">
+          <div className="field"><label>Points per $1 spent</label><input name="earnPerDollar" defaultValue={String(loyalty.earnPerDollar)} inputMode="decimal" /></div>
+          <div className="field"><label>Use points in blocks of</label><input name="block" defaultValue={String(loyalty.block)} inputMode="numeric" /></div>
+          <div className="field"><label>Each block is worth ($)</label><input name="blockValue" defaultValue={dollars(loyalty.blockValue)} inputMode="decimal" /></div>
+          <div className="field"><label>Points expire after (months, 0 = never)</label><input name="expiryMonths" defaultValue={String(loyalty.expiryMonths)} inputMode="numeric" /></div>
+        </div>
+        <p className="snote">Points are earned on the product total (not delivery), once the order is paid. Cancelled orders take back the points they earned and give back any points used.</p>
+        <button className="btn">Save loyalty</button>
       </form>
     </div>
   );

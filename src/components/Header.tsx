@@ -8,7 +8,9 @@ import { CartDrawer, FreeDeliveryBar } from "./CartDrawer";
 import { IconBag, IconClose, IconMenu } from "./Icons";
 import { SearchBox } from "./SearchBox";
 
-export function Header({ menu, announcement }: { menu: Menu; announcement: string }) {
+export type HeaderMember = { first: string; points: number } | null;
+
+export function Header({ menu, announcement, member }: { menu: Menu; announcement: string; member: HeaderMember }) {
   const { count, setOpen, ready, subtotal, tiers } = useCart();
   const [side, setSide] = useState(false);
   const [hoverOff, setHoverOff] = useState(false);
@@ -38,6 +40,10 @@ export function Header({ menu, announcement }: { menu: Menu; announcement: strin
           <button className="icon-btn menu-btn" aria-label="Menu" onClick={() => setSide(true)}><IconMenu /></button>
           <Link className="logo" href="/"><img src="/drinq-logo-black.png" alt="DRINQ" width={115} height={32} /></Link>
           <SearchBox cats={cats} />
+          <Link className="acct" href="/account" aria-label={member ? `My account, ${member.points} points` : "Sign in"}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4" /><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" /></svg>
+            <span className="acct-t">{member ? (member.points ? <><b>{member.points}</b> pts</> : member.first) : "Sign in"}</span>
+          </Link>
           <button className="icon-btn cart-btn" aria-label={`Cart, ${count} items`} onClick={() => setOpen(true)}>
             <IconBag />{ready && <span className="badge">{count}</span>}
           </button>

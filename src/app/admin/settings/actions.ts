@@ -78,3 +78,17 @@ export async function savePayments(fd: FormData) {
   });
   done("payments");
 }
+
+export async function saveLoyalty(fd: FormData) {
+  const n = (k: string, min: number, max: number, d: number) => { const v = Number(fd.get(k)); return Number.isFinite(v) && v >= min && v <= max ? v : d; };
+  const l = await getSetting("loyalty");
+  const value = toCents(fd.get("blockValue"));
+  await saveSetting("loyalty", {
+    enabled: fd.get("enabled") === "on",
+    earnPerDollar: n("earnPerDollar", 0, 100, l.earnPerDollar),
+    block: Math.round(n("block", 1, 100000, l.block)),
+    blockValue: value !== null && !Number.isNaN(value) && value > 0 ? value : l.blockValue,
+    expiryMonths: Math.round(n("expiryMonths", 0, 120, l.expiryMonths)),
+  });
+  done("loyalty");
+}

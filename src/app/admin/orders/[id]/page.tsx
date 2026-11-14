@@ -71,7 +71,9 @@ export default async function OrderDetail({ params }: { params: Promise<{ id: st
             <div className="summary" style={{ position: "static" }}>
               {o.lines.map((l) => <div className="row" key={l.id}><span>{l.qty} × {l.name}{l.sku && <small> · #{l.sku}</small>}</span><span>{money(l.lineTotal)}</span></div>)}
               <div className="row"><span>{o.deliveryLabel || "Delivery"}</span><span>{o.deliveryFee ? money(o.deliveryFee) : "Free"}</span></div>
+              {o.pointsDiscount > 0 && <div className="row"><span>Points ({o.pointsUsed})</span><span>−{money(o.pointsDiscount)}</span></div>}
               <div className="row total"><span>Total</span><span>{money(o.total)}</span></div>
+              {o.customerId && <p className="small" style={{ marginTop: 10 }}><Link className="u" href={`/admin/customers/${o.customerId}`}>Customer profile →</Link>{o.pointsEarned ? ` · earned ${o.pointsEarned} points` : ""}</p>}
             </div>
           </section>
           <section className="panel">

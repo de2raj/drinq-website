@@ -116,7 +116,16 @@ export const DEFAULT_STORE: StoreSettings = {
   ],
 };
 
-const DEFAULTS = { store: DEFAULT_STORE, delivery: DEFAULT_DELIVERY, payments: DEFAULT_PAYMENTS };
+export type LoyaltySettings = {
+  enabled: boolean;
+  earnPerDollar: number; // points per $1 of products (not delivery)
+  block: number; // points are used in blocks of this many
+  blockValue: number; // cents off per block
+  expiryMonths: number; // points expire this long after they're earned (0 = never)
+};
+export const DEFAULT_LOYALTY: LoyaltySettings = { enabled: true, earnPerDollar: 1, block: 100, blockValue: 500, expiryMonths: 12 };
+
+const DEFAULTS = { store: DEFAULT_STORE, delivery: DEFAULT_DELIVERY, payments: DEFAULT_PAYMENTS, loyalty: DEFAULT_LOYALTY };
 type Key = keyof typeof DEFAULTS;
 type Value<K extends Key> = (typeof DEFAULTS)[K];
 

@@ -2,6 +2,8 @@ import "server-only";
 import { randomBytes } from "node:crypto";
 import { everyProduct } from "./catalogue";
 import { db } from "./db";
+import { customerFor } from "./customers";
+import { awardPoints } from "./loyalty";
 import { getSetting } from "./settings";
 
 /** An order typed in by staff (walk-in, phone or Telegram customers), or an existing order being edited. */
@@ -64,14 +66,16 @@ export async function saveStaffOrder(input: StaffOrderInput): Promise<StaffOrder
     paymentMethod: payment.id, subtotal, deliveryFee, total: subtotal + deliveryFee,
   };
 
+  const customerId = await customerFor({ email, phone, name, address, unit, postal });
   if (input.id) {
-    const old = await db.order.findUnique({ where: { id: input.id }, select: { id: true, total: true } });
+    const old = await db.order.findUnique({ where: { id: input.id }, select: { id: true, total: true, pointsDiscount: true } });
     if (!old) return { ok: false, errors: { form: "That order no longer exists." } };
+    data.total = Math.max(0, data.total - old.pointsDiscount); // points already taken off stay off
     await db.$transaction([
       db.orderLine.deleteMany({ where: { orderId: old.id } }),
       db.order.update({
         where: { id: old.id },
-        data: { ...data, lines: { create: lines }, events: { create: { status: "EDITED", note: `Order edited by staff${old.total !== data.total ? ` · total ${(old.total / 100).toFixed(2)} → ${(data.total / 100).toFixed(2)}` : ""}` } } },
+        data: { ...data, customerId, lines: { create: lines }, events: { create: { status: "EDITED", note: `Order edited by staff${old.total !== data.total ? ` · total ${(old.total / 100).toFixed(2)} → ${(data.total / 100).toFixed(2)}` : ""}` } } },
       }),
     ]);
     return { ok: true, id: old.id };
@@ -82,12 +86,13 @@ export async function saveStaffOrder(input: StaffOrderInput): Promise<StaffOrder
     const c = await tx.counter.upsert({ where: { name: "order" }, create: { name: "order", value: 1 }, update: { value: { increment: 1 } } });
     return tx.order.create({
       data: {
-        ...data, number: "DQW-" + String(c.value).padStart(5, "0"), token: randomBytes(16).toString("hex"), isTest,
+        ...data, customerId, number: "DQW-" + String(c.value).padStart(5, "0"), token: randomBytes(16).toString("hex"), isTest,
         status: input.paid ? "PAID" : "AWAITING_PAYMENT", paidAt: input.paid ? new Date() : null,
         lines: { create: lines },
         events: { create: [{ status: "AWAITING_PAYMENT", note: "Order placed by staff" }, ...(input.paid ? [{ status: "PAID", note: `Paid in store (${payment.name})` }] : [])] },
       },
     });
   });
+  if (input.paid) await awardPoints(order.id);
   return { ok: true, id: order.id };
 }

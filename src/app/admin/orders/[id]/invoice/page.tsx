@@ -58,6 +58,7 @@ export default async function Invoice({ params }: { params: Promise<{ id: string
           <tfoot>
             <tr><td colSpan={3}>Subtotal</td><td>{money(o.subtotal)}</td></tr>
             <tr><td colSpan={3}>{o.deliveryLabel || "Delivery"}</td><td>{o.deliveryFee ? money(o.deliveryFee) : "Free"}</td></tr>
+            {o.pointsDiscount > 0 && <tr><td colSpan={3}>Loyalty points ({o.pointsUsed})</td><td>−{money(o.pointsDiscount)}</td></tr>}
             <tr className="itotal"><td colSpan={3}>Total (SGD)</td><td>{money(o.total)}</td></tr>
           </tfoot>
         </table>

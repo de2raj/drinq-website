@@ -3,7 +3,8 @@
  *  1. creates missing tables (a brand-new database, or tables added since),
  *  2. adds missing columns to existing tables (fields added since; all have defaults or allow empty),
  *  3. fills the Product table from data/catalogue.json the first time,
- *  4. gives products their ERP SKU codes (data/erp-skus.json).
+ *  4. gives products their ERP SKU codes (data/erp-skus.json),
+ *  5. links older orders to customer records.
  */
 export async function register() {
   if (process.env.NEXT_RUNTIME !== "nodejs") return;
@@ -59,6 +60,11 @@ export async function register() {
     const { applyErpSkus } = await import("./lib/erp-skus");
     const c = await applyErpSkus();
     if (c) console.log(`[drinq] Updated ${c} products to ERP SKUs`);
+
+    // 5. Customer records for orders placed before the CRM.
+    const { linkOldOrders } = await import("./lib/customers");
+    const linked = await linkOldOrders();
+    if (linked) console.log(`[drinq] Linked ${linked} orders to customers`);
   } catch (e) {
     console.error("[drinq] Database not ready:", e);
   }

@@ -3,6 +3,8 @@ import { randomBytes } from "node:crypto";
 import { productById } from "./catalogue";
 import { db } from "./db";
 import { arrival, feeFor } from "./delivery";
+import { currentCustomer, customerFor } from "./customers";
+import { awardPoints, maxUsable, pointsOf, pointsValue, reversePoints } from "./loyalty";
 import { getSetting } from "./settings";
 import { createCheckoutSession, stripeEnabled } from "./stripe";
 
@@ -11,6 +13,7 @@ export type CheckoutInput = {
   name: string; email: string; phone: string;
   address: string; unit: string; postal: string;
   method: string; date: string; slot: string; notes: string;
+  points: number; // loyalty points to use (signed-in customers)
   payment: string;
   over18: boolean;
 };
@@ -77,7 +80,19 @@ export async function placeOrder(input: CheckoutInput, siteUrl: string): Promise
   if (Object.keys(errors).length || !method || !payment) return { ok: false, errors };
 
   const subtotal = lines.reduce((a, l) => a + l.lineTotal, 0);
-  const fee = feeFor(method, subtotal);
+  const fee = feeFor(method, subtotal); // free delivery goes by the product total before points
+
+  // Loyalty points: only for a signed-in customer, in whole blocks, never more than they have.
+  const [member, loyalty] = await Promise.all([currentCustomer(), getSetting("loyalty")]);
+  let pointsUsed = 0;
+  const want = Math.max(0, Math.floor(Number(input.points) || 0));
+  if (want && member && loyalty.enabled) {
+    const usable = maxUsable((await pointsOf(member.id)).balance, subtotal, loyalty);
+    pointsUsed = Math.min(Math.floor(want / loyalty.block) * loyalty.block, usable);
+    if (pointsUsed < Math.floor(want / loyalty.block) * loyalty.block) return { ok: false, errors: { points: "You don't have that many points available any more. Please check and try again." } };
+  }
+  const pointsDiscount = pointsValue(pointsUsed, loyalty);
+  const customerId = member?.id ?? await customerFor({ email, phone, name, address, unit, postal });
   const token = randomBytes(16).toString("hex");
   const isTest = payments.testMode || !!process.env.STAGING_PASSWORD;
 
@@ -88,15 +103,21 @@ export async function placeOrder(input: CheckoutInput, siteUrl: string): Promise
         number: "DQW-" + String(c.value).padStart(5, "0"), token, paymentMethod: payment.id, isTest,
         name, email, phone, address, unit, postal, notes,
         deliveryMethod: method.id, deliveryLabel: method.name, deliveryDate: date, deliverySlot: slotText,
-        subtotal, deliveryFee: fee, total: subtotal + fee,
+        subtotal, deliveryFee: fee, total: subtotal - pointsDiscount + fee,
+        customerId, pointsUsed, pointsDiscount,
         lines: { create: lines },
         events: { create: { status: "AWAITING_PAYMENT", note: "Order placed" } },
       },
     });
   });
 
+  if (pointsUsed && customerId) {
+    await db.pointsEntry.create({ data: { customerId, orderId: order.id, change: -pointsUsed, reason: `Used on ${order.number}` } });
+  }
+
   // Real card payments only when a payment gateway is set up and test mode is off.
-  if (!isTest && payment.id !== "PAYNOW" && stripeEnabled()) {
+  // (Orders paid partly with points are paid on the order page until the gateway supports discounts.)
+  if (!isTest && !pointsDiscount && payment.id !== "PAYNOW" && stripeEnabled()) {
     try {
       const s = await createCheckoutSession({ number: order.number, token, email, lines, deliveryFee: fee, siteUrl });
       await db.order.update({ where: { id: order.id }, data: { stripeSessionId: s.id } });
@@ -110,6 +131,8 @@ export async function placeOrder(input: CheckoutInput, siteUrl: string): Promise
 
 /** Moves an order to a new status and records it on the timeline. */
 export async function setStatus(orderId: number, status: string, note = "") {
+  const before = await db.order.findUnique({ where: { id: orderId }, select: { status: true } });
+  if (!before) return;
   await db.order.update({
     where: { id: orderId },
     data: {
@@ -118,6 +141,9 @@ export async function setStatus(orderId: number, status: string, note = "") {
       events: { create: { status, note: note || null } },
     },
   });
+  // Loyalty: points are given once paid, and undone if the order is cancelled.
+  if (status === "PAID") await awardPoints(orderId);
+  if (status === "CANCELLED" && before.status !== "CANCELLED") await reversePoints(orderId);
 }
 
 export async function markPaid(number: string, sessionId: string) {

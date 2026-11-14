@@ -10,10 +10,10 @@ export const dynamic = "force-dynamic";
 
 /** Staff type in an order for a walk-in, phone or Telegram customer. */
 export default async function NewOrder({ searchParams }: { searchParams: Promise<{ customer?: string }> }) {
-  const email = String((await searchParams).customer ?? "").trim().toLowerCase();
+  const key = String((await searchParams).customer ?? "").trim().toLowerCase();
   const [data, last] = await Promise.all([
     editorData(),
-    email ? db.order.findFirst({ where: { email }, orderBy: { id: "desc" } }) : null,
+    key ? db.customer.findFirst({ where: key.includes("@") ? { email: key } : { phone: key } }) : null,
   ]);
   const m = data.methods[0];
   return (
@@ -22,7 +22,7 @@ export default async function NewOrder({ searchParams }: { searchParams: Promise
       <div className="ohead"><div><Link className="u" href="/admin/orders">← All orders</Link><h2 className="display atitle">New order</h2></div></div>
       <OrderEditor products={data.products} methods={data.methods} payments={data.payments}
         initial={last ? {
-          name: last.name, email: last.email, phone: last.phone, address: last.address, unit: last.unit, postal: last.postal, notes: "",
+          name: last.name, email: last.email ?? "", phone: last.phone, address: last.address, unit: last.unit, postal: last.postal, notes: "",
           method: m.id, date: m.date, slot: m.slot, payment: data.payments[0]?.id ?? "", lines: [], deliveryFee: m.fee, paid: false,
         } : undefined} />
     </div>

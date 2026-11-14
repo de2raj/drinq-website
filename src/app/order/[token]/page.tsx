@@ -7,6 +7,7 @@ import { Timeline } from "@/components/Timeline";
 import { SHOP } from "@/lib/config";
 import { db } from "@/lib/db";
 import { dayLabel } from "@/lib/delivery";
+import { pointsFor } from "@/lib/loyalty";
 import { money } from "@/lib/money";
 import { isCollection, statusLabel, timeline } from "@/lib/order-status";
 import { markPaid } from "@/lib/orders";
@@ -35,7 +36,11 @@ export default async function OrderPage({ params, searchParams }: P) {
     } catch (e) { console.error("Stripe check failed", e); }
   }
 
-  const [payments, methods] = await Promise.all([getSetting("payments"), getSetting("delivery")]);
+  const [payments, methods, loyalty, owner] = await Promise.all([
+    getSetting("payments"), getSetting("delivery"), getSetting("loyalty"),
+    order.customerId ? db.customer.findUnique({ where: { id: order.customerId }, select: { passwordHash: true } }) : null,
+  ]);
+  const hasAccount = !!owner?.passwordHash;
   const pay = payments.options.find((p) => p.id === order.paymentMethod) ?? payments.options[0];
   const waiting = order.status === "AWAITING_PAYMENT";
   const test = payments.testMode || order.isTest;
@@ -122,7 +127,16 @@ export default async function OrderPage({ params, searchParams }: P) {
         <div className="summary" style={{ position: "static" }}>
           {order.lines.map((l) => <div className="row" key={l.id}><span>{l.qty} × {l.name}</span><span>{money(l.lineTotal)}</span></div>)}
           <div className="row"><span>{order.deliveryLabel || "Delivery"}</span><span>{order.deliveryFee ? money(order.deliveryFee) : "Free"}</span></div>
+          {order.pointsDiscount > 0 && <div className="row"><span>Points ({order.pointsUsed})</span><span>−{money(order.pointsDiscount)}</span></div>}
           <div className="row total"><span>Total</span><span>{money(order.total)}</span></div>
+          {loyalty.enabled && order.status !== "CANCELLED" && (
+            <div className="ptsbox">
+              {order.pointsEarned > 0
+                ? <p>You earned <b>{order.pointsEarned} points</b> with this order.</p>
+                : <p>You&apos;ll earn <b>{pointsFor(order.subtotal - order.pointsDiscount, loyalty)} points</b> once this order is paid.</p>}
+              {!hasAccount && <p><Link className="u" href={`/account/register?email=${encodeURIComponent(order.email)}`}>Create an account</Link> with {order.email} to keep and use your points.</p>}
+            </div>
+          )}
         </div>
       </div>
       <p style={{ textAlign: "center", fontWeight: 600 }}>Questions? <a className="u" href={SHOP.telegramUrl} target="_blank" rel="noopener">Message us on Telegram</a> with your order number. <Link className="u" href="/">Back to the shop</Link></p>

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useEffect, useState, useTransition } from "react";
 import { submitOrder } from "@/app/checkout/actions";
 import { money } from "@/lib/money";
+import { decode } from "@/lib/text";
 import type { CheckoutInput } from "@/lib/orders";
 import { useCart } from "./CartProvider";
 import { PayIcon } from "./PayIcon";
@@ -205,7 +206,7 @@ export function CheckoutForm({ methods, payments, testMode }: { methods: MethodO
               {lines.map((l) => (
                 <div key={l.id} className="line" style={{ padding: "8px 0" }}>
                   <div className="th" style={{ width: 48, height: 48 }}>{l.thumb && <img src={l.thumb} alt="" />}</div>
-                  <div className="nm">{l.name}<small>Qty {l.qty}</small></div>
+                  <div className="nm">{decode(l.name)}<small>Qty {l.qty}</small></div>
                   <b>{money(l.price * l.qty)}</b>
                 </div>
               ))}

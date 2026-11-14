@@ -1,6 +1,7 @@
 import "server-only";
 import seed from "@data/catalogue.json";
 import { db } from "./db";
+import { decode } from "./text";
 import { SECTIONS } from "./sections";
 import type { Product, ProductLite, Section, Sub } from "./types";
 
@@ -10,7 +11,7 @@ import type { Product, ProductLite, Section, Sub } from "./types";
  */
 type Row = Awaited<ReturnType<typeof db.product.findMany>>[number];
 const toProduct = (r: Row): Product => ({
-  id: r.id, sku: r.sku, slug: r.slug, name: r.name, brand: r.brand, size: r.size,
+  id: r.id, sku: r.sku, slug: r.slug, name: decode(r.name), brand: decode(r.brand), size: r.size,
   price: r.price, was: r.was, categories: r.categories ? r.categories.split("|") : [],
   image: r.image, thumb: r.thumb || r.image, inStock: r.inStock, active: r.active, rank: r.rank,
 });
@@ -90,7 +91,7 @@ export async function seedProductsIfEmpty() {
   if ((await db.product.count()) > 0) return 0;
   type Seed = Omit<Product, "active">;
   const rows = (seed as Seed[]).map((p) => ({
-    id: p.id, sku: p.sku, slug: p.slug, name: p.name, brand: p.brand, size: p.size,
+    id: p.id, sku: p.sku, slug: p.slug, name: decode(p.name), brand: decode(p.brand), size: p.size,
     price: p.price, was: p.was, categories: p.categories.join("|"),
     image: p.image, thumb: p.thumb, inStock: p.inStock, active: true, rank: p.rank,
   }));

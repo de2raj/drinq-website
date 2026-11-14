@@ -8,6 +8,7 @@ import { Timeline } from "@/components/Timeline";
 import { db } from "@/lib/db";
 import { dayLabel } from "@/lib/delivery";
 import { money } from "@/lib/money";
+import { decode } from "@/lib/text";
 import { isCollection, nextStatus, statusLabel, timeline } from "@/lib/order-status";
 import { getSetting } from "@/lib/settings";
 import { changeStatus, saveNote } from "../actions";
@@ -69,7 +70,7 @@ export default async function OrderDetail({ params }: { params: Promise<{ id: st
           <section className="panel">
             <h2>Items</h2>
             <div className="summary" style={{ position: "static" }}>
-              {o.lines.map((l) => <div className="row" key={l.id}><span>{l.qty} × {l.name}{l.sku && <small> · #{l.sku}</small>}</span><span>{money(l.lineTotal)}</span></div>)}
+              {o.lines.map((l) => <div className="row" key={l.id}><span>{l.qty} × {decode(l.name)}{l.sku && <small> · {l.sku}</small>}</span><span>{money(l.lineTotal)}</span></div>)}
               <div className="row"><span>{o.deliveryLabel || "Delivery"}</span><span>{o.deliveryFee ? money(o.deliveryFee) : "Free"}</span></div>
               {o.pointsDiscount > 0 && <div className="row"><span>Points ({o.pointsUsed})</span><span>−{money(o.pointsDiscount)}</span></div>}
               <div className="row total"><span>Total</span><span>{money(o.total)}</span></div>

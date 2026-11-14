@@ -6,6 +6,7 @@
 import { SHOP } from "./config";
 import { dayLabel } from "./delivery";
 import { money } from "./money";
+import { decode } from "./text";
 
 export type EmailKind = "PLACED" | "PAID" | "OUT_FOR_DELIVERY" | "READY_FOR_COLLECTION" | "DELIVERED" | "COLLECTED" | "CANCELLED";
 
@@ -129,7 +130,7 @@ export function buildEmail(kind: EmailKind, o: EmailOrder, site: string, collect
           <div style="width:52px;height:52px;border:2px solid ${INK};border-radius:10px;background:#fff;text-align:center;overflow:hidden">
             ${l.image ? `<img src="${esc(l.image)}" alt="" width="44" height="44" style="display:inline-block;width:44px;height:44px;object-fit:contain;margin-top:4px">` : ""}
           </div></td>
-        <td style="padding:10px 8px;border-bottom:1px solid ${LINE};font:600 14px/1.35 ${FONT};color:${INK}">${esc(l.name)}<br><span style="font-weight:500;font-size:12px">Qty ${l.qty}</span></td>
+        <td style="padding:10px 8px;border-bottom:1px solid ${LINE};font:600 14px/1.35 ${FONT};color:${INK}">${esc(decode(l.name))}<br><span style="font-weight:500;font-size:12px">Qty ${l.qty}</span></td>
         <td align="right" style="padding:10px 0;border-bottom:1px solid ${LINE};font:700 14px/1 ${FONT};color:${INK};white-space:nowrap">${money(l.lineTotal)}</td>
       </tr>`).join("")}
       <tr><td></td><td style="padding:12px 8px 3px;font:500 14px ${FONT};color:${INK}">Subtotal</td><td align="right" style="padding:12px 0 3px;font:600 14px ${FONT};color:${INK}">${money(o.subtotal)}</td></tr>

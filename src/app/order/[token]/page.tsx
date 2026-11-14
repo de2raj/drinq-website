@@ -9,6 +9,7 @@ import { db } from "@/lib/db";
 import { dayLabel } from "@/lib/delivery";
 import { pointsFor } from "@/lib/loyalty";
 import { money } from "@/lib/money";
+import { decode } from "@/lib/text";
 import { isCollection, statusLabel, timeline } from "@/lib/order-status";
 import { markPaid } from "@/lib/orders";
 import { paynowPayload } from "@/lib/paynow";
@@ -125,7 +126,7 @@ export default async function OrderPage({ params, searchParams }: P) {
       <div className="panel">
         <h2>Items</h2>
         <div className="summary" style={{ position: "static" }}>
-          {order.lines.map((l) => <div className="row" key={l.id}><span>{l.qty} × {l.name}</span><span>{money(l.lineTotal)}</span></div>)}
+          {order.lines.map((l) => <div className="row" key={l.id}><span>{l.qty} × {decode(l.name)}</span><span>{money(l.lineTotal)}</span></div>)}
           <div className="row"><span>{order.deliveryLabel || "Delivery"}</span><span>{order.deliveryFee ? money(order.deliveryFee) : "Free"}</span></div>
           {order.pointsDiscount > 0 && <div className="row"><span>Points ({order.pointsUsed})</span><span>−{money(order.pointsDiscount)}</span></div>}
           <div className="row total"><span>Total</span><span>{money(order.total)}</span></div>

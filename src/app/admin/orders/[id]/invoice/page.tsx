@@ -6,6 +6,7 @@ import { SHOP } from "@/lib/config";
 import { db } from "@/lib/db";
 import { dayLabel } from "@/lib/delivery";
 import { money } from "@/lib/money";
+import { decode } from "@/lib/text";
 import { isCollection, PAID_STATUSES } from "@/lib/order-status";
 import { getSetting } from "@/lib/settings";
 
@@ -53,7 +54,7 @@ export default async function Invoice({ params }: { params: Promise<{ id: string
         <table className="itable">
           <thead><tr><th>Item</th><th>Qty</th><th>Unit price</th><th>Amount</th></tr></thead>
           <tbody>
-            {o.lines.map((l) => <tr key={l.id}><td>{l.name}{l.sku && <small> · #{l.sku}</small>}</td><td>{l.qty}</td><td>{money(l.unitPrice)}</td><td>{money(l.lineTotal)}</td></tr>)}
+            {o.lines.map((l) => <tr key={l.id}><td>{decode(l.name)}{l.sku && <small> · {l.sku}</small>}</td><td>{l.qty}</td><td>{money(l.unitPrice)}</td><td>{money(l.lineTotal)}</td></tr>)}
           </tbody>
           <tfoot>
             <tr><td colSpan={3}>Subtotal</td><td>{money(o.subtotal)}</td></tr>

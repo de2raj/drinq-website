@@ -83,6 +83,7 @@ export function Header({ menu, announcement, member }: { menu: Menu; announcemen
           <img src="/drinq-logo-black.png" alt="DRINQ" style={{ height: 24, width: "auto" }} />
           <button className="icon-btn" aria-label="Close menu" onClick={() => setSide(false)}><IconClose /></button>
         </div>
+        <Link className="acctlink" href="/account">{member ? <>My account <b>{member.points} pts</b></> : <>Sign in / Create account <b>Earn points</b></>}</Link>
         {menu.map((s) => s.deal ? (
           <Link key={s.slug} className="plain" href={`/${s.slug}`} style={{ color: "var(--red)", fontWeight: 800, fontSize: 17 }}>Deals ({s.count})</Link>
         ) : (

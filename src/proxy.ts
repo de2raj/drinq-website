@@ -23,7 +23,7 @@ const ask = (realm: string, msg = "Sign in required") =>
 
 export function proxy(req: NextRequest) {
   const path = req.nextUrl.pathname;
-  if (path.startsWith("/api/stripe/webhook")) return NextResponse.next();
+  if (path.startsWith("/api/stripe/webhook") || path === "/api/health") return NextResponse.next();
 
   const c = creds(req);
   const admin = process.env.ADMIN_PASSWORD;

@@ -11,70 +11,67 @@ export const WEEKDAYS: { key: Weekday; label: string }[] = [
   { key: "mon", label: "Monday" }, { key: "tue", label: "Tuesday" }, { key: "wed", label: "Wednesday" },
   { key: "thu", label: "Thursday" }, { key: "fri", label: "Friday" }, { key: "sat", label: "Saturday" }, { key: "sun", label: "Sunday" },
 ];
-export type Window = { on: boolean; from: string; to: string }; // "HH:MM", Singapore time
+export type Range = { from: string; to: string }; // "HH:MM", Singapore time
 
+export type MethodId = "NEXT_DAY" | "SAME_DAY" | "EXPRESS" | "COLLECT" | "TIMED";
+
+/**
+ * A delivery option. Customers can always order every option; the rules only decide
+ * WHEN the order arrives (see src/lib/delivery.ts).
+ */
 export type DeliveryMethod = {
-  id: "NEXT_DAY" | "SAME_DAY" | "EXPRESS" | "COLLECT";
+  id: MethodId;
   name: string;
   enabled: boolean;
   fee: number; // cents
   freeFrom: number; // cents, 0 = never free
-  pickDate: boolean; // customer chooses a date
-  firstDay: 0 | 1; // earliest date: 0 = today, 1 = tomorrow
-  when: string; // shown to the customer, e.g. "Delivered between 11:00 - 23:00 next day"
-  notice: string; // the option's rules, one per line
-  closedMessage: string; // shown when it can't be chosen right now
-  windows: Record<Weekday, Window>; // when it can be ordered (Singapore time)
-  serviceDays: Record<Weekday, boolean>; // days we deliver / hand over (dates the customer can pick)
-  todayUntil: string; // date-picking options that start today: today can be picked until this time
+  serviceDays: Record<Weekday, boolean>; // days we deliver / hand over
+  cutoff: string; // SAME_DAY: order by this time for today; COLLECT: today can be picked until this time
+  hours: Record<Weekday, Range[]>; // EXPRESS: when it runs; COLLECT: collection hours; others: delivery hours
+  slots: Range[]; // TIMED: the slots customers choose from
+  leadHours: number; // TIMED: earliest slot starts at least this many hours from now
+  notice: string; // the option's rules, one per line, shown at checkout
   address?: string; // self-collection point
 };
 
-const days = (w: Partial<Record<Weekday, Window>>, fallback: Window): Record<Weekday, Window> =>
-  Object.fromEntries((["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as Weekday[]).map((d) => [d, w[d] ?? fallback])) as Record<Weekday, Window>;
-const OFF: Window = { on: false, from: "00:00", to: "23:59" };
-const ANYTIME: Window = { on: true, from: "00:00", to: "23:59" };
 const MON_SAT: Record<Weekday, boolean> = { mon: true, tue: true, wed: true, thu: true, fri: true, sat: true, sun: false };
+const each = (r: Range[], over: Partial<Record<Weekday, Range[]>> = {}): Record<Weekday, Range[]> =>
+  Object.fromEntries((["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as Weekday[]).map((d) => [d, over[d] ?? r])) as Record<Weekday, Range[]>;
+const DAY_DELIVERY = each([{ from: "11:00", to: "23:00" }], { sun: [] });
 
-/**
- * Based on botello.sg's checkout (Next Day, Same Day, Express, Self-Collection).
- * Orders can be placed any day (Sundays included) for the services that run: Next Day and
- * Self-Collection take dates Monday–Saturday, so a Sunday order goes out on Monday.
- */
+/** DRINQ's delivery rules (2026-11-15). Customers can order any time; nothing closes. */
 export const DEFAULT_DELIVERY: DeliveryMethod[] = [
   {
-    id: "NEXT_DAY", name: "Next Day Delivery", enabled: true, fee: 1200, freeFrom: 20000, pickDate: true, firstDay: 1,
-    when: "Delivered between 11:00 - 23:00",
-    notice: "FREE delivery for orders above $200\nOrder by 23:59, delivered between 11:00 - 23:00 next day\nNo deliveries on Sunday: Saturday-night and Sunday orders arrive Monday",
-    closedMessage: "Next day delivery isn't available right now.",
-    windows: days({}, ANYTIME), serviceDays: MON_SAT, todayUntil: "23:59",
+    id: "NEXT_DAY", name: "Next Day Delivery", enabled: true, fee: 1200, freeFrom: 20000,
+    serviceDays: MON_SAT, cutoff: "23:59", hours: DAY_DELIVERY, slots: [], leadHours: 0,
+    notice: "FREE delivery for orders of $200 and above\nOrder by 11:59PM, delivered the next day between 11AM - 11PM\nNo deliveries on Sunday: Saturday and Sunday orders arrive on Monday",
   },
   {
-    id: "SAME_DAY", name: "Same Day Delivery", enabled: true, fee: 1500, freeFrom: 30000, pickDate: false, firstDay: 0,
-    when: "Delivered today between 11:00 - 23:00",
-    notice: "FREE delivery for orders above $300\nOrder by 11:00, delivered between 11:00 ~ 23:00 same day\nNot available on Saturday and Sunday",
-    closedMessage: "Same day delivery is not available as it is past the cut-off time. Kindly select Express Delivery.",
-    windows: days({ sat: OFF, sun: OFF }, { on: true, from: "00:00", to: "11:00" }),
-    serviceDays: { ...MON_SAT, sat: false }, todayUntil: "11:00",
+    id: "SAME_DAY", name: "Same Day Delivery", enabled: true, fee: 1500, freeFrom: 30000,
+    serviceDays: MON_SAT, cutoff: "11:00", hours: DAY_DELIVERY, slots: [], leadHours: 0,
+    notice: "FREE delivery for orders of $300 and above\nOrder by 11AM, delivered the same day between 11AM - 11PM\nOrders after 11AM go out the next delivery day (Saturday and Sunday orders: Monday)",
   },
   {
-    id: "EXPRESS", name: "Express Delivery", enabled: true, fee: 2000, freeFrom: 0, pickDate: false, firstDay: 0,
-    when: "Delivered within 2 hours",
-    notice: "Order by 23:59 Monday to Thursday, or 02:30 Friday and Saturday, delivered within 2 hours",
-    closedMessage: "Express delivery will resume at 11AM.",
-    windows: days(
-      { fri: { on: false, from: "11:00", to: "23:59" }, sat: { on: true, from: "18:00", to: "23:59" }, sun: { on: true, from: "00:00", to: "02:30" } },
-      { on: true, from: "11:00", to: "23:59" },
-    ),
-    serviceDays: { mon: true, tue: true, wed: true, thu: true, fri: true, sat: true, sun: true }, todayUntil: "23:59",
+    id: "EXPRESS", name: "Express Delivery", enabled: true, fee: 2000, freeFrom: 0,
+    serviceDays: { ...MON_SAT, sun: true }, cutoff: "23:59", slots: [], leadHours: 0,
+    hours: each([{ from: "09:00", to: "23:59" }], {
+      sat: [{ from: "00:00", to: "02:30" }, { from: "18:00", to: "23:59" }],
+      sun: [{ from: "00:00", to: "02:30" }],
+    }),
+    notice: "Delivered within 2 hours\nMonday to Friday 9AM - 11:59PM, Saturday 12AM - 2:30AM and 6PM - 11:59PM, Sunday 12AM - 2:30AM\nOrders outside these hours go out when Express next opens",
   },
   {
-    id: "COLLECT", name: "Self-Collection", enabled: true, fee: 0, freeFrom: 0, pickDate: true, firstDay: 0,
-    when: "Collect between 11:00 - 22:30",
-    notice: "Collect between 11:00 - 22:30 Monday to Friday, or 18:00 - 22:30 on Saturday\nNo collection on Sunday",
-    closedMessage: "Self-collection isn't available right now.",
-    windows: days({}, ANYTIME), serviceDays: MON_SAT, todayUntil: "22:30",
+    id: "COLLECT", name: "Self-Collection", enabled: true, fee: 0, freeFrom: 0,
+    serviceDays: MON_SAT, cutoff: "22:30", slots: [], leadHours: 0,
+    hours: each([{ from: "09:00", to: "22:30" }], { sat: [{ from: "18:00", to: "22:30" }], sun: [] }),
+    notice: "Collect Monday to Friday 9AM - 10:30PM, Saturday 6PM - 10:30PM\nClosed on Sunday",
     address: "65 Ubi Road 1 #01-82 Oxley Bizhub Singapore 408729",
+  },
+  {
+    id: "TIMED", name: "Timed Delivery", enabled: true, fee: 2500, freeFrom: 0,
+    serviceDays: MON_SAT, cutoff: "23:59", hours: DAY_DELIVERY, leadHours: 3,
+    slots: [{ from: "11:00", to: "14:00" }, { from: "14:00", to: "17:00" }, { from: "17:00", to: "20:00" }, { from: "20:00", to: "23:00" }],
+    notice: "Choose your own 3-hour delivery slot\n$25 flat, whatever the order amount\nMonday to Saturday",
   },
 ];
 
@@ -134,9 +131,12 @@ export async function getSetting<K extends Key>(key: K): Promise<Value<K>> {
   }
   const v = cache.values[key] as Value<K> | undefined;
   if (v === undefined) return DEFAULTS[key];
-  // Saved delivery options pick up fields added later (e.g. delivery days).
   if (key === "delivery" && Array.isArray(v)) {
-    return (v as DeliveryMethod[]).map((m) => ({ ...(DEFAULT_DELIVERY.find((d) => d.id === m.id) ?? {}), ...m })) as Value<K>;
+    const saved = v as Partial<DeliveryMethod>[];
+    // Settings saved under the old rules (before "hours") are replaced by the current defaults.
+    if (saved.some((m) => !m.hours)) return DEFAULTS[key];
+    // Options added later (e.g. Timed Delivery) appear even if not saved yet.
+    return DEFAULT_DELIVERY.map((d) => ({ ...d, ...(saved.find((m) => m.id === d.id) ?? {}) })) as Value<K>;
   }
   // New fields added to the defaults later still show up.
   if (!Array.isArray(v) && typeof v === "object") return { ...DEFAULTS[key], ...v } as Value<K>;

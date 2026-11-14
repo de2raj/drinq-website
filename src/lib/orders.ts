@@ -2,7 +2,7 @@ import "server-only";
 import { randomBytes } from "node:crypto";
 import { productById } from "./catalogue";
 import { db } from "./db";
-import { feeFor, isOpen, pickDates, todaySG } from "./delivery";
+import { arrival, feeFor } from "./delivery";
 import { getSetting } from "./settings";
 import { createCheckoutSession, stripeEnabled } from "./stripe";
 
@@ -10,7 +10,7 @@ export type CheckoutInput = {
   lines: { id: string; qty: number }[];
   name: string; email: string; phone: string;
   address: string; unit: string; postal: string;
-  method: string; date: string; notes: string;
+  method: string; date: string; slot: string; notes: string;
   payment: string;
   over18: boolean;
 };
@@ -40,16 +40,26 @@ export async function placeOrder(input: CheckoutInput, siteUrl: string): Promise
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = "Please enter a valid email.";
   if (!/^(\+?65)?[3689]\d{7}$/.test(phone)) errors.phone = "Please enter a Singapore phone number (8 digits).";
   if (!method) errors.method = "Please choose a delivery option.";
-  else if (!isOpen(method)) errors.method = method.closedMessage;
   if (!collect) {
     if (!address) errors.address = "Please enter your street address.";
     if (!/^\d{6}$/.test(postal)) errors.postal = "Singapore postal codes have 6 digits.";
   }
-  let date = "";
-  if (method?.pickDate) {
-    if (!pickDates(method).some((d) => d.date === input.date)) errors.date = "Please choose a date.";
-    else date = input.date;
-  } else if (method) date = todaySG();
+  // Work out the delivery date / slot again on the server, from the rules as they are right now.
+  let date = "", slotText = "";
+  if (method) {
+    const a = arrival(method);
+    if (a.pick === "none") { date = a.date; slotText = a.slotText; }
+    else {
+      const d = a.dates.find((x) => x.date === input.date);
+      if (!d) errors.date = "Please choose a date.";
+      else if (a.pick === "date") { date = d.date; slotText = d.detail; }
+      else {
+        const t = d.slots?.find((x) => x.id === input.slot);
+        if (!t) errors.slot = "That time slot is no longer available. Please choose another.";
+        else { date = d.date; slotText = t.label; }
+      }
+    }
+  }
   const payment = payments.options.find((p) => p.id === input.payment && p.enabled);
   if (!payment) errors.payment = "Please choose a payment method.";
   if (!input.over18) errors.over18 = "You must be 18 or over to buy alcohol.";
@@ -77,7 +87,7 @@ export async function placeOrder(input: CheckoutInput, siteUrl: string): Promise
       data: {
         number: "DQW-" + String(c.value).padStart(5, "0"), token, paymentMethod: payment.id, isTest,
         name, email, phone, address, unit, postal, notes,
-        deliveryMethod: method.id, deliveryLabel: method.name, deliveryDate: date, deliverySlot: method.when,
+        deliveryMethod: method.id, deliveryLabel: method.name, deliveryDate: date, deliverySlot: slotText,
         subtotal, deliveryFee: fee, total: subtotal + fee,
         lines: { create: lines },
         events: { create: { status: "AWAITING_PAYMENT", note: "Order placed" } },

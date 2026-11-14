@@ -663,3 +663,11 @@ a.orow:hover { background: var(--paper); }
 @media (max-width: 860px) { .slide { grid-template-columns: 1fr; } .slide h2 { font-size: 26px; } .simg { width: 40%; } }
 .hpimg { position: relative; }
 .hpimg img { position: absolute; inset: 8px; width: calc(100% - 16px); height: calc(100% - 16px); object-fit: contain; }
+.snote { font-weight: 600; margin-bottom: 14px; }
+.wins2 { display: grid; grid-template-columns: 110px 110px 1fr; gap: 6px 12px; margin-top: 14px; align-items: center; max-width: 640px; }
+.wins2 .wh { font-size: 12px; font-weight: 800; text-transform: uppercase; }
+.wins2 .wrow { display: contents; }
+.wins2 .wrow > span { font-weight: 600; font-size: 14px; }
+.wins2 input:not([type="checkbox"]) { height: 38px; border: 2px solid var(--ink); border-radius: 10px; padding: 0 10px; background: var(--white); font-size: 14px; min-width: 0; }
+.dayhours { margin-top: 10px; font-weight: 700; font-size: 14px; }
+.field input[type="time"] { width: 100%; }

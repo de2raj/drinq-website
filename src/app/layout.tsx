@@ -6,7 +6,7 @@ import { CartProvider } from "@/components/CartProvider";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { menu } from "@/lib/catalogue";
-import { isOpen } from "@/lib/delivery";
+import { freeGoals } from "@/lib/delivery";
 import { getSetting } from "@/lib/settings";
 import "./globals.css";
 
@@ -27,9 +27,8 @@ export const dynamic = "force-dynamic";
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const verified = (await cookies()).get("drinq_age")?.value === "1";
   const [store, delivery] = await Promise.all([getSetting("store"), getSetting("delivery")]);
-  // Free-delivery goals: only options that can be ordered right now (e.g. no same-day on Saturday).
-  const tiers = delivery.filter((m) => m.enabled && m.freeFrom > 0 && isOpen(m)).sort((a, b) => a.freeFrom - b.freeFrom)
-    .map((m) => ({ label: m.name.toLowerCase().replace(/(\w+) day/, "$1-day"), threshold: m.freeFrom }));
+  // Free-delivery goals: next day always; same day only while it really is same-day.
+  const tiers = freeGoals(delivery);
   return (
     <html lang="en-SG" className={`${display.variable} ${body.variable}`}>
       <body>

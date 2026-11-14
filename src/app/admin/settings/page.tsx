@@ -60,8 +60,11 @@ export default async function Settings({ searchParams }: { searchParams: Promise
       <form action={saveDelivery} className="panel" id="delivery">
         <h2>Delivery</h2>
         {ok("delivery")}
+        <p className="snote">Customers can always order. These rules decide when each order arrives.</p>
         {delivery.map((m) => {
           const k = (f: string) => `${m.id}.${f}`;
+          const hoursName = m.id === "EXPRESS" ? "Express runs" : m.id === "COLLECT" ? "Collection hours" : "Delivery hours";
+          const dayName = m.id === "COLLECT" ? "Collection day" : "Delivery day";
           return (
             <fieldset key={m.id} className="dm">
               <legend><label className="agree"><input type="checkbox" className="check" name={k("enabled")} defaultChecked={m.enabled} />{m.name}</label></legend>
@@ -69,26 +72,24 @@ export default async function Settings({ searchParams }: { searchParams: Promise
                 <div className="field"><label>Name</label><input name={k("name")} defaultValue={m.name} /></div>
                 <div className="field"><label>Fee ($)</label><input name={k("fee")} defaultValue={dollars(m.fee) || "0"} inputMode="decimal" /></div>
                 <div className="field"><label>Free from ($, blank = never)</label><input name={k("freeFrom")} defaultValue={dollars(m.freeFrom)} inputMode="decimal" /></div>
-                <div className="field"><label>Time shown to customer</label><input name={k("when")} defaultValue={m.when} /></div>
-                <div className="field"><label className="agree" style={{ marginTop: 28 }}><input type="checkbox" className="check" name={k("pickDate")} defaultChecked={m.pickDate} />Customer picks a date</label></div>
-                <div className="field"><label>Earliest date</label>
-                  <select name={k("firstDay")} defaultValue={String(m.firstDay)} className="sel" style={{ width: "100%", height: 50, borderRadius: 12 }}>
-                    <option value="0">Today</option><option value="1">Tomorrow</option>
-                  </select>
-                </div>
-                {m.pickDate && <div className="field"><label>Today can be picked until</label><input type="time" name={k("todayUntil")} defaultValue={m.todayUntil} /></div>}
+                {(m.id === "SAME_DAY" || m.id === "NEXT_DAY" || m.id === "COLLECT") && (
+                  <div className="field"><label>{m.id === "SAME_DAY" ? "Order by (for today)" : m.id === "COLLECT" ? "Today can be picked until" : "Order by"}</label>
+                    <input type="time" name={k("cutoff")} defaultValue={m.cutoff} /></div>
+                )}
+                {m.id === "TIMED" && <>
+                  <div className="field"><label>Earliest slot (hours from ordering)</label><input name={k("leadHours")} defaultValue={String(m.leadHours)} inputMode="numeric" /></div>
+                  <div className="field full"><label>Slots (comma between)</label><input name={k("slots")} defaultValue={m.slots.map((r) => `${r.from}-${r.to}`).join(", ")} /></div>
+                </>}
                 {m.id === "COLLECT" && <div className="field full"><label>Collection address</label><input name={k("address")} defaultValue={m.address} /></div>}
                 <div className="field full"><label>Rules shown at checkout (one per line)</label><textarea name={k("notice")} defaultValue={m.notice} rows={3} /></div>
-                <div className="field full"><label>Message when it can&apos;t be chosen</label><input name={k("closedMessage")} defaultValue={m.closedMessage} /></div>
               </div>
-              <div className="wins">
-                <span className="wh">Can be ordered</span><span className="wh">From</span><span className="wh">To</span><span className="wh">{m.id === "COLLECT" ? "Collection day" : "Delivery day"}</span>
+              <div className="wins2">
+                <span className="wh">Day</span><span className="wh">{dayName}</span><span className="wh">{hoursName}</span>
                 {WEEKDAYS.map(({ key, label }) => (
                   <div key={key} className="wrow">
-                    <label className="agree"><input type="checkbox" className="check" name={k(`${key}.on`)} defaultChecked={m.windows[key].on} />{label}</label>
-                    <input name={k(`${key}.from`)} type="time" defaultValue={m.windows[key].from} aria-label={`${label} from`} />
-                    <input name={k(`${key}.to`)} type="time" defaultValue={m.windows[key].to} aria-label={`${label} to`} />
-                    <label className="agree"><input type="checkbox" className="check" name={k(`${key}.service`)} defaultChecked={m.serviceDays[key]} aria-label={`${label} ${m.id === "COLLECT" ? "collection" : "delivery"} day`} /></label>
+                    <span>{label}</span>
+                    <label className="agree"><input type="checkbox" className="check" name={k(`${key}.service`)} defaultChecked={m.serviceDays[key]} aria-label={`${label} ${dayName}`} /></label>
+                    <input name={k(`${key}.hours`)} defaultValue={(m.hours[key] ?? []).map((r) => `${r.from}-${r.to}`).join(", ")} aria-label={`${label} ${hoursName}`} />
                   </div>
                 ))}
               </div>

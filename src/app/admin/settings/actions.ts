@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { toCents } from "@/lib/admin-products";
 import { allProducts } from "@/lib/catalogue";
 import { db } from "@/lib/db";
-import { getSetting, saveSetting, THEMES, WEEKDAYS, type DeliveryMethod, type Slide } from "@/lib/settings";
+import { getSetting, saveSetting, THEMES, WEEKDAYS, type DeliveryMethod, type Range, type Slide } from "@/lib/settings";
 
 const str = (fd: FormData, k: string, max = 500) => String(fd.get(k) ?? "").trim().slice(0, max);
 const time = (v: string, d: string) => (/^([01]\d|2[0-3]):[0-5]\d$/.test(v) ? v : d);
@@ -38,31 +38,32 @@ export async function saveStore(fd: FormData) {
   done("homepage");
 }
 
+/** "09:00-22:30, 18:00-23:59" → ranges (bad parts are skipped). */
+function ranges(v: string): Range[] {
+  return v.split(",").map((x) => x.trim().match(/^([01]\d|2[0-3]):([0-5]\d)\s*-\s*([01]\d|2[0-3]):([0-5]\d)$/))
+    .filter((m): m is RegExpMatchArray => !!m)
+    .map((m) => ({ from: `${m[1]}:${m[2]}`, to: `${m[3]}:${m[4]}` }));
+}
+
 export async function saveDelivery(fd: FormData) {
   const methods = await getSetting("delivery");
   const next: DeliveryMethod[] = methods.map((m) => {
     const k = (f: string) => `${m.id}.${f}`;
     const fee = toCents(fd.get(k("fee")));
     const free = toCents(fd.get(k("freeFrom")));
+    const lead = Number(str(fd, k("leadHours"), 3));
     return {
       ...m,
       enabled: fd.get(k("enabled")) === "on",
       name: str(fd, k("name"), 60) || m.name,
       fee: fee !== null && !Number.isNaN(fee) ? fee : m.fee,
       freeFrom: free !== null && !Number.isNaN(free) ? free : 0,
-      pickDate: fd.get(k("pickDate")) === "on",
-      firstDay: fd.get(k("firstDay")) === "1" ? 1 : 0,
-      when: str(fd, k("when"), 120),
+      cutoff: time(str(fd, k("cutoff"), 5), m.cutoff),
       notice: str(fd, k("notice"), 800),
-      closedMessage: str(fd, k("closedMessage"), 300),
       ...(m.id === "COLLECT" ? { address: str(fd, k("address"), 200) } : {}),
-      todayUntil: m.pickDate ? time(str(fd, k("todayUntil"), 5), m.todayUntil) : m.todayUntil,
+      ...(m.id === "TIMED" ? { slots: ranges(str(fd, k("slots"), 400)), leadHours: Number.isFinite(lead) && lead >= 0 && lead <= 48 ? lead : m.leadHours } : {}),
       serviceDays: Object.fromEntries(WEEKDAYS.map(({ key }) => [key, fd.get(k(`${key}.service`)) === "on"])) as DeliveryMethod["serviceDays"],
-      windows: Object.fromEntries(WEEKDAYS.map(({ key }) => [key, {
-        on: fd.get(k(`${key}.on`)) === "on",
-        from: time(str(fd, k(`${key}.from`), 5), m.windows[key].from),
-        to: time(str(fd, k(`${key}.to`), 5), m.windows[key].to),
-      }])) as DeliveryMethod["windows"],
+      hours: Object.fromEntries(WEEKDAYS.map(({ key }) => [key, ranges(str(fd, k(`${key}.hours`), 200))])) as DeliveryMethod["hours"],
     };
   });
   await saveSetting("delivery", next);

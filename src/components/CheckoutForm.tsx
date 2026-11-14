@@ -4,13 +4,13 @@ import { useEffect, useState, useTransition } from "react";
 import { submitOrder } from "@/app/checkout/actions";
 import { money } from "@/lib/money";
 import { decode } from "@/lib/text";
+import type { Arrival } from "@/lib/delivery";
 import type { CheckoutInput } from "@/lib/orders";
 import { useCart } from "./CartProvider";
 import { PayIcon } from "./PayIcon";
 
 export type MethodOption = {
-  id: string; name: string; fee: number; freeFrom: number; when: string; address: string;
-  notice: string[]; open: boolean; reason: string; pickDate: boolean; dates: { date: string; label: string }[];
+  id: string; name: string; fee: number; freeFrom: number; address: string; notice: string[]; arrival: Arrival;
 };
 export type PaymentChoice = { id: string; name: string; detail: string };
 
@@ -21,12 +21,12 @@ const blank = { name: "", email: "", phone: "", address: "", unit: "", postal: "
 export function CheckoutForm({ methods, payments, testMode }: { methods: MethodOption[]; payments: PaymentChoice[]; testMode: boolean }) {
   const { lines, subtotal, ready, clear } = useCart();
   const [f, setF] = useState(blank);
-  const [method, setMethod] = useState(methods.find((m) => m.open)?.id ?? "");
-  const [date, setDate] = useState("");
+  const [method, setMethod] = useState(methods[0]?.id ?? "");
+  const [date, setDate] = useState(methods[0]?.arrival.date ?? "");
+  const [slot, setSlot] = useState("");
   const [allDays, setAllDays] = useState(false);
   const [payment, setPayment] = useState(payments[0]?.id ?? "");
   const [over18, setOver18] = useState(false);
-  const [closed, setClosed] = useState<MethodOption | null>(null);
   const [errors, setErrors] = useState<Errors>({});
   const [pending, start] = useTransition();
 
@@ -45,24 +45,30 @@ export function CheckoutForm({ methods, payments, testMode }: { methods: MethodO
   const m = methods.find((x) => x.id === method);
   const fee = m ? (m.freeFrom > 0 && subtotal >= m.freeFrom ? 0 : m.fee) : 0;
   const collect = method === "COLLECT";
-  const shownDays = m?.pickDate ? (allDays ? m.dates : m.dates.slice(0, 7)) : [];
+  const a = m?.arrival;
+  const picks = a && a.pick !== "none";
+  const shownDays = picks ? (allDays ? a.dates : a.dates.slice(0, 7)) : [];
+  const dayOpt = a?.dates.find((d) => d.date === date);
 
   function choose(x: MethodOption) {
-    if (!x.open) { setClosed(x); return; }
     setMethod(x.id);
-    if (!x.dates.some((d) => d.date === date)) setDate("");
-    setErrors({ ...errors, method: undefined, date: undefined });
+    // Start on the earliest date; slots are always chosen by the customer.
+    setDate(x.arrival.date);
+    setSlot("");
+    setAllDays(false);
+    setErrors({ ...errors, method: undefined, date: undefined, slot: undefined });
   }
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
     const local: Errors = {};
     if (!m) local.method = "Please choose a delivery option.";
-    if (m?.pickDate && !date) local.date = "Please choose a date.";
+    if (picks && !date) local.date = "Please choose a date.";
+    if (a?.pick === "slot" && !slot) local.slot = "Please choose a time slot.";
     if (!over18) local.over18 = "Please confirm you are 18 or over.";
     if (Object.keys(local).length) { setErrors(local); scrollToError(); return; }
     start(async () => {
-      const r = await submitOrder({ ...f, method, date, payment, over18, lines: lines.map((l) => ({ id: l.id, qty: l.qty })) });
+      const r = await submitOrder({ ...f, method, date, slot, payment, over18, lines: lines.map((l) => ({ id: l.id, qty: l.qty })) });
       if (r.ok) {
         clear();
         location.href = r.redirect;
@@ -118,12 +124,12 @@ export function CheckoutForm({ methods, payments, testMode }: { methods: MethodO
               {methods.map((x) => {
                 const xfee = x.freeFrom > 0 && subtotal >= x.freeFrom ? 0 : x.fee;
                 return (
-                  <button type="button" key={x.id} role="radio" aria-checked={method === x.id} aria-disabled={!x.open}
-                    className={`dopt ${x.open ? "" : "shut"}`} onClick={() => choose(x)}>
+                  <button type="button" key={x.id} role="radio" aria-checked={method === x.id}
+                    className="dopt" onClick={() => choose(x)}>
                     <span className="dot" />
                     <span className="dtxt">
                       <b>{x.name}</b>
-                      <small>{x.open ? x.when : "Not available right now"}</small>
+                      <small>{x.arrival.summary}</small>
                     </span>
                     <span className="dfee">{xfee ? money(xfee) : "FREE"}</span>
                   </button>
@@ -143,7 +149,7 @@ export function CheckoutForm({ methods, payments, testMode }: { methods: MethodO
               <ul className="dnotice">{m.notice.map((l) => <li key={l}>{l}</li>)}</ul>
             )}
 
-            {m?.pickDate && (
+            {picks && a && (
               <>
                 <h3 className="sub-h">{collect ? "Collection date" : "Delivery date"}</h3>
                 <div className="days" role="group" aria-label="Date">
@@ -151,17 +157,30 @@ export function CheckoutForm({ methods, payments, testMode }: { methods: MethodO
                     const [top, dm] = d.label.split("|");
                     return (
                       <button type="button" key={d.date} className="day" aria-pressed={d.date === date} aria-label={`${top}, ${dm}`}
-                        onClick={() => { setDate(d.date); setErrors({ ...errors, date: undefined }); }}>{top}<small>{dm}</small></button>
+                        onClick={() => { setDate(d.date); setSlot(""); setErrors({ ...errors, date: undefined, slot: undefined }); }}>{top}<small>{dm}</small></button>
                     );
                   })}
                 </div>
-                {m.dates.length > 7 && (
+                {a.dates.length > 7 && (
                   <button type="button" className="later" onClick={() => {
-                    if (allDays && m.dates.findIndex((d) => d.date === date) >= 7) setDate("");
+                    if (allDays && a.dates.findIndex((d) => d.date === date) >= 7) { setDate(a.dates[0].date); setSlot(""); }
                     setAllDays(!allDays);
                   }}>{allDays ? "Fewer dates" : "Later dates"}</button>
                 )}
                 {errors.date && <div className="err">{errors.date}</div>}
+                {a.pick === "date" && dayOpt && <p className="dayhours">{collect ? "Collect" : "Delivered"} {dayOpt.label.split("|")[0].toLowerCase() === "today" ? "today" : `on ${dayOpt.label.replace("|", " ")}`}, {dayOpt.detail}</p>}
+                {a.pick === "slot" && dayOpt?.slots && (
+                  <>
+                    <h3 className="sub-h">Time slot</h3>
+                    <div className="slots" role="group" aria-label="Time slot">
+                      {dayOpt.slots.map((t) => (
+                        <button type="button" key={t.id} className="slot" aria-pressed={slot === t.id}
+                          onClick={() => { setSlot(t.id); setErrors({ ...errors, slot: undefined }); }}>{t.label}</button>
+                      ))}
+                    </div>
+                    {errors.slot && <div className="err">{errors.slot}</div>}
+                  </>
+                )}
               </>
             )}
 
@@ -222,15 +241,6 @@ export function CheckoutForm({ methods, payments, testMode }: { methods: MethodO
         </div>
       </form>
 
-      {closed && (
-        <div className="modal" role="alertdialog" aria-labelledby="closedTitle" onClick={() => setClosed(null)}>
-          <div className="mbox" onClick={(e) => e.stopPropagation()}>
-            <h3 id="closedTitle">{closed.name} isn&apos;t available</h3>
-            <p>{closed.reason}</p>
-            <button className="btn btn-block" onClick={() => setClosed(null)}>OK, got it</button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

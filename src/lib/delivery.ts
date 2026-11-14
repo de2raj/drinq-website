@@ -1,56 +1,21 @@
-import type { DeliveryMethod, Weekday } from "./settings";
+import type { DeliveryMethod, Range, Weekday } from "./settings";
 
-/** Delivery rules shared by the checkout (browser) and the server. Singapore is UTC+8, no daylight saving. */
+/**
+ * When an order arrives, for each delivery option (shared by checkout, the server and the homepage).
+ * Customers can always order; these rules only decide the delivery date / slot.
+ * Singapore is UTC+8 with no daylight saving.
+ */
 const SG = 8 * 3600_000;
 const KEYS: Weekday[] = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
 export const sgNow = (now = Date.now()) => new Date(now + SG); // read with getUTC*
 const hm = (d: Date) => `${String(d.getUTCHours()).padStart(2, "0")}:${String(d.getUTCMinutes()).padStart(2, "0")}`;
 const ymd = (d: Date) => d.toISOString().slice(0, 10);
+const day = (base: Date, plus: number) => new Date(Date.UTC(base.getUTCFullYear(), base.getUTCMonth(), base.getUTCDate() + plus));
+const wk = (d: Date) => KEYS[d.getUTCDay()];
+/** A Singapore wall-clock time on a date, as a real moment. */
+const at = (d: Date, t: string) => Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), +t.slice(0, 2), +t.slice(3, 5)) - SG;
 
-export type MethodState = { method: DeliveryMethod; open: boolean; reason: string; fee: number; dates: { date: string; label: string }[] };
-
-/** Can this option be ordered right now? */
-export function isOpen(m: DeliveryMethod, now = Date.now()) {
-  if (!m.enabled) return false;
-  const d = sgNow(now);
-  const w = m.windows[KEYS[d.getUTCDay()]];
-  const t = hm(d);
-  return !!w?.on && t >= w.from && t <= w.to;
-}
-
-/** Dates a customer can pick for an option: only days it is serviced (e.g. Mon–Sat). */
-export function pickDates(m: DeliveryMethod, now = Date.now(), count = 14) {
-  if (!m.pickDate) return [];
-  const today = sgNow(now);
-  const out: { date: string; label: string }[] = [];
-  const service = m.serviceDays ?? { mon: true, tue: true, wed: true, thu: true, fri: true, sat: true, sun: false };
-  for (let i = m.firstDay; out.length < count && i < count + 10; i++) {
-    const d = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() + i));
-    if (!service[KEYS[d.getUTCDay()]]) continue;
-    if (i === 0 && hm(today) > (m.todayUntil || "23:59")) continue; // too late for today
-    const dm = d.toLocaleDateString("en-SG", { day: "numeric", month: "short", timeZone: "UTC" });
-    const wd = d.toLocaleDateString("en-SG", { weekday: "short", timeZone: "UTC" });
-    out.push({ date: ymd(d), label: i === 0 ? `Today|${dm}` : i === 1 ? `Tomorrow|${dm}` : `${wd}|${dm}` });
-  }
-  return out;
-}
-
-export const feeFor = (m: DeliveryMethod, subtotal: number) => (m.freeFrom > 0 && subtotal >= m.freeFrom ? 0 : m.fee);
-
-export function methodStates(methods: DeliveryMethod[], subtotal: number, now = Date.now()): MethodState[] {
-  return methods.filter((m) => m.enabled).map((m) => {
-    const open = isOpen(m, now);
-    return { method: m, open, reason: open ? "" : m.closedMessage, fee: feeFor(m, subtotal), dates: pickDates(m, now) };
-  });
-}
-
-/** The date an order is for: the chosen date, or today for same-day / express. */
 export const todaySG = (now = Date.now()) => ymd(sgNow(now));
-
-export function dayLabel(date: string) {
-  if (!date) return "";
-  return new Date(date + "T00:00:00Z").toLocaleDateString("en-SG", { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" });
-}
 
 /** "23:59" → "11:59PM", "11:00" → "11AM". */
 export function clock(t: string) {
@@ -59,33 +24,137 @@ export function clock(t: string) {
   const h12 = h % 12 || 12;
   return m ? `${h12}:${String(m).padStart(2, "0")}${ap}` : `${h12}${ap}`;
 }
+export const rangeLabel = (r: Range) => `${clock(r.from)} – ${clock(r.to)}`;
+const rangesLabel = (rs: Range[]) => rs.map(rangeLabel).join(", ");
+
+function dayName(d: Date, today: Date) {
+  const diff = Math.round((d.getTime() - day(today, 0).getTime()) / 86400_000);
+  const dm = d.toLocaleDateString("en-SG", { day: "numeric", month: "short", timeZone: "UTC" });
+  const wd = d.toLocaleDateString("en-SG", { weekday: "short", timeZone: "UTC" });
+  return { top: diff === 0 ? "Today" : diff === 1 ? "Tomorrow" : wd, dm, long: diff === 0 ? "today" : diff === 1 ? "tomorrow" : `${wd} ${dm}` };
+}
+
+export type DateOpt = { date: string; label: string; detail: string; slots?: { id: string; label: string }[] };
+export type Arrival = {
+  pick: "none" | "date" | "slot"; // what the customer chooses
+  date: string; // the date when nothing is chosen (YYYY-MM-DD)
+  summary: string; // e.g. "Arrives tomorrow, 11AM – 11PM"
+  slotText: string; // stored on the order, e.g. "Within 2 hours"
+  dates: DateOpt[];
+};
+
+const serviceDates = (m: DeliveryMethod, today: Date, from: number, count = 14) => {
+  const out: Date[] = [];
+  for (let i = from; out.length < count && i < from + count + 14; i++) {
+    const d = day(today, i);
+    if (m.serviceDays[wk(d)]) out.push(d);
+  }
+  return out;
+};
+
+export function arrival(m: DeliveryMethod, now = Date.now()): Arrival {
+  const today = sgNow(now);
+  const t = hm(today);
+  const hoursOf = (d: Date) => m.hours[wk(d)] ?? [];
+  const label = (d: Date) => { const n = dayName(d, today); return `${n.top}|${n.dm}`; };
+
+  switch (m.id) {
+    case "SAME_DAY": {
+      const todayOk = m.serviceDays[wk(today)] && t < m.cutoff;
+      const d = todayOk ? day(today, 0) : serviceDates(m, today, 1, 1)[0];
+      const n = dayName(d, today);
+      return { pick: "none", date: ymd(d), slotText: rangesLabel(hoursOf(d)), dates: [],
+        summary: todayOk ? `Arrives today, ${rangesLabel(hoursOf(d))}`
+          : m.serviceDays[wk(today)] ? `After today's ${clock(m.cutoff)} cut-off · arrives ${n.long}` : `No same-day today · arrives ${n.long}` };
+    }
+    case "EXPRESS": {
+      // Running now? Otherwise the next time it opens.
+      for (let i = 0; i < 8; i++) {
+        const d = day(today, i);
+        for (const r of hoursOf(d)) {
+          if (i === 0 && t >= r.from && t <= r.to) return { pick: "none", date: ymd(d), slotText: "Within 2 hours", dates: [], summary: "Arrives within 2 hours" };
+          if (at(d, r.from) > now) {
+            const n = dayName(d, today);
+            return { pick: "none", date: ymd(d), slotText: `Within 2 hours from ${clock(r.from)}`, dates: [],
+              summary: `Express opens ${n.long === "today" ? "" : n.long + " "}at ${clock(r.from)} · arrives within 2 hours of that` };
+          }
+        }
+      }
+      return { pick: "none", date: ymd(today), slotText: "Within 2 hours", dates: [], summary: "Arrives within 2 hours" };
+    }
+    case "COLLECT": {
+      const startToday = m.serviceDays[wk(today)] && t < m.cutoff;
+      const ds = serviceDates(m, today, startToday ? 0 : 1).filter((d) => hoursOf(d).length);
+      const dates = ds.map((d) => ({ date: ymd(d), label: label(d), detail: rangesLabel(hoursOf(d)) }));
+      return { pick: "date", date: dates[0]?.date ?? "", slotText: dates[0]?.detail ?? "", dates,
+        summary: dates[0] ? `Collect from ${dayName(ds[0], today).long}, ${dates[0].detail}` : "" };
+    }
+    case "TIMED": {
+      const earliest = now + m.leadHours * 3600_000;
+      const dates: DateOpt[] = [];
+      for (const d of serviceDates(m, today, 0, 20)) {
+        const slots = m.slots.filter((r) => at(d, r.from) >= earliest).map((r) => ({ id: `${r.from}-${r.to}`, label: rangeLabel(r) }));
+        if (slots.length) dates.push({ date: ymd(d), label: label(d), detail: `${slots.length} slots`, slots });
+        if (dates.length >= 14) break;
+      }
+      return { pick: "slot", date: dates[0]?.date ?? "", slotText: "", dates,
+        summary: dates[0]?.slots ? `Choose a 3-hour slot · earliest ${dates[0].label.replace("|", " ")}, ${dates[0].slots[0].label}` : "" };
+    }
+    default: { // NEXT_DAY: the next delivery day after today (Saturday and Sunday orders: Monday)
+      const ds = serviceDates(m, today, 1);
+      const dates = ds.map((d) => ({ date: ymd(d), label: label(d), detail: rangesLabel(hoursOf(d)) }));
+      const n = dayName(ds[0], today);
+      return { pick: "date", date: dates[0].date, slotText: dates[0].detail, dates,
+        summary: `Arrives ${n.long}, ${dates[0].detail}` };
+    }
+  }
+}
+
+export const feeFor = (m: DeliveryMethod, subtotal: number) => (m.freeFrom > 0 && subtotal >= m.freeFrom ? 0 : m.fee);
+
+/** Is same-day really today right now? (Used for the free same-day goal and the badge.) */
+export const sameDayToday = (m: DeliveryMethod, now = Date.now()) => {
+  const d = sgNow(now);
+  return m.serviceDays[wk(d)] && hm(d) < m.cutoff;
+};
+
+/** Free-delivery goals for the cart bar: next day always; same day only while it really is same-day. */
+export const freeGoals = (methods: DeliveryMethod[], now = Date.now()) =>
+  methods.filter((m) => m.enabled && m.freeFrom > 0 && (m.id !== "SAME_DAY" || sameDayToday(m, now)))
+    .sort((a, b) => a.freeFrom - b.freeFrom)
+    .map((m) => ({ label: m.name.toLowerCase().replace(/(\w+) day/, "$1-day"), threshold: m.freeFrom }));
+
+export function dayLabel(date: string) {
+  if (!date) return "";
+  return new Date(date + "T00:00:00Z").toLocaleDateString("en-SG", { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" });
+}
 
 const DAY_NAMES: Record<Weekday, string> = { sun: "Sundays", mon: "Mondays", tue: "Tuesdays", wed: "Wednesdays", thu: "Thursdays", fri: "Fridays", sat: "Saturdays" };
 
-/**
- * The homepage badge: what a customer can get right now (Singapore time).
- * Same day first, then Express, then Next day; on a closed day it says so.
- */
+/** The homepage badge: the best delivery a customer can get right now. */
 export function deliveryHeadline(methods: DeliveryMethod[], now = Date.now()): { text: string; open: boolean } {
   const d = sgNow(now);
-  const today = KEYS[d.getUTCDay()];
-  const tomorrow = KEYS[(d.getUTCDay() + 1) % 7];
-  const by = (id: DeliveryMethod["id"]) => methods.find((m) => m.id === id && m.enabled);
-  const same = by("SAME_DAY"), express = by("EXPRESS"), next = by("NEXT_DAY"), collect = by("COLLECT");
+  const today = wk(d);
+  const t = hm(d);
+  const find = (id: DeliveryMethod["id"]) => methods.find((m) => m.id === id && m.enabled);
+  const same = find("SAME_DAY"), express = find("EXPRESS"), next = find("NEXT_DAY");
 
-  if (same && isOpen(same, now)) return { text: `Same-day delivery · order by ${clock(same.windows[today].to)}`, open: true };
-  if (express && isOpen(express, now)) {
-    let end = express.windows[today].to;
-    // A window running to midnight that carries on early next morning ends at the next morning's time.
-    const t = express.windows[tomorrow];
-    if (end >= "23:59" && t.on && t.from === "00:00") end = t.to;
-    return { text: `Express delivery · order by ${clock(end)}`, open: true };
+  if (same && sameDayToday(same, now)) return { text: `Same-day delivery · order by ${clock(same.cutoff)}`, open: true };
+  if (express) {
+    const r = (express.hours[today] ?? []).find((x) => t >= x.from && t <= x.to);
+    if (r) {
+      let end = r.to;
+      const tomorrow = express.hours[KEYS[(d.getUTCDay() + 1) % 7]] ?? [];
+      if (end >= "23:59" && tomorrow[0]?.from === "00:00") end = tomorrow[0].to; // runs past midnight
+      return { text: `Express delivery · order by ${clock(end)}`, open: true };
+    }
   }
-  // A day we don't deliver or hand over is a closed day (orders can still be placed for later).
-  const closedDay = [next, same, collect].every((m) => !m || !m.serviceDays?.[today]);
-  if (next && isOpen(next, now)) {
-    const by = `order by ${clock(next.windows[today].to)}`;
-    return closedDay ? { text: `Closed on ${DAY_NAMES[today]} · Next-day delivery, ${by}`, open: false } : { text: `Next-day delivery · ${by}`, open: true };
+  if (next) {
+    const by = `order by ${clock(next.cutoff)}`;
+    if (!next.serviceDays[today]) return { text: `Closed on ${DAY_NAMES[today]} · Next-day delivery, ${by}`, open: false };
+    const arrives = arrival(next, now).date;
+    if (arrives === ymd(day(d, 1))) return { text: `Next-day delivery · ${by}`, open: true };
+    return { text: `Next-day delivery · ${by} for ${dayName(new Date(arrives + "T00:00:00Z"), d).long}`, open: true };
   }
-  return { text: closedDay ? `Closed on ${DAY_NAMES[today]}` : "Order now for next-day delivery", open: false };
+  return { text: "Order now", open: false };
 }

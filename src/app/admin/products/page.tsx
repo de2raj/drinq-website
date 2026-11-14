@@ -81,21 +81,21 @@ export default async function AdminProducts({ searchParams }: { searchParams: Pr
         ))}
       </div>
 
-      <p className="acount">{list.length} {list.length === 1 ? "product" : "products"}{pages > 1 && ` · page ${page} of ${pages}`}. Change a price or tick a box, then press Save on that row.</p>
+      <p className="acount">{list.length} {list.length === 1 ? "product" : "products"}{pages > 1 && ` · page ${page} of ${pages}`}.</p>
 
-      <div className="plist">
+      <div className="alist">
         {shown.map((p) => (
-          <form key={p.id} action={quickSave} className={`prow ${p.active ? "" : "off"}`}>
+          <form key={p.id} action={quickSave} className={`arow ${p.active ? "" : "off"}`}>
             <input type="hidden" name="id" value={p.id} />
-            <Link className="pth" href={`/admin/products/${p.id}?returnTo=${encodeURIComponent(here)}`}>{p.thumb && <img src={p.thumb} alt="" loading="lazy" />}</Link>
-            <div className="pname">
+            <Link className="ath" href={`/admin/products/${p.id}?returnTo=${encodeURIComponent(here)}`}>{p.thumb && <img src={p.thumb} alt="" loading="lazy" />}</Link>
+            <div className="aname">
               <Link href={`/admin/products/${p.id}?returnTo=${encodeURIComponent(here)}`}><b>{p.name}</b></Link>
               <span>{[p.brand, p.size, p.sku && `#${p.sku}`].filter(Boolean).join(" · ")}{!p.active && " · Hidden"}</span>
             </div>
-            <label className="pf pf1"><span>Price $</span><input name="price" defaultValue={dollars(p.price)} inputMode="decimal" required /></label>
-            <label className="pf pf2"><span>Usual $</span><input name="was" defaultValue={p.was > p.price ? dollars(p.was) : ""} inputMode="decimal" placeholder="—" /></label>
-            <label className="pc pc1"><input type="checkbox" className="check" name="inStock" defaultChecked={p.inStock} />In stock</label>
-            <label className="pc pc2"><input type="checkbox" className="check" name="active" defaultChecked={p.active} />Shown</label>
+            <label className="af af1"><span>Price $</span><input name="price" defaultValue={dollars(p.price)} inputMode="decimal" required /></label>
+            <label className="af af2"><span>Usual $</span><input name="was" defaultValue={p.was > p.price ? dollars(p.was) : ""} inputMode="decimal" placeholder="—" /></label>
+            <label className="ac ac1"><input type="checkbox" className="check" name="inStock" defaultChecked={p.inStock} />In stock</label>
+            <label className="ac ac2"><input type="checkbox" className="check" name="active" defaultChecked={p.active} />Shown</label>
             <button className="btn btn-sm">Save</button>
           </form>
         ))}

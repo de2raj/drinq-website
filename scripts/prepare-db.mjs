@@ -29,8 +29,10 @@ if (provider === "mysql") {
   const out = src
     .replace(/provider\s*=\s*"sqlite"/, 'provider = "mysql"')
     .replace(/\n\s*binaryTargets\s*=.*\n/, "\n")
+    // Fields marked "@text" in a comment hold long text (JSON, notes): TEXT columns in MySQL.
+    .replace(/^(\s+\w+\s+String\??)([^\n]*?)(\s*\/\/[^\n]*@text[^\n]*)$/gm, (_l, a, b, c) => `${a}${b.replace(/\s*@default\(""\)/, "")} @db.Text${c}`)
     // MySQL's default text column is 191 characters: give free-text fields room.
-    .replace(/^(\s+\w+\s+String\??)(?![^\n]*@(?:id|unique))([^\n]*?)(\s*\/\/[^\n]*)?$/gm, (_l, a, b, c = "") => `${a}${b} @db.VarChar(500)${c}`);
+    .replace(/^(\s+\w+\s+String\??)(?![^\n]*@(?:id|unique|db\.))([^\n]*?)(\s*\/\/[^\n]*)?$/gm, (_l, a, b, c = "") => `${a}${b} @db.VarChar(500)${c}`);
   mkdirSync("prisma/.gen", { recursive: true });
   schema = "prisma/.gen/schema.prisma";
   writeFileSync(schema, out);

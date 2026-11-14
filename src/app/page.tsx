@@ -4,14 +4,16 @@ import { ProductCard } from "@/components/ProductCard";
 import { allProducts, inSection, lite, menu, sectionProducts } from "@/lib/catalogue";
 import { SHOP } from "@/lib/config";
 import { findSection } from "@/lib/sections";
+import { getSetting } from "@/lib/settings";
 
 export default async function Home() {
   const all = await allProducts();
   const best = all.filter((p) => p.inStock).slice(0, 10).map(lite);
   const deals = (await sectionProducts(findSection("deals")!)).filter((p) => p.inStock).slice(0, 10).map(lite);
   const sections = (await menu()).filter((s) => !s.deal);
-  const heroPick = (slug: string) => all.find((p) => p.slug.includes(slug) && p.image) ?? all[0];
-  const heroes = [heroPick("chivas"), heroPick("macallan"), heroPick("hennessy")];
+  const store = await getSetting("store");
+  // Homepage bottles: chosen in Admin → Settings → Homepage.
+  const heroes = store.heroSlugs.map((s) => all.find((p) => p.slug === s && p.image)).filter((p) => !!p).slice(0, 3);
   const pics = Object.fromEntries(sections.map((s) => [s.slug, all.find((p) => p.inStock && p.thumb && inSection(p, findSection(s.slug)!))?.thumb]));
   const tilePic = (slug: string) => pics[slug];
 
@@ -20,7 +22,7 @@ export default async function Home() {
       <section className="hero">
         <div className="wrap">
           <div>
-            <span className="eyebrow"><i />Same-day delivery · order by 6pm</span>
+            <span className="eyebrow"><i />Same-day delivery · order by 11am</span>
             <h1 className="display">Drinks to<br />your door.<br /><em>Fast.</em></h1>
             <p className="lead">Spirits, wine, beer and mixers at honest prices, delivered across Singapore.</p>
             <div className="ctas">
@@ -29,14 +31,15 @@ export default async function Home() {
             </div>
             <div className="facts">
               <div><b>{all.length}+</b>drinks to choose from</div>
-              <div><b>7 days</b>a week delivery</div>
-              <div><b>$80</b>free delivery from</div>
+              <div><b>2 hrs</b>express delivery</div>
+              <div><b>$200*</b>free delivery from</div>
             </div>
           </div>
           <div className="hero-art" aria-hidden="true">
-            <div className="disc" />
-            <div className="bottles">{heroes.map((p) => <img key={p.id} src={p.image} alt="" />)}</div>
-            <div className="sticker"><div><b>{deals.length}</b>deals<br />this week</div></div>
+            <div className="disc">
+              <div className={`bottles n${heroes.length}`}>{heroes.map((p) => <img key={p.id} src={p.image} alt="" />)}</div>
+            </div>
+            {deals.length > 0 && <Link className="sticker" href="/deals"><div><b>{deals.length}</b>deals<br />this week</div></Link>}
           </div>
         </div>
       </section>

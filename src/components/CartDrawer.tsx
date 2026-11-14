@@ -1,17 +1,24 @@
 "use client";
 import Link from "next/link";
 import { useEffect } from "react";
-import { SHOP } from "@/lib/config";
 import { money } from "@/lib/money";
 import { useCart } from "./CartProvider";
 import { IconClose } from "./Icons";
 
+/** "Add $X more for FREE next-day delivery" (same rules as the Botello app). */
 export function FreeDeliveryBar({ subtotal }: { subtotal: number }) {
-  const left = Math.max(0, SHOP.freeDeliveryFrom - subtotal);
+  const { tiers } = useCart();
+  if (!tiers.length) return null;
+  const goal = tiers.find((t) => subtotal < t.threshold);
+  const unlocked = tiers.filter((t) => subtotal >= t.threshold).pop();
+  const from = unlocked?.threshold ?? 0;
+  const pct = goal ? Math.min(100, Math.max(0, ((subtotal - from) / (goal.threshold - from)) * 100)) : 100;
   return (
     <>
-      {left ? <>Add <b>{money(left)}</b> more for free delivery</> : <b>Free delivery unlocked 🎉</b>}
-      <div className="pbar"><i style={{ width: `${Math.min(100, (subtotal / SHOP.freeDeliveryFrom) * 100)}%` }} /></div>
+      {!goal ? <b>FREE delivery unlocked 🎉</b>
+        : unlocked ? <><b>FREE {unlocked.label}</b> unlocked · add <b>{money(goal.threshold - subtotal)}</b> for FREE {goal.label}</>
+        : <>Add <b>{money(goal.threshold - subtotal)}</b> more for FREE {goal.label}</>}
+      <div className="pbar"><i style={{ width: `${pct}%` }} /></div>
     </>
   );
 }

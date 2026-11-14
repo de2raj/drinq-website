@@ -4,7 +4,10 @@ import type { ProductLite } from "@/lib/types";
 
 export type CartLine = Pick<ProductLite, "id" | "slug" | "name" | "brand" | "size" | "price" | "thumb"> & { qty: number };
 
+export type Tier = { label: string; threshold: number };
+
 type Ctx = {
+  tiers: Tier[];
   lines: CartLine[];
   ready: boolean;
   count: number;
@@ -21,7 +24,7 @@ type Ctx = {
 const CartCtx = createContext<Ctx | null>(null);
 const KEY = "drinq-cart-v1";
 
-export function CartProvider({ children }: { children: React.ReactNode }) {
+export function CartProvider({ children, tiers }: { children: React.ReactNode; tiers: Tier[] }) {
   const [lines, setLines] = useState<CartLine[]>([]);
   const [ready, setReady] = useState(false);
   const [open, setOpen] = useState(false);
@@ -66,12 +69,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const value = useMemo<Ctx>(() => ({
-    lines, ready, open, setOpen, add, setQty, toast,
+    tiers, lines, ready, open, setOpen, add, setQty, toast,
     replace: setLines,
     clear: () => setLines([]),
     count: lines.reduce((a, l) => a + l.qty, 0),
     subtotal: lines.reduce((a, l) => a + l.qty * l.price, 0),
-  }), [lines, ready, open, add, setQty, toast]);
+  }), [tiers, lines, ready, open, add, setQty, toast]);
 
   return (
     <CartCtx.Provider value={value}>

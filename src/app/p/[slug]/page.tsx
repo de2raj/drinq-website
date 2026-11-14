@@ -4,7 +4,6 @@ import { notFound } from "next/navigation";
 import { BuyBox } from "@/components/BuyBox";
 import { ProductCard } from "@/components/ProductCard";
 import { allProducts, inSub, lite, productBySlug, sectionOf } from "@/lib/catalogue";
-import { SHOP } from "@/lib/config";
 import { money } from "@/lib/money";
 
 type P = { params: Promise<{ slug: string }> };
@@ -51,7 +50,7 @@ export default async function ProductPage({ params }: P) {
             {p.sku && <div><dt>Product code</dt><dd>{p.sku}</dd></div>}
           </dl>
           <div className="perks">
-            <div><span className="ic">🚚</span><span><b>Delivery 7 days a week</b>Free over {money(SHOP.freeDeliveryFrom)}, otherwise {money(SHOP.deliveryFee)}.</span></div>
+            <div><span className="ic">🚚</span><span><b>Next-day, same-day or 2-hour express</b>Free next-day delivery from $200, same-day from $300. Or collect it yourself.</span></div>
             <div><span className="ic">🔒</span><span><b>Secure payment</b>PayNow QR, cards, Apple Pay or Google Pay.</span></div>
             <div><span className="ic">🪪</span><span><b>18+ only</b>We check ID at the door.</span></div>
           </div>

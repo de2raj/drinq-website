@@ -2,24 +2,30 @@
 import Link from "next/link";
 import { useEffect, useState, useTransition } from "react";
 import { submitOrder } from "@/app/checkout/actions";
-import { SHOP } from "@/lib/config";
-import type { DeliveryDay } from "@/lib/delivery";
 import { money } from "@/lib/money";
 import type { CheckoutInput } from "@/lib/orders";
 import { useCart } from "./CartProvider";
+import { PayIcon } from "./PayIcon";
+
+export type MethodOption = {
+  id: string; name: string; fee: number; freeFrom: number; when: string; address: string;
+  notice: string[]; open: boolean; reason: string; pickDate: boolean; dates: { date: string; label: string }[];
+};
+export type PaymentChoice = { id: string; name: string; detail: string };
 
 type Errors = Partial<Record<keyof CheckoutInput | "form", string>>;
-const DRAFT = "drinq-checkout-v1";
+const DRAFT = "drinq-checkout-v2";
 const blank = { name: "", email: "", phone: "", address: "", unit: "", postal: "", notes: "" };
 
-export function CheckoutForm({ days, cardEnabled }: { days: DeliveryDay[]; cardEnabled: boolean }) {
+export function CheckoutForm({ methods, payments, testMode }: { methods: MethodOption[]; payments: PaymentChoice[]; testMode: boolean }) {
   const { lines, subtotal, ready, clear } = useCart();
   const [f, setF] = useState(blank);
-  const [date, setDate] = useState(days[0]?.date ?? "");
-  const [slot, setSlot] = useState("");
+  const [method, setMethod] = useState(methods.find((m) => m.open)?.id ?? "");
+  const [date, setDate] = useState("");
   const [allDays, setAllDays] = useState(false);
-  const [payment, setPayment] = useState<"PAYNOW" | "CARD">(cardEnabled ? "CARD" : "PAYNOW");
+  const [payment, setPayment] = useState(payments[0]?.id ?? "");
   const [over18, setOver18] = useState(false);
+  const [closed, setClosed] = useState<MethodOption | null>(null);
   const [errors, setErrors] = useState<Errors>({});
   const [pending, start] = useTransition();
 
@@ -35,23 +41,32 @@ export function CheckoutForm({ days, cardEnabled }: { days: DeliveryDay[]; cardE
     if (errors[k]) setErrors({ ...errors, [k]: undefined });
   };
 
-  const fee = subtotal >= SHOP.freeDeliveryFrom ? 0 : SHOP.deliveryFee;
-  const day = days.find((d) => d.date === date);
+  const m = methods.find((x) => x.id === method);
+  const fee = m ? (m.freeFrom > 0 && subtotal >= m.freeFrom ? 0 : m.fee) : 0;
+  const collect = method === "COLLECT";
+  const shownDays = m?.pickDate ? (allDays ? m.dates : m.dates.slice(0, 7)) : [];
+
+  function choose(x: MethodOption) {
+    if (!x.open) { setClosed(x); return; }
+    setMethod(x.id);
+    if (!x.dates.some((d) => d.date === date)) setDate("");
+    setErrors({ ...errors, method: undefined, date: undefined });
+  }
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
     const local: Errors = {};
-    if (!slot) local.slot = "Please choose a delivery time.";
+    if (!m) local.method = "Please choose a delivery option.";
+    if (m?.pickDate && !date) local.date = "Please choose a date.";
     if (!over18) local.over18 = "Please confirm you are 18 or over.";
     if (Object.keys(local).length) { setErrors(local); scrollToError(); return; }
     start(async () => {
-      const r = await submitOrder({ ...f, date, slot, payment, over18, lines: lines.map((l) => ({ id: l.id, qty: l.qty })) });
+      const r = await submitOrder({ ...f, method, date, payment, over18, lines: lines.map((l) => ({ id: l.id, qty: l.qty })) });
       if (r.ok) {
         clear();
         location.href = r.redirect;
       } else {
         setErrors(r.errors);
-        if (r.errors.slot) setSlot("");
         scrollToError();
       }
     });
@@ -79,6 +94,7 @@ export function CheckoutForm({ days, cardEnabled }: { days: DeliveryDay[]; cardE
     </div>
   );
 
+  let n = 0;
   return (
     <div className="wrap">
       <div className="crumbs"><Link href="/">Home</Link> / <Link href="/cart">Cart</Link> / Checkout</div>
@@ -87,63 +103,88 @@ export function CheckoutForm({ days, cardEnabled }: { days: DeliveryDay[]; cardE
         <div>
           {errors.form && <div className="notice bad">{errors.form}</div>}
           <div className="panel">
-            <h2><span className="n">1</span>Your details</h2>
+            <h2><span className="n">{++n}</span>Your details</h2>
             <div className="fields">
               {field("name", "Full name", { autoComplete: "name", required: true }, true)}
               {field("email", "Email", { type: "email", autoComplete: "email", inputMode: "email", required: true })}
-              {field("phone", "Mobile number", { type: "tel", autoComplete: "tel", inputMode: "tel", placeholder: "8123 4567", required: true })}
+              {field("phone", "Mobile number", { type: "tel", autoComplete: "tel", inputMode: "tel", required: true })}
             </div>
           </div>
 
-          <div className="panel">
-            <h2><span className="n">2</span>Delivery address</h2>
-            <div className="fields">
-              {field("address", "Street address", { autoComplete: "street-address", placeholder: "Block and street name", required: true }, true)}
-              {field("unit", "Unit number (optional)", { autoComplete: "address-line2", placeholder: "#05-12" })}
-              {field("postal", "Postal code", { autoComplete: "postal-code", inputMode: "numeric", maxLength: 6, placeholder: "6 digits", required: true })}
-              <div className="field full">
-                <label htmlFor="notes">Notes for the driver (optional)</label>
-                <textarea id="notes" value={f.notes} onChange={set("notes")} placeholder="Gate code, landmarks, call on arrival…" maxLength={500} />
-              </div>
+          <div className={`panel ${errors.method ? "badp" : ""}`}>
+            <h2><span className="n">{++n}</span>Delivery</h2>
+            <div className="dopts" role="radiogroup" aria-label="Delivery option">
+              {methods.map((x) => {
+                const xfee = x.freeFrom > 0 && subtotal >= x.freeFrom ? 0 : x.fee;
+                return (
+                  <button type="button" key={x.id} role="radio" aria-checked={method === x.id} aria-disabled={!x.open}
+                    className={`dopt ${x.open ? "" : "shut"}`} onClick={() => choose(x)}>
+                    <span className="dot" />
+                    <span className="dtxt">
+                      <b>{x.name}</b>
+                      <small>{x.open ? x.when : "Not available right now"}</small>
+                    </span>
+                    <span className="dfee">{xfee ? money(xfee) : "FREE"}</span>
+                  </button>
+                );
+              })}
             </div>
-          </div>
-
-          <div className="panel">
-            <h2><span className="n">3</span>Delivery time</h2>
-            <div className="days" role="group" aria-label="Delivery day">
-              {(allDays ? days : days.slice(0, 7)).map((d) => (
-                <button type="button" key={d.date} className="day" aria-pressed={d.date === date} aria-label={d.label}
-                  onClick={() => { setDate(d.date); if (!d.slots.some((s) => s.id === slot)) setSlot(""); }}>{d.top}<small>{d.dm}</small></button>
-              ))}
-            </div>
-            {days.length > 7 && (
-              <button type="button" className="later" onClick={() => { if (allDays && days.findIndex((d) => d.date === date) >= 7) { setDate(days[0].date); setSlot(""); } setAllDays(!allDays); }}>{allDays ? "Fewer dates" : "Later dates"}</button>
+            {errors.method && <div className="err">{errors.method}</div>}
+            {m && (
+              <ul className="dnotice">{m.notice.map((l) => <li key={l}>{l}</li>)}</ul>
             )}
-            <div className="slots" role="group" aria-label="Delivery slot">
-              {day?.slots.map((s) => (
-                <button type="button" key={s.id} className="slot" aria-pressed={s.id === slot}
-                  onClick={() => { setSlot(s.id); setErrors({ ...errors, slot: undefined }); }}>{s.label}</button>
-              ))}
+
+            {m?.pickDate && (
+              <>
+                <h3 className="sub-h">{collect ? "Collection date" : "Delivery date"}</h3>
+                <div className="days" role="group" aria-label="Date">
+                  {shownDays.map((d) => {
+                    const [top, dm] = d.label.split("|");
+                    return (
+                      <button type="button" key={d.date} className="day" aria-pressed={d.date === date} aria-label={`${top}, ${dm}`}
+                        onClick={() => { setDate(d.date); setErrors({ ...errors, date: undefined }); }}>{top}<small>{dm}</small></button>
+                    );
+                  })}
+                </div>
+                {m.dates.length > 7 && (
+                  <button type="button" className="later" onClick={() => {
+                    if (allDays && m.dates.findIndex((d) => d.date === date) >= 7) setDate("");
+                    setAllDays(!allDays);
+                  }}>{allDays ? "Fewer dates" : "Later dates"}</button>
+                )}
+                {errors.date && <div className="err">{errors.date}</div>}
+              </>
+            )}
+
+            {collect ? (
+              <div className="collect"><b>Collect from</b><span>{m?.address}</span></div>
+            ) : (
+              <div className="fields" style={{ marginTop: 18 }}>
+                {field("address", "Street address", { autoComplete: "street-address", required: true }, true)}
+                {field("unit", "Unit number (optional)", { autoComplete: "address-line2" })}
+                {field("postal", "Postal code", { autoComplete: "postal-code", inputMode: "numeric", maxLength: 6, required: true })}
+              </div>
+            )}
+            <div className="field full" style={{ marginTop: 14 }}>
+              <label htmlFor="notes">{collect ? "Notes (optional)" : "Notes for the driver (optional)"}</label>
+              <textarea id="notes" value={f.notes} onChange={set("notes")} maxLength={500} />
             </div>
-            {errors.slot && <div className="err">{errors.slot}</div>}
-            <p style={{ fontSize: 13, fontWeight: 600, marginTop: 12 }}>Deliveries run 10am – 10pm. Singapore law does not allow liquor sales between 10.30pm and 7am.</p>
           </div>
 
-          <div className="panel">
-            <h2><span className="n">4</span>Payment</h2>
+          <div className={`panel ${errors.payment ? "badp" : ""}`}>
+            <h2><span className="n">{++n}</span>Payment</h2>
             <div className="pays" role="radiogroup" aria-label="Payment method">
-              {cardEnabled && (
-                <button type="button" role="radio" className="pay" aria-checked={payment === "CARD"} onClick={() => setPayment("CARD")}>
-                  <span className="dot" /><span>Card, Apple Pay or Google Pay<small>Pay securely on the next page.</small></span>
+              {payments.map((p) => (
+                <button type="button" key={p.id} role="radio" className="pay" aria-checked={payment === p.id} onClick={() => setPayment(p.id)}>
+                  <span className="dot" /><PayIcon id={p.id} /><span>{p.name}<small>{p.detail}</small></span>
                 </button>
-              )}
-              <button type="button" role="radio" className="pay" aria-checked={payment === "PAYNOW"} onClick={() => setPayment("PAYNOW")}>
-                <span className="dot" /><span>PayNow QR<small>Scan the QR with any Singapore banking app after placing your order.</small></span>
-              </button>
+              ))}
             </div>
+            {errors.payment && <div className="err">{errors.payment}</div>}
+            {testMode && <p className="testnote">Test mode: no money is taken. After placing the order you can simulate the payment.</p>}
             <label className="agree" style={{ marginTop: 18 }}>
               <input type="checkbox" className="check" checked={over18} onChange={(e) => { setOver18(e.target.checked); setErrors({ ...errors, over18: undefined }); }} />
-              <span>I am 18 or over and agree to the <Link className="u" href="/terms" target="_blank">Terms</Link>. I will show ID on delivery.</span>
+              <span>I am 18 or over and agree to the <Link className="u" href="/terms" target="_blank">Terms</Link>. I will show ID on delivery or collection.</span>
             </label>
             {errors.over18 && <div className="err">{errors.over18}</div>}
           </div>
@@ -152,7 +193,7 @@ export function CheckoutForm({ days, cardEnabled }: { days: DeliveryDay[]; cardE
         <div className="summary">
           <div className="panel">
             <h2>Order summary</h2>
-            <div style={{ maxHeight: 320, overflow: "auto", scrollbarWidth: "none", marginBottom: 10 }}>
+            <div className="sumlines">
               {lines.map((l) => (
                 <div key={l.id} className="line" style={{ padding: "8px 0" }}>
                   <div className="th" style={{ width: 48, height: 48 }}>{l.thumb && <img src={l.thumb} alt="" />}</div>
@@ -162,15 +203,25 @@ export function CheckoutForm({ days, cardEnabled }: { days: DeliveryDay[]; cardE
               ))}
             </div>
             <div className="row"><span>Subtotal</span><span>{money(subtotal)}</span></div>
-            <div className="row"><span>Delivery</span><span>{fee ? money(fee) : "Free"}</span></div>
+            <div className="row"><span>{m ? m.name : "Delivery"}</span><span>{m ? (fee ? money(fee) : "Free") : "—"}</span></div>
             <div className="row total"><span>Total</span><span>{money(subtotal + fee)}</span></div>
             <button className="btn btn-block" style={{ marginTop: 16 }} disabled={pending}>
-              {pending ? "Placing order…" : payment === "CARD" ? `Continue to payment · ${money(subtotal + fee)}` : `Place order · ${money(subtotal + fee)}`}
+              {pending ? "Placing order…" : `Place order · ${money(subtotal + fee)}`}
             </button>
             <Link className="u" href="/cart" style={{ display: "block", textAlign: "center", marginTop: 12, fontWeight: 700, fontSize: 14 }}>Edit cart</Link>
           </div>
         </div>
       </form>
+
+      {closed && (
+        <div className="modal" role="alertdialog" aria-labelledby="closedTitle" onClick={() => setClosed(null)}>
+          <div className="mbox" onClick={(e) => e.stopPropagation()}>
+            <h3 id="closedTitle">{closed.name} isn&apos;t available</h3>
+            <p>{closed.reason}</p>
+            <button className="btn btn-block" onClick={() => setClosed(null)}>OK, got it</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

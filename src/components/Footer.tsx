@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { SHOP } from "@/lib/config";
 import { SECTIONS } from "@/lib/sections";
+import { getSetting } from "@/lib/settings";
 
-export function Footer() {
+export async function Footer() {
+  const store = await getSetting("store");
   return (
     <footer className="ft">
       <div className="wrap">
@@ -16,6 +18,7 @@ export function Footer() {
           <div><h4>Help</h4><ul><li><Link href="/delivery">Delivery</Link></li><li><Link href="/faq">FAQ</Link></li><li><Link href="/contact">Contact us</Link></li><li><Link href="/terms">Terms</Link></li><li><Link href="/privacy">Privacy</Link></li></ul></div>
           <div><h4>Follow</h4><ul><li><a href={SHOP.telegramUrl} target="_blank" rel="noopener">Telegram</a></li></ul></div>
         </div>
+        {store.freeNote && <p className="freenote">{store.freeNote}</p>}
         <div className="fine">
           <span>© {new Date().getFullYear()} {SHOP.company} · UEN {SHOP.uen} · Prices in SGD</span>
           <span>18+ only. Please drink responsibly. No liquor sales 10.30pm – 7am.</span>

@@ -8,7 +8,7 @@ import { CartDrawer } from "./CartDrawer";
 import { IconBag, IconClose, IconMenu } from "./Icons";
 import { SearchBox } from "./SearchBox";
 
-export function Header({ menu }: { menu: Menu }) {
+export function Header({ menu, announcement }: { menu: Menu; announcement: string }) {
   const { count, setOpen, ready } = useCart();
   const [side, setSide] = useState(false);
   const [hoverOff, setHoverOff] = useState(false);
@@ -28,7 +28,7 @@ export function Header({ menu }: { menu: Menu }) {
 
   return (
     <>
-      <div className="strip">Free delivery over $80<span className="sd"> · Same-day delivery across Singapore</span></div>
+      <div className="strip">{announcement.split(" · ").map((part, i) => <span key={i} className={i ? "sd" : ""}>{i ? " · " : ""}{part}</span>)}</div>
       <header className="hdr">
         <div className="wrap hbar">
           <button className="icon-btn menu-btn" aria-label="Menu" onClick={() => setSide(true)}><IconMenu /></button>

@@ -1,11 +1,23 @@
 import type { Metadata } from "next";
 import { CheckoutForm } from "@/components/CheckoutForm";
-import { deliveryDays } from "@/lib/delivery";
-import { stripeEnabled } from "@/lib/stripe";
+import { isOpen, pickDates } from "@/lib/delivery";
+import { getSetting } from "@/lib/settings";
 
 export const metadata: Metadata = { title: "Checkout", robots: { index: false } };
 export const dynamic = "force-dynamic";
 
-export default function CheckoutPage() {
-  return <CheckoutForm days={deliveryDays()} cardEnabled={stripeEnabled()} />;
+export default async function CheckoutPage() {
+  const [methods, payments] = await Promise.all([getSetting("delivery"), getSetting("payments")]);
+  const options = methods.filter((m) => m.enabled).map((m) => ({
+    id: m.id, name: m.name, fee: m.fee, freeFrom: m.freeFrom, when: m.when, address: m.address ?? "",
+    notice: m.notice.split("\n").map((l) => l.trim()).filter(Boolean),
+    open: isOpen(m), reason: m.closedMessage, pickDate: m.pickDate, dates: pickDates(m),
+  }));
+  return (
+    <CheckoutForm
+      methods={options}
+      payments={payments.options.filter((p) => p.enabled).map(({ id, name, detail }) => ({ id, name, detail }))}
+      testMode={payments.testMode}
+    />
+  );
 }

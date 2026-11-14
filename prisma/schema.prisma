@@ -14,8 +14,8 @@ model Order {
   id              Int         @id @default(autoincrement())
   number          String      @unique // DQW-00001
   token           String      @unique // private link for the customer's order page
-  status          String      @default("AWAITING_PAYMENT") // AWAITING_PAYMENT | PAID | CANCELLED
-  paymentMethod   String // PAYNOW | CARD
+  status          String      @default("AWAITING_PAYMENT") // see src/lib/order-status.ts
+  paymentMethod   String // PAYNOW | CARD | APPLE_PAY | GOOGLE_PAY | GRABPAY| CARD
   stripeSessionId String?
   paidAt          DateTime?
   name            String
@@ -24,13 +24,18 @@ model Order {
   address         String
   unit            String      @default("")
   postal          String
-  deliveryDate    String // YYYY-MM-DD, Singapore time
-  deliverySlot    String // e.g. 10:00-13:00
+  deliveryMethod  String      @default("") // NEXT_DAY | SAME_DAY | EXPRESS | COLLECT
+  deliveryLabel   String      @default("") // the option's name when ordered, e.g. "Next Day Delivery"
+  deliveryDate    String // YYYY-MM-DD (Singapore) or ""
+  deliverySlot    String // free text shown to the customer, e.g. "11:00 - 23:00"
   notes           String      @default("")
   subtotal        Int
   deliveryFee     Int
   total           Int
   lines           OrderLine[]
+  events          OrderEvent[]
+  adminNote       String? // @text staff-only note
+  isTest          Boolean     @default(false) // placed on the test site
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
 }
@@ -79,4 +84,23 @@ model ProductImage {
   type      String
   data      Bytes
   createdAt DateTime @default(now())
+}
+
+/// Status changes and staff notes on an order (the tracking timeline).
+model OrderEvent {
+  id      Int      @id @default(autoincrement())
+  orderId Int
+  order   Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  status  String
+  note    String? // @text
+  at      DateTime @default(now())
+
+  @@index([orderId])
+}
+
+/// Shop settings edited in /admin/settings (JSON per key).
+model Setting {
+  key       String   @id
+  value     String // @text JSON
+  updatedAt DateTime @updatedAt
 }

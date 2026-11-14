@@ -111,8 +111,8 @@ nav.cats .item:hover .mega, nav.cats .item:focus-within .mega { display: block; 
 .drawer .top h3 { font-family: var(--display); font-weight: 900; font-size: 22px; text-transform: uppercase; }
 .lines { flex: 1; overflow: auto; padding: 8px 20px; scrollbar-width: none; }
 .line { display: flex; gap: 12px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--line); }
-.line .th { width: 60px; height: 60px; border: 2px solid var(--ink); border-radius: 12px; background: var(--white); display: grid; place-items: center; flex: none; padding: 4px; }
-.line .th img { width: 100%; height: 100%; object-fit: contain; }
+.line .th { width: 60px; height: 60px; border: 2px solid var(--ink); border-radius: 12px; background: var(--white); flex: none; position: relative; overflow: hidden; }
+.line .th img { position: absolute; inset: 4px; width: calc(100% - 8px); height: calc(100% - 8px); object-fit: contain; }
 .line .nm { flex: 1; font-weight: 600; font-size: 14px; line-height: 1.3; min-width: 0; }
 .line .nm small { display: block; font-weight: 500; font-size: 12px; margin-top: 2px; }
 .line .nm b { display: block; margin-top: 4px; }

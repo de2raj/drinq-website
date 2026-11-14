@@ -1,11 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { CategoryView } from "@/components/CategoryView";
-import { findSection, SECTIONS } from "@/lib/sections";
+import { findSection } from "@/lib/sections";
 
 type P = { params: Promise<{ section: string }> };
-export const dynamicParams = false;
-export const generateStaticParams = () => SECTIONS.map((s) => ({ section: s.slug }));
 
 export async function generateMetadata({ params }: P): Promise<Metadata> {
   const s = findSection((await params).section);

@@ -20,6 +20,8 @@ export const generateMetadata = (): Metadata => ({
 });
 export const viewport: Viewport = { themeColor: "#FFC515", width: "device-width", initialScale: 1 };
 
+export const dynamic = "force-dynamic";
+
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const verified = (await cookies()).get("drinq_age")?.value === "1";
   return (
@@ -28,7 +30,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <CartProvider>
           {!!process.env.STAGING_PASSWORD && <div className="testbar">TEST SITE · orders here are not real · please don&apos;t pay</div>}
           <AgeGate verified={verified} />
-          <Header menu={menu()} />
+          <Header menu={await menu()} />
           <main>{children}</main>
           <Footer />
         </CartProvider>

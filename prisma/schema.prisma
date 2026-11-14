@@ -52,3 +52,31 @@ model Counter {
   name  String @id
   value Int
 }
+
+/// A product in the shop, edited in /admin. Prices in cents (SGD, nett). Seeded from data/catalogue.json on first start.
+model Product {
+  id         String   @id @default(cuid())
+  sku        String   @default("")
+  slug       String   @unique
+  name       String
+  brand      String   @default("")
+  size       String   @default("")
+  price      Int
+  was        Int      @default(0) // regular price; above `price` = on sale
+  categories String   @default("") // category names joined with "|"
+  image      String   @default("") // URL: botello.sg photo, or /img/<id> for an uploaded one
+  thumb      String   @default("")
+  inStock    Boolean  @default(true)
+  active     Boolean  @default(true) // false = hidden from the shop
+  rank       Int      @default(0) // "Best selling" order, lower first
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+/// A product photo uploaded in /admin (kept in the database so it survives redeploys).
+model ProductImage {
+  id        String   @id @default(cuid())
+  type      String
+  data      Bytes
+  createdAt DateTime @default(now())
+}

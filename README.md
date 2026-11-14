@@ -25,14 +25,16 @@ npm run dev                 # http://localhost:3100
 | Order page | `/order/<private token>` — PayNow QR or paid confirmation |
 | Info | `/delivery`, `/faq`, `/contact`, `/terms`, `/privacy` |
 | Orders (staff) | `/admin` — user `admin`, password `ADMIN_PASSWORD` |
+| Products (staff) | `/admin/products` — search, filters, quick price/stock edit, full edit, add, photo upload, hide |
 
 Filters on section, sub-category and search pages: brand (searchable), price, size, in stock; sort; 24 at a time with Load more. Filters are kept in the address bar.
 
 ## How it works
 
-- **Products** come from `data/catalogue.json`, read only by `src/lib/catalogue.ts`.
-  Today that file is a copy of botello.sg's catalogue (`npm run catalogue:botello`).
-  Next step: feed it from the Alcools ERP (DRINQ prices and stock) — only `catalogue.ts` changes.
+- **Products** live in the database (table `Product`) and are edited in `/admin/products`.
+  On first start an empty database is filled from `data/catalogue.json` (a copy of botello.sg's catalogue).
+  Uploaded photos are stored in the database (`ProductImage`, served at `/img/<id>`), shrunk to WebP in the browser first.
+  Missing tables are created automatically on start (`src/instrumentation.ts`).
 - **Menu grouping** of categories into sections: `src/lib/sections.ts`.
 - **Shop rules** (free delivery threshold, delivery fee, slots, lead time): `src/lib/config.ts`.
 - **Prices are re-checked on the server** at checkout; the browser's prices are never trusted.

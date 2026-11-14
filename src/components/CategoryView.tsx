@@ -1,11 +1,12 @@
 import Link from "next/link";
-import { lite, sectionProducts, subProducts } from "@/lib/catalogue";
+import { inSub, lite, sectionProducts } from "@/lib/catalogue";
 import type { Section, Sub } from "@/lib/types";
 import { CategoryBrowser } from "./CategoryBrowser";
 
-export function CategoryView({ section, sub }: { section: Section; sub?: Sub }) {
-  const products = (sub ? subProducts(sub) : sectionProducts(section)).map(lite);
-  const total = sectionProducts(section).length;
+export async function CategoryView({ section, sub }: { section: Section; sub?: Sub }) {
+  const all = await sectionProducts(section);
+  const products = (sub ? all.filter((p) => inSub(p, sub)) : all).map(lite);
+  const total = all.length;
   return (
     <div className="wrap">
       <div className="crumbs">
@@ -19,7 +20,7 @@ export function CategoryView({ section, sub }: { section: Section; sub?: Sub }) 
         <nav className="subs" aria-label={`${section.name} types`}>
           <Link className="sub plain" href={`/${section.slug}`} aria-current={!sub ? "page" : undefined}>All <small>{total}</small></Link>
           {section.subs.map((x) => {
-            const ps = subProducts(x);
+            const ps = all.filter((p) => inSub(p, x));
             const pic = ps.find((p) => p.thumb)?.thumb;
             return (
               <Link key={x.slug} className="sub" href={`/${section.slug}/${x.slug}`} aria-current={sub?.slug === x.slug ? "page" : undefined}>

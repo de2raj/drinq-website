@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { revalidatePath } from "next/cache";
+import { AdminNav } from "@/components/AdminNav";
 import { db } from "@/lib/db";
 import { slotLabel } from "@/lib/delivery";
 import { money } from "@/lib/money";
@@ -20,8 +21,8 @@ async function setStatus(fd: FormData) {
 export default async function Admin() {
   const orders = await db.order.findMany({ orderBy: { id: "desc" }, take: 200, include: { lines: true } });
   return (
-    <div className="wrap" style={{ padding: "24px 24px 64px" }}>
-      <h1 className="display" style={{ fontSize: 40, marginBottom: 18 }}>Web orders</h1>
+    <div className="wrap admin">
+      <AdminNav active="orders" />
       <div style={{ overflowX: "auto" }}>
         <table className="atable">
           <thead><tr><th>Order</th><th>Customer</th><th>Delivery</th><th>Items</th><th>Total</th><th>Status</th></tr></thead>

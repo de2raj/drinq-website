@@ -1,18 +1,19 @@
 import Link from "next/link";
 import { IconTelegram } from "@/components/Icons";
 import { ProductCard } from "@/components/ProductCard";
-import { allProducts, lite, menu, sectionProducts } from "@/lib/catalogue";
+import { allProducts, inSection, lite, menu, sectionProducts } from "@/lib/catalogue";
 import { SHOP } from "@/lib/config";
 import { findSection } from "@/lib/sections";
 
-export default function Home() {
-  const all = allProducts();
+export default async function Home() {
+  const all = await allProducts();
   const best = all.filter((p) => p.inStock).slice(0, 10).map(lite);
-  const deals = sectionProducts(findSection("deals")!).filter((p) => p.inStock).slice(0, 10).map(lite);
-  const sections = menu().filter((s) => !s.deal);
+  const deals = (await sectionProducts(findSection("deals")!)).filter((p) => p.inStock).slice(0, 10).map(lite);
+  const sections = (await menu()).filter((s) => !s.deal);
   const heroPick = (slug: string) => all.find((p) => p.slug.includes(slug) && p.image) ?? all[0];
   const heroes = [heroPick("chivas"), heroPick("macallan"), heroPick("hennessy")];
-  const tilePic = (slug: string) => sectionProducts(findSection(slug)!).find((p) => p.inStock && p.thumb)?.thumb;
+  const pics = Object.fromEntries(sections.map((s) => [s.slug, all.find((p) => p.inStock && p.thumb && inSection(p, findSection(s.slug)!))?.thumb]));
+  const tilePic = (slug: string) => pics[slug];
 
   return (
     <>

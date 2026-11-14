@@ -7,7 +7,7 @@ export const metadata: Metadata = { title: "Search", robots: { index: false } };
 
 export default async function SearchPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
   const q = String((await searchParams).q ?? "").trim().slice(0, 80);
-  const results = q ? search(q).map(lite) : [];
+  const results = q ? (await search(q)).map(lite) : [];
   return (
     <div className="wrap">
       <div className="crumbs"><Link href="/">Home</Link> / Search</div>

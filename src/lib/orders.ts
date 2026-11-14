@@ -42,7 +42,7 @@ export async function placeOrder(input: CheckoutInput, siteUrl: string): Promise
   // Re-price every line from the catalogue: never trust prices sent by the browser.
   const lines: { productId: string; sku: string; name: string; size: string; unitPrice: number; qty: number; lineTotal: number }[] = [];
   for (const l of input.lines ?? []) {
-    const p = productById(String(l.id));
+    const p = await productById(String(l.id));
     const qty = Math.floor(Number(l.qty));
     if (!p || !(qty >= 1 && qty <= 99)) continue;
     if (!p.inStock) { errors.form = `${p.name} has just sold out. Please remove it from your cart.`; continue; }

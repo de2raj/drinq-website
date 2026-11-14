@@ -11,6 +11,7 @@ export type Product = {
   image: string;
   thumb: string;
   inStock: boolean;
+  active: boolean;
   rank: number;
 };
 

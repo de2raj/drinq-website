@@ -8,21 +8,19 @@ import { SHOP } from "@/lib/config";
 import { money } from "@/lib/money";
 
 type P = { params: Promise<{ slug: string }> };
-export const dynamicParams = false;
-export const generateStaticParams = () => allProducts().map((p) => ({ slug: p.slug }));
 
 export async function generateMetadata({ params }: P): Promise<Metadata> {
-  const p = productBySlug((await params).slug);
+  const p = await productBySlug((await params).slug);
   if (!p) return {};
   return { title: p.name, description: `${p.name} — ${money(p.price)}. Delivered across Singapore by DRINQ.`, openGraph: { images: p.image ? [p.image] : [] } };
 }
 
 export default async function ProductPage({ params }: P) {
-  const p = productBySlug((await params).slug);
+  const p = await productBySlug((await params).slug);
   if (!p) notFound();
   const { section, sub } = sectionOf(p);
   const off = p.was > p.price ? Math.round((1 - p.price / p.was) * 100) : 0;
-  const related = allProducts()
+  const related = (await allProducts())
     .filter((x) => x.id !== p.id && x.inStock && (sub ? inSub(x, sub) : x.categories.some((c) => p.categories.includes(c))))
     .sort((a, b) => Number(b.brand === p.brand) - Number(a.brand === p.brand) || a.rank - b.rank)
     .slice(0, 10).map(lite);

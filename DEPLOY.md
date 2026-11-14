@@ -39,7 +39,6 @@ Makes `deploy/drinq-source.zip` (~200 KB, source code only — never `.env`, dat
 | `ADMIN_PASSWORD` | a different, strong password for `/admin` (user name `admin`) |
 | `PAYNOW_UEN` | `202016031N` |
 | `PAYNOW_NAME` | `DRINQSG PTE LTD` |
-| `NEXT_PUBLIC_TELEGRAM_URL` | DRINQ's Telegram link |
 
    Secrets are set separately for **preview** and **production** — add them to both.
 4. **Restart** the app (and redeploy once if the Telegram link was added after the first build).
@@ -125,7 +124,6 @@ cPanel → **Setup Node.js App** → **Create Application**
 | `ADMIN_PASSWORD` | a different, strong password for `/admin` (user name `admin`) |
 | `PAYNOW_UEN` | `202016031N` |
 | `PAYNOW_NAME` | `DRINQSG PTE LTD` |
-| `NEXT_PUBLIC_TELEGRAM_URL` | DRINQ's Telegram link |
 
 Your cPanel user name is shown in cPanel's right-hand column ("Current User").
 **Do not** click "Run NPM Install": everything the site needs is already in the zip.

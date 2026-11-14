@@ -14,5 +14,5 @@ export const SHOP = {
     { id: "16:00-19:00", label: "4pm – 7pm", start: 16 },
     { id: "19:00-22:00", label: "7pm – 10pm", start: 19 },
   ],
-  telegramUrl: process.env.NEXT_PUBLIC_TELEGRAM_URL || "https://t.me/",
+  telegramUrl: process.env.NEXT_PUBLIC_TELEGRAM_URL || "https://t.me/DrinQalcoholdelivery",
 };

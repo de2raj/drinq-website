@@ -61,11 +61,15 @@ GoDaddy's publish health check needs the home page to answer normally, which is 
 
 ## 5. Going live on drinq.sg (later)
 
-Until launch, `drinq.sg` and `www.drinq.sg` are attached to the app and show a **Coming soon** page
-(with the Telegram order button); `staging.drinq.sg` shows the locked test shop.
+GoDaddy allows **one custom domain per app**. Until launch:
+- `staging.drinq.sg` → app **drinq-website** (branch `main`, the locked test shop)
+- `drinq.sg` (and www) → app **drinq-coming-soon** (branch `coming-soon`, a tiny Coming soon page)
 
-Launch day, in **both** Preview and Publish secrets: add `LAUNCHED=1`, set `SITE_URL=https://drinq.sg`,
-**remove `STAGING_PASSWORD`**, then publish again.
+Launch day:
+1. drinq-coming-soon → Settings → Domains → **Remove domain** (drinq.sg).
+2. drinq-website → Settings → Domains → remove `staging.drinq.sg`, connect `drinq.sg`.
+3. drinq-website secrets (Preview + Publish): set `SITE_URL=https://drinq.sg`, **remove `STAGING_PASSWORD`**, add `LAUNCHED=1`; publish.
+4. Delete the drinq-coming-soon app (frees its plan slot).
 
 ---
 

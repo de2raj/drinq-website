@@ -53,7 +53,7 @@ export function ProductForm({ init, groups, returnTo }: { init: ProductInit; gro
                 <input id="was" name="was" defaultValue={v.was} inputMode="decimal" />
                 {e.was && <div className="err">{e.was}</div>}
               </div>
-              <div className="field"><label htmlFor="sku">Product code</label><input id="sku" name="sku" defaultValue={v.sku} maxLength={50} /></div>
+              <div className="field"><label htmlFor="sku">ERP SKU (e.g. WHS-CREG-700-01)</label><input id="sku" name="sku" defaultValue={v.sku} maxLength={50} /></div>
             </div>
           </div>
 

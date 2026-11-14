@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { isErpSku } from "@/lib/erp-skus";
 import { AdminNav } from "@/components/AdminNav";
 import { everyProduct, inSection } from "@/lib/catalogue";
 import { SECTIONS } from "@/lib/sections";
@@ -14,7 +15,7 @@ const FILTERS = [
   ["in", "In stock"],
   ["out", "Sold out"],
   ["sale", "On sale"],
-  ["hidden", "Hidden"],
+  ["hidden", "Hidden"], ["noerp", "Not in ERP"],
 ] as const;
 type F = (typeof FILTERS)[number][0];
 const dollars = (c: number) => (c / 100).toFixed(2);
@@ -36,7 +37,7 @@ export default async function AdminProducts({ searchParams }: { searchParams: Pr
     words.every((w) => `${p.name} ${p.brand} ${p.sku}`.toLowerCase().includes(w)));
   const test: Record<F, (p: (typeof all)[number]) => boolean> = {
     all: () => true, in: (p) => p.active && p.inStock, out: (p) => p.active && !p.inStock,
-    sale: (p) => p.was > p.price, hidden: (p) => !p.active,
+    sale: (p) => p.was > p.price, hidden: (p) => !p.active, noerp: (p) => !isErpSku(p.sku),
   };
   const list = base.filter(test[f]);
   const shown = list.slice((page - 1) * PAGE, page * PAGE);
@@ -90,7 +91,7 @@ export default async function AdminProducts({ searchParams }: { searchParams: Pr
             <Link className="ath" href={`/admin/products/${p.id}?returnTo=${encodeURIComponent(here)}`}>{p.thumb && <img src={p.thumb} alt="" loading="lazy" />}</Link>
             <div className="aname">
               <Link href={`/admin/products/${p.id}?returnTo=${encodeURIComponent(here)}`}><b>{p.name}</b></Link>
-              <span>{[p.brand, p.size, p.sku && `#${p.sku}`].filter(Boolean).join(" · ")}{!p.active && " · Hidden"}</span>
+              <span>{[p.brand, p.size, p.sku || "No SKU"].filter(Boolean).join(" · ")}{!isErpSku(p.sku) && <i className="ttag">NOT IN ERP</i>}{!p.active && " · Hidden"}</span>
             </div>
             <label className="af af1"><span>Price $</span><input name="price" defaultValue={dollars(p.price)} inputMode="decimal" required /></label>
             <label className="af af2"><span>Usual $</span><input name="was" defaultValue={p.was > p.price ? dollars(p.was) : ""} inputMode="decimal" placeholder="—" /></label>

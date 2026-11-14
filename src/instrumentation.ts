@@ -2,7 +2,8 @@
  * Runs once when the server starts and brings the database up to date:
  *  1. creates missing tables (a brand-new database, or tables added since),
  *  2. adds missing columns to existing tables (fields added since; all have defaults or allow empty),
- *  3. fills the Product table from data/catalogue.json the first time.
+ *  3. fills the Product table from data/catalogue.json the first time,
+ *  4. gives products their ERP SKU codes (data/erp-skus.json).
  */
 export async function register() {
   if (process.env.NEXT_RUNTIME !== "nodejs") return;
@@ -53,6 +54,11 @@ export async function register() {
     const { seedProductsIfEmpty } = await import("./lib/catalogue");
     const n = await seedProductsIfEmpty();
     if (n) console.log(`[drinq] Loaded ${n} products from data/catalogue.json`);
+
+    // 4. Product codes from the ERP (once per version of data/erp-skus.json).
+    const { applyErpSkus } = await import("./lib/erp-skus");
+    const c = await applyErpSkus();
+    if (c) console.log(`[drinq] Updated ${c} products to ERP SKUs`);
   } catch (e) {
     console.error("[drinq] Database not ready:", e);
   }

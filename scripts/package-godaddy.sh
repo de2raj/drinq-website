@@ -5,9 +5,9 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 export PATH="$HOME/.local/node/bin:$PATH"
 
-npx prisma generate >/dev/null
-npm run -s db:sql
 rm -rf .next/standalone
+export STANDALONE=1 DB_PROVIDER=sqlite
+node scripts/prepare-db.mjs
 npx next build
 
 OUT=deploy/drinq-site

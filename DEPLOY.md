@@ -61,8 +61,11 @@ GoDaddy's publish health check needs the home page to answer normally, which is 
 
 ## 5. Going live on drinq.sg (later)
 
-Attach `drinq.sg` (and `www.drinq.sg`) to the app, set `SITE_URL=https://drinq.sg`, **remove `STAGING_PASSWORD`**, restart.
-GoDaddy points the domain away from its parking page when the domain is attached.
+Until launch, `drinq.sg` and `www.drinq.sg` are attached to the app and show a **Coming soon** page
+(with the Telegram order button); `staging.drinq.sg` shows the locked test shop.
+
+Launch day, in **both** Preview and Publish secrets: add `LAUNCHED=1`, set `SITE_URL=https://drinq.sg`,
+**remove `STAGING_PASSWORD`**, then publish again.
 
 ---
 

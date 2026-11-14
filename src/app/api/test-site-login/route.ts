@@ -9,7 +9,7 @@ export async function POST(req: Request) {
   const url = new URL(req.url);
   const base = `${req.headers.get("x-forwarded-proto") ?? url.protocol.replace(":", "")}://${req.headers.get("x-forwarded-host") ?? req.headers.get("host") ?? url.host}`;
 
-  if (!pass || given !== pass) {
+  if (!pass || given.trim() !== pass.trim()) {
     await new Promise((r) => setTimeout(r, 600)); // slow down guessing
     const back = new URL(next, base);
     back.searchParams.set("testpw", "wrong");
@@ -17,6 +17,6 @@ export async function POST(req: Request) {
   }
   const res = new Response(null, { status: 303, headers: { Location: new URL(next, base).toString() } });
   const secure = base.startsWith("https") ? "; Secure" : "";
-  res.headers.append("Set-Cookie", `${TEST_COOKIE}=${await testToken(pass)}; Path=/; Max-Age=2592000; HttpOnly; SameSite=Lax${secure}`);
+  res.headers.append("Set-Cookie", `${TEST_COOKIE}=${await testToken(pass.trim())}; Path=/; Max-Age=2592000; HttpOnly; SameSite=Lax${secure}`);
   return res;
 }

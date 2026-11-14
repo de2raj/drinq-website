@@ -1,4 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { comingSoonPage, isComingSoon } from "@/lib/coming-soon";
+import { SHOP } from "@/lib/config";
 import { loginPage, TEST_COOKIE, testToken } from "@/lib/test-site";
 
 /**
@@ -26,6 +28,15 @@ export async function proxy(req: NextRequest) {
   const path = req.nextUrl.pathname;
   if (OPEN.some((p) => path === p || path.startsWith(p + "/"))) return NextResponse.next();
 
+  // drinq.sg / www.drinq.sg before launch: the "Coming soon" page only.
+  const host = req.headers.get("x-forwarded-host") ?? req.headers.get("host") ?? "";
+  if (isComingSoon(host)) {
+    return new NextResponse(comingSoonPage(SHOP.telegramUrl), {
+      status: 200,
+      headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "public, max-age=300" },
+    });
+  }
+
   const c = creds(req);
   const admin = process.env.ADMIN_PASSWORD;
   const isAdmin = !!admin && c?.user === "admin" && c.pw === admin;
@@ -38,7 +49,7 @@ export async function proxy(req: NextRequest) {
 
   const staging = process.env.STAGING_PASSWORD;
   if (!staging || isAdmin) return NextResponse.next();
-  if (req.cookies.get(TEST_COOKIE)?.value === (await testToken(staging))) return NextResponse.next();
+  if (req.cookies.get(TEST_COOKIE)?.value === (await testToken(staging.trim()))) return NextResponse.next();
 
   if (req.method !== "GET" && req.method !== "HEAD") return new NextResponse("Test site: sign in first", { status: 401 });
   const wrong = req.nextUrl.searchParams.get("testpw") === "wrong";

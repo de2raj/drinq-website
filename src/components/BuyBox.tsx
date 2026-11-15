@@ -18,7 +18,7 @@ export function BuyBox({ p }: { p: ProductLite }) {
         </div>
         <button className="btn" onClick={() => { add(p, qty); setQty(1); setOpen(true); }}>Add to cart</button>
       </div>
-      {inCart > 0 && <p style={{ fontWeight: 700, marginTop: -8 }}>✓ {inCart} in your cart</p>}
+      {inCart > 0 && <p className="incart">✓ {inCart} in your cart · <button type="button" className="u" onClick={() => setOpen(true)}>View cart</button></p>}
     </>
   );
 }

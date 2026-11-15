@@ -4,7 +4,10 @@ import { notFound } from "next/navigation";
 import { BuyBox } from "@/components/BuyBox";
 import { ProductCard } from "@/components/ProductCard";
 import { allProducts, inSub, lite, productBySlug, sectionOf } from "@/lib/catalogue";
+import { freeGoals } from "@/lib/delivery";
+import { pointsFor } from "@/lib/loyalty";
 import { money } from "@/lib/money";
+import { getSetting } from "@/lib/settings";
 
 type P = { params: Promise<{ slug: string }> };
 
@@ -23,6 +26,9 @@ export default async function ProductPage({ params }: P) {
     const m = l.match(/^([A-Za-z ]{2,20}):\s*(.+)$/);
     return m ? [m[1], m[2]] : ["", l];
   });
+  const [loyalty, delivery] = await Promise.all([getSetting("loyalty"), getSetting("delivery")]);
+  const earn = loyalty.enabled ? pointsFor(p.price, loyalty) : 0;
+  const free = freeGoals(delivery)[0];
   const off = p.was > p.price ? Math.round((1 - p.price / p.was) * 100) : 0;
   const related = (await allProducts())
     .filter((x) => x.id !== p.id && x.inStock && (sub ? inSub(x, sub) : x.categories.some((c) => p.categories.includes(c))))
@@ -36,45 +42,61 @@ export default async function ProductPage({ params }: P) {
         {section && <> / <Link href={`/${section.slug}`}>{section.name}</Link></>}
         {section && sub && <> / <Link href={`/${section.slug}/${sub.slug}`}>{sub.name}</Link></>}
       </div>
-      <div className="pdp">
+      <div className="pdp pdp2">
         <div className="pic">
           {off > 0 && <span className="tag">-{off}%</span>}
+          {p.giftBox && <span className="gtag">Gift box</span>}
           {p.image && <img src={p.image} alt={p.name} />}
         </div>
-        <div>
-          <span className="brand">{p.brand}</span>
+        <div className="pmain">
+          <Link className="brand" href={section ? `/${section.slug}?brand=${encodeURIComponent(p.brand)}` : "/"}>{p.brand}</Link>
           <h1>{p.name}</h1>
-          <span className={`stock ${p.inStock ? "" : "out"}`}><i />{p.inStock ? "In stock, ready to deliver" : "Sold out"}</span>
-          <div className="pprice">{money(p.price)}{off > 0 && <s>{money(p.was)}</s>}</div>
-          <p style={{ fontWeight: 500 }}>Price in SGD, nett.</p>
-          <BuyBox p={lite(p)} />
-          <dl className="facts-list">
-            <div><dt>Brand</dt><dd>{p.brand}</dd></div>
-            {p.size && <div><dt>Size</dt><dd>{p.size}</dd></div>}
-            {p.abv != null && p.abv > 0 && <div><dt>Alcohol</dt><dd>{p.abv}% ABV</dd></div>}
-            {p.origin && <div><dt>Country of origin</dt><dd>{p.origin}</dd></div>}
-            <div><dt>Gift box</dt><dd>{p.giftBox ? "Yes, comes in a gift box" : "No"}</dd></div>
-            {p.specs.map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}
-            {section && <div><dt>Category</dt><dd>{sub ? `${sub.name} · ${section.name}` : section.name}</dd></div>}
-            {p.sku && <div><dt>Product code</dt><dd>{p.sku}</dd></div>}
-          </dl>
-          <div className="perks">
-            <div><span className="ic">🚚</span><span><b>Next-day, same-day or 2-hour express</b>Free next-day delivery from $200, same-day from $300. Or collect it yourself.</span></div>
-            <div><span className="ic">🔒</span><span><b>Secure payment</b>PayNow QR, cards, Apple Pay or Google Pay.</span></div>
-            <div><span className="ic">🪪</span><span><b>18+ only</b>We check ID at the door.</span></div>
+          <div className="pmeta">
+            <span className={`stock ${p.inStock ? "" : "out"}`}><i />{p.inStock ? "In stock" : "Sold out"}</span>
+            {p.size && <span>{p.size}</span>}
+            {p.abv != null && p.abv > 0 && <span>{p.abv}% ABV</span>}
+            {p.origin && <span>{p.origin}</span>}
           </div>
+          <div className="pprice">{money(p.price)}{off > 0 && <><s>{money(p.was)}</s><em>Save {off}%</em></>}</div>
+          {earn > 0 && <p className="pearn"><span>P</span><b>{earn} loyalty points</b> with this bottle</p>}
+          <BuyBox p={lite(p)} />
+          {free && <p className="pfree"><span>🚚</span>Free {free.label} on orders from {money(free.threshold)}</p>}
+
+          <details className="acc" open>
+            <summary>Characteristics</summary>
+            <dl className="chars">
+              {p.abv != null && p.abv > 0 && <div><dt>Alcohol percentage</dt><dd>{p.abv}%</dd></div>}
+              {p.size && <div><dt>Volume</dt><dd>{p.size}</dd></div>}
+              <div><dt>Brand</dt><dd>{section ? <Link href={`/${section.slug}?brand=${encodeURIComponent(p.brand)}`}>{p.brand}</Link> : p.brand}</dd></div>
+              <div><dt>Gift box</dt><dd>{p.giftBox ? "Yes" : "No"}</dd></div>
+              {p.origin && <div><dt>Country of origin</dt><dd>{p.origin}</dd></div>}
+              {p.specs.map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}
+              {section && <div><dt>Category</dt><dd><Link href={sub ? `/${section.slug}/${sub.slug}` : `/${section.slug}`}>{sub ? sub.name : section.name}</Link></dd></div>}
+              {p.sku && <div><dt>Product code</dt><dd>{p.sku}</dd></div>}
+            </dl>
+          </details>
+          {p.description && (
+            <details className="acc" open>
+              <summary>Description</summary>
+              <div className="dtext">{p.description.split(/\n{2,}/).map((t, i) => <p key={i}>{t}</p>)}</div>
+            </details>
+          )}
+          {notes.length > 0 && (
+            <details className="acc" open>
+              <summary>Tasting notes</summary>
+              <dl className="chars">{notes.map(([k, v], i) => <div key={i}>{k ? <><dt>{k}</dt><dd>{v}</dd></> : <dd>{v}</dd>}</div>)}</dl>
+            </details>
+          )}
+          <details className="acc">
+            <summary>Delivery &amp; payment</summary>
+            <ul className="dlist">
+              <li><b>Next-day, same-day, 2-hour express or a 3-hour time slot.</b> Or collect it yourself. <Link href="/delivery">How delivery works</Link></li>
+              <li><b>Secure payment</b> by PayNow QR, cards, Apple Pay or Google Pay.</li>
+              <li><b>18+ only.</b> We check ID on delivery or collection.</li>
+            </ul>
+          </details>
         </div>
       </div>
-      {(p.description || notes.length > 0) && (
-        <section className="pinfo">
-          {p.description && <div className="panel"><h2>About this {section?.slug === "wine" ? "wine" : "drink"}</h2>{p.description.split(/\n{2,}/).map((t, i) => <p key={i}>{t}</p>)}</div>}
-          {notes.length > 0 && (
-            <div className="panel"><h2>Tasting notes</h2>
-              <dl className="notes">{notes.map(([k, v], i) => <div key={i}>{k ? <><dt>{k}</dt><dd>{v}</dd></> : <dd>{v}</dd>}</div>)}</dl>
-            </div>
-          )}
-        </section>
-      )}
       {related.length > 0 && (
         <section style={{ paddingBottom: 24 }}>
           <div className="head-row"><h2 className="display">You may also like</h2>{section && <Link href={sub && section ? `/${section.slug}/${sub.slug}` : `/${section.slug}`}>See all</Link>}</div>

@@ -897,3 +897,44 @@ footer.ft .totop { width: 46px; height: 46px; border-radius: 50%; background: va
 .rfine ul { padding-left: 20px; margin: 0; display: grid; gap: 6px; }
 @media (max-width: 760px) { .rhero, .rsteps { grid-template-columns: 1fr; } .rhero { padding: 24px; } .rcard { width: 170px; } .rcard .display { font-size: 52px; } }
 .pinfo:has(> :only-child) { grid-template-columns: 1fr; }
+/* Product page (clean layout) */
+.pdp2 { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 56px; padding: 12px 0 48px; }
+.pdp2 .pic { border: 0; background: var(--white); border-radius: 24px; aspect-ratio: 6 / 7; padding: 28px; position: sticky; top: 150px; }
+.pdp2 .pic .tag { position: absolute; top: 18px; left: 18px; }
+.pdp2 .gtag { position: absolute; top: 18px; right: 18px; background: var(--yellow); border: 2px solid var(--ink); border-radius: 999px; padding: 4px 12px; font-weight: 800; font-size: 13px; }
+.pmain { max-width: 560px; }
+.pmain .brand { display: inline-block; font-weight: 800; font-size: 13px; text-transform: uppercase; letter-spacing: .06em; text-decoration: underline; text-underline-offset: 3px; }
+.pdp2 h1 { font-size: clamp(28px, 3.2vw, 40px); margin: 6px 0 12px; }
+.pmeta { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; font-size: 14px; font-weight: 600; }
+.pmeta > span:not(.stock)::before { content: "·"; margin-right: 14px; font-weight: 900; }
+.pdp2 .pprice { margin: 22px 0 8px; font-size: 38px; align-items: center; }
+.pdp2 .pprice em { font-style: normal; font-family: var(--body); font-size: 13px; font-weight: 800; background: var(--red); color: var(--white); padding: 3px 8px; border-radius: 6px; text-transform: uppercase; }
+.pearn { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 15px; }
+.pearn span { width: 22px; height: 22px; border-radius: 50%; background: var(--ink); color: var(--yellow); display: grid; place-items: center; font-weight: 900; font-size: 12px; }
+.pdp2 .buy { margin: 20px 0 10px; }
+.incart { font-weight: 700; font-size: 14px; margin: 0 0 6px; }
+.incart button { font: inherit; font-weight: 700; background: none; border: 0; cursor: pointer; padding: 0; color: var(--ink); }
+.pfree { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 15px; margin: 12px 0 26px; }
+.pfree span { width: 40px; height: 40px; border-radius: 50%; background: var(--yellow); display: grid; place-items: center; font-size: 18px; }
+.acc { border-top: 1px solid var(--line); }
+.acc:last-of-type { border-bottom: 1px solid var(--line); }
+.acc summary { list-style: none; cursor: pointer; padding: 18px 0; font-family: var(--display); font-weight: 800; font-size: 20px; display: flex; justify-content: space-between; align-items: center; }
+.acc summary::-webkit-details-marker { display: none; }
+.acc summary::after { content: ""; width: 10px; height: 10px; border-right: 2.5px solid var(--ink); border-bottom: 2.5px solid var(--ink); transform: rotate(45deg); margin-right: 6px; transition: transform .2s; }
+.acc[open] summary::after { transform: rotate(-135deg); }
+.chars { margin: 0 0 20px; display: grid; gap: 12px; }
+.chars div { display: flex; align-items: baseline; gap: 8px; font-size: 15px; }
+.chars dt { font-weight: 500; white-space: nowrap; }
+.chars div::after { content: none; }
+.chars dt::after { content: ""; flex: 1; }
+.chars div { display: grid; grid-template-columns: auto 1fr minmax(0, 48%); }
+.chars div::before { content: ""; order: 2; border-bottom: 1.5px dotted rgba(35,31,32,.35); height: 0; align-self: center; margin: 0 4px; }
+.chars dt { order: 1; }
+.chars dd { order: 3; margin: 0; font-weight: 700; }
+.chars dd a { text-decoration: underline; text-underline-offset: 3px; }
+.chars div:has(> dd:only-child) { display: block; }
+.dtext p { margin: 0 0 14px; line-height: 1.7; font-size: 15px; }
+.dtext { padding-bottom: 8px; }
+.dlist { margin: 0 0 20px; padding-left: 18px; display: grid; gap: 8px; font-size: 15px; line-height: 1.5; }
+.dlist a { text-decoration: underline; }
+@media (max-width: 860px) { .pdp2 { grid-template-columns: 1fr; gap: 20px; } .pdp2 .pic { position: static; aspect-ratio: 1; padding: 16px; } .pmain { max-width: none; } }

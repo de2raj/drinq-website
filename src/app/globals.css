@@ -1014,3 +1014,5 @@ footer.ft .social a:hover .slogo { filter: brightness(1.1); }
 .plogo.ap { gap: 2px; }
 .plogo.ap b { font-family: -apple-system, "Helvetica Neue", Arial, sans-serif; font-weight: 600; font-size: 15px; color: #000; letter-spacing: -.01em; }
 .plogo.ap svg { margin-top: -2px; }
+.plogo.gp { gap: 3px; }
+.plogo.gp b { font-family: "Product Sans", Arial, Helvetica, sans-serif; font-weight: 500; font-size: 15px; color: #5F6368; }

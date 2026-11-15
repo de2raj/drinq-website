@@ -1,5 +1,5 @@
 /**
- * Official brand logos (shapes from Simple Icons, CC0; Mastercard circles and PayNow wordmark drawn in brand colours).
+ * Official brand logos (shapes from Simple Icons, CC0; Mastercard circles drawn in brand colours; PayNow is the official logo file in public/pay).
  * PayLogo: payment badges. SocialLogo: social media buttons.
  */
 const P = {
@@ -22,7 +22,7 @@ const one = (d: string, fill: string, size = 24) => (
 export function PayLogo({ id }: { id: string }) {
   switch (id) {
     case "PAYNOW":
-      return <span className="plogo pn" aria-label="PayNow"><b>Pay</b><i>Now</i></span>;
+      return <span className="plogo pn" aria-label="PayNow"><img src="/pay/paynow.png" alt="" width={70} height={13} /></span>;
     case "CARD":
       return (
         <span className="plogo cards" aria-label="Visa and Mastercard">

@@ -89,14 +89,11 @@ export default async function ProductPage({ params }: P) {
           </div>
           {p.description && <ReadMore paras={p.description.split(/\n{2,}/)} />}
           {p.sku && <p className="pcode">Product code {p.sku}</p>}
-          <details className="acc">
-            <summary>Delivery &amp; payment</summary>
-            <div className="dinfo">
-              <div><span className="di">{TRUCK}</span><p><b>Delivered your way</b>Next-day, same-day, 2-hour express or a 3-hour time slot. <Link href="/delivery">How delivery works</Link></p></div>
-              <div><span className="di">{STORE}</span><p><b>Self-collection</b>Collect from 65 Ubi Road 1 at no charge.</p></div>
-              <div><span className="di">{CARD}</span><p><b>Secure payment</b>PayNow QR, cards, Apple Pay or Google Pay.</p></div>
-            </div>
-          </details>
+          <div className="perks3">
+            <div><span className="di">{TRUCK}</span><p><b>Delivered your way</b>Next-day, same-day, express or a 3-hour slot. <Link href="/delivery">Details</Link></p></div>
+            <div><span className="di">{STORE}</span><p><b>Free self-collection</b>65 Ubi Road 1, Oxley Bizhub</p></div>
+            <div><span className="di">{CARD}</span><p><b>Secure payment</b>PayNow, cards, Apple Pay &amp; Google Pay</p></div>
+          </div>
         </div>
       </div>
       {notes.length > 0 && (

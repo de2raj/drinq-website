@@ -983,3 +983,12 @@ a.pchip:hover { background: var(--ink); color: var(--yellow); }
 .story:not(.open) .stext p { display: inline; }
 .story button { background: none; border: 0; padding: 0; font: inherit; font-weight: 800; font-size: 14px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; color: var(--ink); margin-top: 6px; }
 .pcode { font-size: 13px; font-weight: 600; margin: 14px 0 22px; }
+/* product page: delivery & payment row (matches tasting notes) */
+.perks3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; padding: 22px 0 6px; border-top: 1px solid var(--line); margin-top: 8px; }
+.perks3 > div { display: flex; flex-direction: column; gap: 10px; }
+.perks3 .di { width: 46px; height: 46px; border-radius: 50%; background: var(--yellow); border: 0; display: grid; place-items: center; }
+.perks3 .di svg { width: 22px; height: 22px; }
+.perks3 p { margin: 0; font-size: 13px; line-height: 1.45; }
+.perks3 b { display: block; font-family: var(--display); font-weight: 800; font-size: 15px; margin-bottom: 2px; }
+.perks3 a { text-decoration: underline; font-weight: 700; }
+@media (max-width: 480px) { .perks3 { grid-template-columns: 1fr; gap: 14px; } .perks3 > div { flex-direction: row; align-items: flex-start; } }

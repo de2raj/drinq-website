@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BuyBox } from "@/components/BuyBox";
 import { ProductCard } from "@/components/ProductCard";
+import { ReadMore } from "@/components/ReadMore";
 import { allProducts, inSub, lite, productBySlug, sectionOf } from "@/lib/catalogue";
 import { freeGoals } from "@/lib/delivery";
 import { money } from "@/lib/money";
@@ -38,6 +39,15 @@ export default async function ProductPage({ params }: P) {
   });
   const [loyalty, delivery] = await Promise.all([getSetting("loyalty"), getSetting("delivery")]);
   const free = freeGoals(delivery)[0];
+  // The four facts that matter most, then the rest as chips.
+  const colour = p.specs.find(([k]) => /colou?r/i.test(k))?.[1];
+  const facts = ([
+    ["Alcohol", p.abv != null && p.abv > 0 ? `${p.abv}%` : ""],
+    ["Volume", p.size],
+    ["Origin", p.origin],
+    ["Colour", colour ?? ""],
+  ] as [string, string][]).filter(([, v]) => v);
+  const extra = p.specs.filter(([k]) => !/colou?r/i.test(k));
   const off = p.was > p.price ? Math.round((1 - p.price / p.was) * 100) : 0;
   const related = (await allProducts())
     .filter((x) => x.id !== p.id && x.inStock && (sub ? inSub(x, sub) : x.categories.some((c) => p.categories.includes(c))))
@@ -65,25 +75,20 @@ export default async function ProductPage({ params }: P) {
           <BuyBox p={lite(p)} earnRate={loyalty.enabled ? loyalty.earnPerDollar : 0} />
           {free && <p className="pfree"><span>🚚</span>Free {free.label} on orders from {money(free.threshold)}</p>}
 
-          <details className="acc" open>
-            <summary>Characteristics</summary>
-            <dl className="chars">
-              {p.abv != null && p.abv > 0 && <div><dt>Alcohol percentage</dt><dd>{p.abv}%</dd></div>}
-              {p.size && <div><dt>Volume</dt><dd>{p.size}</dd></div>}
-              <div><dt>Brand</dt><dd>{section ? <Link href={`/${section.slug}?brand=${encodeURIComponent(p.brand)}`}>{p.brand}</Link> : p.brand}</dd></div>
-              <div><dt>Gift box</dt><dd>{p.giftBox ? "Yes" : "No"}</dd></div>
-              {p.origin && <div><dt>Country of origin</dt><dd>{p.origin}</dd></div>}
-              {p.specs.map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}
-              {section && <div><dt>Category</dt><dd><Link href={sub ? `/${section.slug}/${sub.slug}` : `/${section.slug}`}>{sub ? sub.name : section.name}</Link></dd></div>}
-              {p.sku && <div><dt>Product code</dt><dd>{p.sku}</dd></div>}
-            </dl>
-          </details>
-          {p.description && (
-            <details className="acc" open>
-              <summary>Description</summary>
-              <div className="dtext">{p.description.split(/\n{2,}/).map((t, i) => <p key={i}>{t}</p>)}</div>
-            </details>
-          )}
+          <section className="glance">
+            <h3>At a glance</h3>
+            <div className="gl">
+              {facts.map(([k, v]) => <div key={k}><small>{k}</small><b>{v}</b></div>)}
+            </div>
+          </section>
+          <div className="pchips">
+            {section && <Link className="pchip" href={sub ? `/${section.slug}/${sub.slug}` : `/${section.slug}`}>{sub ? `${sub.name} ${section.name === "Whisky" ? "whisky" : ""}`.trim() : section.name}</Link>}
+            <Link className="pchip" href={section ? `/${section.slug}?brand=${encodeURIComponent(p.brand)}` : "/"}>{p.brand}</Link>
+            <span className="pchip">{p.giftBox ? "Comes in a gift box" : "No gift box"}</span>
+            {extra.map(([k, v]) => <span key={k} className="pchip">{k}: {v}</span>)}
+          </div>
+          {p.description && <ReadMore paras={p.description.split(/\n{2,}/)} />}
+          {p.sku && <p className="pcode">Product code {p.sku}</p>}
           <details className="acc">
             <summary>Delivery &amp; payment</summary>
             <div className="dinfo">

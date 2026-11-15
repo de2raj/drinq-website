@@ -968,3 +968,18 @@ footer.ft .totop { width: 46px; height: 46px; border-radius: 50%; background: va
 .dinfo .di { background: transparent; border: 1.5px solid var(--ink); }
 .pdp2 .pic { background: var(--paper); isolation: isolate; }
 .incart { background: transparent; border: 0; padding: 4px 0; }
+/* Product details: story card (option C) */
+.glance { background: var(--ink); color: var(--white); border-radius: 20px; padding: 20px 22px; margin: 26px 0 14px; }
+.glance h3 { font-family: var(--display); font-weight: 900; font-size: 14px; text-transform: uppercase; letter-spacing: .05em; color: var(--yellow); margin: 0 0 14px; }
+.gl { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 22px; }
+.gl small { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; opacity: .7; margin-bottom: 2px; }
+.gl b { font-size: 17px; font-weight: 800; }
+.pchips { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 20px; }
+.pchip { background: var(--yellow); border: 2px solid var(--ink); border-radius: 999px; padding: 5px 12px; font-size: 13px; font-weight: 800; }
+a.pchip:hover { background: var(--ink); color: var(--yellow); }
+.story { border-left: 4px solid var(--yellow); padding-left: 16px; margin-bottom: 10px; }
+.story .stext p { margin: 0 0 12px; font-size: 15px; line-height: 1.7; }
+.story:not(.open) .stext { display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; }
+.story:not(.open) .stext p { display: inline; }
+.story button { background: none; border: 0; padding: 0; font: inherit; font-weight: 800; font-size: 14px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; color: var(--ink); margin-top: 6px; }
+.pcode { font-size: 13px; font-weight: 600; margin: 14px 0 22px; }

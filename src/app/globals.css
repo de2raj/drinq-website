@@ -992,3 +992,16 @@ a.pchip:hover { background: var(--ink); color: var(--yellow); }
 .perks3 b { display: block; font-family: var(--display); font-weight: 800; font-size: 15px; margin-bottom: 2px; }
 .perks3 a { text-decoration: underline; font-weight: 700; }
 @media (max-width: 480px) { .perks3 { grid-template-columns: 1fr; gap: 14px; } .perks3 > div { flex-direction: row; align-items: flex-start; } }
+/* official payment logos */
+.plogo { display: inline-flex; align-items: center; justify-content: center; gap: 4px; height: 30px; min-width: 52px; padding: 0 8px; border-radius: 6px; background: var(--white); border: 1px solid rgba(35,31,32,.18); flex: none; }
+.plogo svg { display: block; }
+.plogo.pn { font-family: Arial, Helvetica, sans-serif; font-size: 13px; letter-spacing: -.02em; }
+.plogo.pn b { color: #7C1A78; font-weight: 900; }
+.plogo.pn i { color: #E2231A; font-style: normal; font-weight: 900; }
+.plogo.cards { gap: 2px; }
+.plogo.grab b { color: #00B14F; font-family: Arial, Helvetica, sans-serif; font-weight: 800; font-size: 13px; }
+footer.ft .fpay .plogo { border: 0; }
+/* official social logos */
+footer.ft .social a { background: none; width: auto; height: auto; }
+.slogo { width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; }
+footer.ft .social a:hover .slogo { filter: brightness(1.1); }

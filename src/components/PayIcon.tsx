@@ -1,5 +1,6 @@
-/** Small brand-neutral badges for the payment options (placeholders until a gateway is chosen). */
-const LABEL: Record<string, string> = { PAYNOW: "PayNow", CARD: "VISA·MC", APPLE_PAY: " Pay", GOOGLE_PAY: "G Pay", GRABPAY: "Grab" };
+import { PayLogo } from "./BrandLogos";
+
+/** Payment option logo (official brand marks), used at checkout, on orders, in admin and the footer. */
 export function PayIcon({ id }: { id: string }) {
-  return <span className={`payicon pi-${id.toLowerCase()}`} aria-hidden="true">{LABEL[id] ?? id}</span>;
+  return <PayLogo id={id} />;
 }

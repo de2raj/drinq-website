@@ -79,6 +79,12 @@ model Product {
   inStock    Boolean  @default(true)
   active     Boolean  @default(true) // false = hidden from the shop
   rank       Int      @default(0) // "Best selling" order, lower first
+  description  String? // @text about the product (shown on its page)
+  tastingNotes String? // @text one per line, e.g. "Nose: honey, vanilla"
+  origin       String   @default("") // country (and region), e.g. "Scotland, Speyside"
+  abv          Float? // alcohol % by volume
+  giftBox      Boolean  @default(false) // comes in a gift box
+  specs        String? // @text JSON list of [label, value] characteristics, e.g. [["Colour","Golden Yellow"]]
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 }

@@ -27,6 +27,9 @@ export default async function Settings({ searchParams }: { searchParams: Promise
         <div className="fields">
           <div className="field full"><label htmlFor="announcement">Top bar text</label><input id="announcement" name="announcement" defaultValue={store.announcement} /></div>
           <div className="field full"><label htmlFor="freeNote">Free-delivery footnote (the *)</label><input id="freeNote" name="freeNote" defaultValue={store.freeNote} /></div>
+          <div className="field"><label htmlFor="facebook">Facebook page link</label><input id="facebook" name="facebook" defaultValue={store.social.facebook} placeholder="https://facebook.com/…" /></div>
+          <div className="field"><label htmlFor="instagram">Instagram link</label><input id="instagram" name="instagram" defaultValue={store.social.instagram} placeholder="https://instagram.com/…" /></div>
+          <div className="field"><label htmlFor="tiktok">TikTok link (optional)</label><input id="tiktok" name="tiktok" defaultValue={store.social.tiktok} placeholder="https://tiktok.com/@…" /></div>
         </div>
         <h3 className="sub-h">Rotating banner (up to 5 slides)</h3>
         <datalist id="plist">{withPhoto.map((p) => <option key={p.id} value={p.name} />)}</datalist>

@@ -34,7 +34,11 @@ export async function saveStore(fd: FormData) {
       image,
     });
   }
-  await saveSetting("store", { ...store, announcement: str(fd, "announcement", 200), freeNote: str(fd, "freeNote", 300), slides });
+  const link = (k: string) => { const v = str(fd, k, 300); return /^https:\/\/\S+$/.test(v) ? v : ""; };
+  await saveSetting("store", {
+    ...store, announcement: str(fd, "announcement", 200), freeNote: str(fd, "freeNote", 300), slides,
+    social: { facebook: link("facebook"), instagram: link("instagram"), tiktok: link("tiktok") },
+  });
   done("homepage");
 }
 

@@ -13,6 +13,12 @@ export type Product = {
   inStock: boolean;
   active: boolean;
   rank: number;
+  description: string;
+  tastingNotes: string;
+  origin: string;
+  abv: number | null;
+  giftBox: boolean;
+  specs: [string, string][]; // other characteristics, e.g. ["Colour", "Golden Yellow"]
 };
 
 /** What a product card / list needs (kept small for the browser). */

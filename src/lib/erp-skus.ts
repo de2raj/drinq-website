@@ -12,18 +12,22 @@ const KEY = "erpSkuVersion";
 /**
  * Once per version of data/erp-skus.json: give every product its ERP SKU, and blank old Botello codes
  * on products the ERP doesn't have yet. Later hand edits in Admin → Products are kept.
+ * Fills alcohol % (ABV) from the ERP and ticks Gift box for products named "…Gift…".
  * Also cleans HTML codes (&#8211;) out of saved product and order-line names.
  */
 export async function applyErpSkus() {
   const done = await db.setting.findUnique({ where: { key: KEY } });
   if (done?.value === JSON.stringify(map.version)) return 0;
   const skus = map.skus as Record<string, string>;
+  const abvs = (map as { abv?: Record<string, number> }).abv ?? {};
   let changed = 0;
-  for (const p of await db.product.findMany({ select: { id: true, sku: true, name: true, brand: true } })) {
+  for (const p of await db.product.findMany({ select: { id: true, sku: true, name: true, brand: true, abv: true, giftBox: true } })) {
     const sku = skus[p.id] ?? (isErpSku(p.sku) ? p.sku : "");
     const name = decode(p.name), brand = decode(p.brand);
-    if (sku !== p.sku || name !== p.name || brand !== p.brand) {
-      await db.product.update({ where: { id: p.id }, data: { sku, name, brand } });
+    const abv = p.abv ?? abvs[p.id] ?? null; // ERP alcohol %, unless set by hand
+    const giftBox = p.giftBox || /\bgift\b/i.test(name);
+    if (sku !== p.sku || name !== p.name || brand !== p.brand || abv !== p.abv || giftBox !== p.giftBox) {
+      await db.product.update({ where: { id: p.id }, data: { sku, name, brand, abv, giftBox } });
       changed++;
     }
   }

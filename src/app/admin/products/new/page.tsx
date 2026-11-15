@@ -15,7 +15,7 @@ export default async function NewProduct({ searchParams }: { searchParams: Promi
       <ProductForm
         returnTo={rt.startsWith("/admin/products") ? rt : "/admin/products"}
         groups={CATEGORY_GROUPS}
-        init={{ name: "", brand: "", size: "", sku: "", price: "", was: "", categories: [], inStock: true, active: true, image: "" }}
+        init={{ name: "", brand: "", size: "", sku: "", price: "", was: "", categories: [], inStock: true, active: true, image: "", description: "", tastingNotes: "", origin: "", abv: "", giftBox: false }}
       />
     </div>
   );

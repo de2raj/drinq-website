@@ -31,15 +31,16 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const [store, delivery] = await Promise.all([getSetting("store"), getSetting("delivery")]);
   // Free-delivery goals: next day always; same day only while it really is same-day.
   const tiers = freeGoals(delivery);
+  const member = await headerMember();
   return (
     <html lang="en-SG" className={`${display.variable} ${body.variable}`}>
       <body>
         <CartProvider tiers={tiers}>
           {!!process.env.STAGING_PASSWORD && <div className="testbar">TEST SITE · orders here are not real · please don&apos;t pay</div>}
           <AgeGate verified={verified} />
-          <Header menu={await menu()} announcement={store.announcement} member={await headerMember()} />
+          <Header menu={await menu()} announcement={store.announcement} member={member} />
           <main>{children}</main>
-          <Footer />
+          <Footer member={member} />
         </CartProvider>
       </body>
     </html>

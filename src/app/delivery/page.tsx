@@ -11,7 +11,7 @@ export default async function Page() {
     <Info title="Delivery">
       <p>Choose one of these at checkout.</p>
       {methods.map((m) => (
-        <section key={m.id}>
+        <section key={m.id} id={m.id === "COLLECT" ? "collect" : m.id.toLowerCase()}>
           <h2>{m.name} — {m.fee ? money(m.fee) : "Free"}</h2>
           <ul>{m.notice.split("\n").filter(Boolean).map((l) => <li key={l}>{l}</li>)}</ul>
           {m.address && <p><b>Address:</b> {m.address}</p>}

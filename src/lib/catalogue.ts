@@ -14,6 +14,8 @@ const toProduct = (r: Row): Product => ({
   id: r.id, sku: r.sku, slug: r.slug, name: decode(r.name), brand: decode(r.brand), size: r.size,
   price: r.price, was: r.was, categories: r.categories ? r.categories.split("|") : [],
   image: r.image, thumb: r.thumb || r.image, inStock: r.inStock, active: r.active, rank: r.rank,
+  description: r.description ?? "", tastingNotes: r.tastingNotes ?? "", origin: r.origin, abv: r.abv, giftBox: r.giftBox,
+  specs: (() => { try { const v = JSON.parse(r.specs || "[]"); return Array.isArray(v) ? v : []; } catch { return []; } })(),
 });
 
 let cache: { at: number; all: Product[] } | null = null;

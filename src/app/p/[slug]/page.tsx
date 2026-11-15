@@ -18,6 +18,11 @@ export default async function ProductPage({ params }: P) {
   const p = await productBySlug((await params).slug);
   if (!p) notFound();
   const { section, sub } = sectionOf(p);
+  // "Nose: honey, vanilla" → ["Nose", "honey, vanilla"]
+  const notes = p.tastingNotes.split("\n").map((l) => l.trim()).filter(Boolean).map((l) => {
+    const m = l.match(/^([A-Za-z ]{2,20}):\s*(.+)$/);
+    return m ? [m[1], m[2]] : ["", l];
+  });
   const off = p.was > p.price ? Math.round((1 - p.price / p.was) * 100) : 0;
   const related = (await allProducts())
     .filter((x) => x.id !== p.id && x.inStock && (sub ? inSub(x, sub) : x.categories.some((c) => p.categories.includes(c))))
@@ -46,6 +51,10 @@ export default async function ProductPage({ params }: P) {
           <dl className="facts-list">
             <div><dt>Brand</dt><dd>{p.brand}</dd></div>
             {p.size && <div><dt>Size</dt><dd>{p.size}</dd></div>}
+            {p.abv != null && p.abv > 0 && <div><dt>Alcohol</dt><dd>{p.abv}% ABV</dd></div>}
+            {p.origin && <div><dt>Country of origin</dt><dd>{p.origin}</dd></div>}
+            <div><dt>Gift box</dt><dd>{p.giftBox ? "Yes, comes in a gift box" : "No"}</dd></div>
+            {p.specs.map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}
             {section && <div><dt>Category</dt><dd>{sub ? `${sub.name} · ${section.name}` : section.name}</dd></div>}
             {p.sku && <div><dt>Product code</dt><dd>{p.sku}</dd></div>}
           </dl>
@@ -56,6 +65,16 @@ export default async function ProductPage({ params }: P) {
           </div>
         </div>
       </div>
+      {(p.description || notes.length > 0) && (
+        <section className="pinfo">
+          {p.description && <div className="panel"><h2>About this {section?.slug === "wine" ? "wine" : "drink"}</h2>{p.description.split(/\n{2,}/).map((t, i) => <p key={i}>{t}</p>)}</div>}
+          {notes.length > 0 && (
+            <div className="panel"><h2>Tasting notes</h2>
+              <dl className="notes">{notes.map(([k, v], i) => <div key={i}>{k ? <><dt>{k}</dt><dd>{v}</dd></> : <dd>{v}</dd>}</div>)}</dl>
+            </div>
+          )}
+        </section>
+      )}
       {related.length > 0 && (
         <section style={{ paddingBottom: 24 }}>
           <div className="head-row"><h2 className="display">You may also like</h2>{section && <Link href={sub && section ? `/${section.slug}/${sub.slug}` : `/${section.slug}`}>See all</Link>}</div>

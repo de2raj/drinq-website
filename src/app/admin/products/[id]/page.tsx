@@ -24,6 +24,7 @@ export default async function EditProduct({ params, searchParams }: { params: Pr
         groups={CATEGORY_GROUPS}
         init={{
           id: p.id, slug: p.slug, name: decode(p.name), brand: decode(p.brand), size: p.size, sku: p.sku,
+          description: p.description ?? "", tastingNotes: p.tastingNotes ?? "", origin: p.origin, abv: p.abv == null ? "" : String(p.abv), giftBox: p.giftBox,
           price: dollars(p.price), was: p.was > p.price ? dollars(p.was) : "",
           categories: p.categories ? p.categories.split("|") : [], inStock: p.inStock, active: p.active, image: p.image,
         }}

@@ -60,6 +60,9 @@ export async function register() {
     const { applyErpSkus } = await import("./lib/erp-skus");
     const c = await applyErpSkus();
     if (c) console.log(`[drinq] Updated ${c} products to ERP SKUs`);
+    const { applyProductDetails } = await import("./lib/product-details");
+    const dn = await applyProductDetails();
+    if (dn) console.log(`[drinq] Added details to ${dn} products`);
 
     // 5. Customer records for orders placed before the CRM.
     const { linkOldOrders } = await import("./lib/customers");

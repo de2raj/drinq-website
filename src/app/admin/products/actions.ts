@@ -31,7 +31,7 @@ export async function quickSave(fd: FormData) {
 
 export type ProductFormState = {
   ok?: boolean;
-  errors: Partial<Record<"name" | "price" | "was" | "categories" | "photo" | "form", string>>;
+  errors: Partial<Record<"name" | "price" | "was" | "categories" | "photo" | "abv" | "form", string>>;
   values?: Record<string, string | string[] | boolean>;
 };
 
@@ -44,6 +44,12 @@ export async function saveProduct(_prev: ProductFormState, fd: FormData): Promis
   const brand = String(fd.get("brand") ?? "").trim().slice(0, 100);
   const size = String(fd.get("size") ?? "").trim().slice(0, 50);
   const sku = String(fd.get("sku") ?? "").trim().slice(0, 50);
+  const description = String(fd.get("description") ?? "").trim().slice(0, 5000);
+  const tastingNotes = String(fd.get("tastingNotes") ?? "").trim().slice(0, 2000);
+  const origin = String(fd.get("origin") ?? "").trim().slice(0, 80);
+  const abvText = String(fd.get("abv") ?? "").trim().replace("%", "");
+  const abv = abvText === "" ? null : Number(abvText);
+  const giftBox = fd.get("giftBox") === "on";
   const categories = fd.getAll("categories").map(String).filter(Boolean);
   const inStock = fd.get("inStock") === "on";
   const active = fd.get("active") === "on";
@@ -56,6 +62,7 @@ export async function saveProduct(_prev: ProductFormState, fd: FormData): Promis
   if (!name) errors.name = "Please enter the product name.";
   if (price === null || Number.isNaN(price) || price <= 0) errors.price = "Please enter a price, e.g. 56 or 56.90.";
   if (was !== null && (Number.isNaN(was) || (price && was < price))) errors.was = "The usual price must be blank or more than the selling price.";
+  if (abv !== null && !(abv >= 0 && abv <= 100)) errors.abv = "Alcohol % must be a number from 0 to 100.";
   if (!categories.length) errors.categories = "Tick at least one category, so the product shows in the menu.";
   const file = photo instanceof File && photo.size > 0 ? photo : null;
   if (file && (!/^image\/(jpeg|png|webp)$/.test(file.type) || file.size > MAX_PHOTO)) errors.photo = "Photos must be JPG, PNG or WebP, under 4 MB.";
@@ -66,6 +73,7 @@ export async function saveProduct(_prev: ProductFormState, fd: FormData): Promis
       values: {
         name, brand, size, sku, categories, inStock, active,
         price: String(fd.get("price") ?? ""), was: String(fd.get("was") ?? ""),
+        description, tastingNotes, origin, abv: abvText, giftBox,
       },
     };
   }
@@ -77,7 +85,7 @@ export async function saveProduct(_prev: ProductFormState, fd: FormData): Promis
   }
 
   const data = {
-    name, brand, size, sku, inStock, active,
+    name, brand, size, sku, inStock, active, description, tastingNotes, origin, abv, giftBox,
     price: price!, was: was && was > price! ? was : price!,
     categories: categories.join("|"),
     ...(image ? { image, thumb: image } : {}),

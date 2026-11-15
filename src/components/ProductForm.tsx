@@ -8,6 +8,7 @@ type Group = { section: string; items: { value: string; label: string }[] };
 export type ProductInit = {
   id?: string; name: string; brand: string; size: string; sku: string;
   price: string; was: string; categories: string[]; inStock: boolean; active: boolean; image: string; slug?: string;
+  description: string; tastingNotes: string; origin: string; abv: string; giftBox: boolean;
 };
 
 export function ProductForm({ init, groups, returnTo }: { init: ProductInit; groups: Group[]; returnTo: string }) {
@@ -55,6 +56,17 @@ export function ProductForm({ init, groups, returnTo }: { init: ProductInit; gro
               </div>
               <div className="field"><label htmlFor="sku">ERP SKU (e.g. WHS-CREG-700-01)</label><input id="sku" name="sku" defaultValue={v.sku} maxLength={50} /></div>
             </div>
+          </div>
+
+          <div className="panel">
+            <h2>Product details</h2>
+            <div className="fields">
+              <div className="field"><label htmlFor="origin">Country of origin</label><input id="origin" name="origin" defaultValue={v.origin} placeholder="e.g. Scotland, Speyside" maxLength={80} /></div>
+              <div className="field"><label htmlFor="abv">Alcohol % (ABV)</label><input id="abv" name="abv" defaultValue={v.abv} inputMode="decimal" placeholder="e.g. 40" />{e.abv && <div className="err">{e.abv}</div>}</div>
+              <div className="field full"><label htmlFor="description">Description</label><textarea id="description" name="description" rows={5} defaultValue={v.description} placeholder="A few sentences about the drink. Leave a blank line between paragraphs." /></div>
+              <div className="field full"><label htmlFor="tastingNotes">Tasting notes (one per line)</label><textarea id="tastingNotes" name="tastingNotes" rows={4} defaultValue={v.tastingNotes} placeholder={"Nose: honey, vanilla, ripe pear\nPalate: creamy, toffee, oak\nFinish: long, gently spiced"} /></div>
+            </div>
+            <label className="agree" style={{ marginTop: 14 }}><input type="checkbox" className="check" name="giftBox" defaultChecked={v.giftBox} /><span>Comes in a gift box</span></label>
           </div>
 
           <div className={`panel ${e.categories ? "badp" : ""}`}>

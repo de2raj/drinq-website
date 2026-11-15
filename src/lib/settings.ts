@@ -103,10 +103,12 @@ export type StoreSettings = {
   announcement: string; // top bar
   freeNote: string; // footnote for the "*"
   slides: Slide[]; // homepage rotating banner (up to 5)
+  social: { facebook: string; instagram: string; tiktok: string }; // links shown in the footer (blank = hidden)
 };
 export const DEFAULT_STORE: StoreSettings = {
   announcement: "Free delivery* from $200 · Same-day delivery across Singapore",
   freeNote: "*Free next-day delivery from $200. Free same-day delivery from $300.",
+  social: { facebook: "", instagram: "", tiktok: "" },
   slides: [
     { show: true, slug: "tequila-rose-strawberry-cream", pill: "New favourite", title: "Tequila Rose", highlight: "Strawberry Cream", text: "Creamy strawberry with a tequila kick. Dessert in a glass.", theme: "rose", image: "/hero/tequila-rose.webp" },
     { show: true, slug: "black-tears-spiced-rum-700ml", pill: "Rum of the week", title: "Black Tears", highlight: "Spiced Rum", text: "Cuban spiced rum with cacao and coffee. Smooth on ice.", theme: "dark", image: "/hero/black-tears.webp" },

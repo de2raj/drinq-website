@@ -959,3 +959,12 @@ footer.ft .totop { width: 46px; height: 46px; border-radius: 50%; background: va
 .incart b { display: block; font-weight: 800; }
 .incart small { font-size: 12px; font-weight: 500; }
 .incart button { height: 36px; padding: 0 14px; border-radius: 999px; border: 2px solid var(--ink); background: var(--yellow); font: inherit; font-weight: 800; font-size: 13px; color: var(--ink); cursor: pointer; white-space: nowrap; }
+/* no white boxes on the product page */
+.pdp2 .pic { background: transparent; padding: 8px; }
+.pdp2 .pic img { mix-blend-mode: multiply; }
+.tnotes { background: transparent; border-radius: 0; padding: 32px 0 8px; border-top: 1px solid var(--line); margin: 8px 0 32px; }
+.tnotes h2 { border-bottom: 0; padding-bottom: 0; margin-bottom: 22px; font-size: 24px; }
+.tnotes .ti { background: var(--yellow); border: 0; }
+.dinfo .di { background: transparent; border: 1.5px solid var(--ink); }
+.pdp2 .pic { background: var(--paper); isolation: isolate; }
+.incart { background: transparent; border: 0; padding: 4px 0; }

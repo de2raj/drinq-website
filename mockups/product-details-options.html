@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DRINQ product details options</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@800;900&display=swap" rel="stylesheet">
+<style>
+:root{--y:#FFC515;--ink:#231F20;--paper:#FFFBEF;--line:rgba(35,31,32,.12);--green:#1E9E5A}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,sans-serif;color:var(--ink);background:#EFEBDF;padding:28px 20px 60px}
+h1{font:900 30px Montserrat;text-transform:uppercase;margin-bottom:6px}
+.lead{font-weight:600;margin-bottom:26px;max-width:900px}
+.opts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;max-width:1500px}
+@media(max-width:1200px){.opts{grid-template-columns:1fr;max-width:620px}}
+.opt>h2{font:900 20px Montserrat;text-transform:uppercase;margin-bottom:4px}
+.what{font-size:14px;font-weight:500;line-height:1.45;margin-bottom:12px;min-height:60px}
+.frame{background:var(--paper);border-radius:22px;padding:22px;box-shadow:0 12px 34px rgba(0,0,0,.1)}
+.sec{font:900 18px Montserrat;margin:0 0 14px}
+p.desc{font-size:14px;line-height:1.65}
+.more{display:inline-block;margin-top:8px;font-weight:800;font-size:13px;text-decoration:underline}
+/* A tiles */
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:22px}
+.t{background:#fff;border-radius:16px;padding:12px;display:grid;gap:6px}
+.t .ic{width:34px;height:34px;border-radius:50%;background:var(--y);display:grid;place-items:center;font-size:16px}
+.t small{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;opacity:.7}
+.t b{font-size:15px}
+.meta{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px;margin:-8px 0 20px}
+.meta span b{font-weight:800}
+.clamp{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+/* B tabs */
+.tabs{display:flex;gap:6px;background:#fff;border-radius:999px;padding:5px;margin-bottom:16px}
+.tabs span{flex:1;text-align:center;padding:9px 0;border-radius:999px;font-weight:800;font-size:13px}
+.tabs .on{background:var(--ink);color:var(--y)}
+.tbl{background:#fff;border-radius:16px;overflow:hidden}
+.tbl div{display:grid;grid-template-columns:44% 1fr;padding:11px 16px;font-size:14px}
+.tbl div:nth-child(even){background:#FBF8EE}
+.tbl dt{font-weight:600;opacity:.75}
+.tbl dd{font-weight:800}
+.tbl a{text-decoration:underline}
+/* C story card */
+.glance{background:var(--ink);color:#fff;border-radius:18px;padding:18px;margin-bottom:18px}
+.glance h3{font:900 14px Montserrat;text-transform:uppercase;color:var(--y);margin-bottom:12px;letter-spacing:.04em}
+.gl{display:grid;grid-template-columns:1fr 1fr;gap:12px 18px}
+.gl div small{display:block;font-size:11px;opacity:.7;text-transform:uppercase;font-weight:700;letter-spacing:.04em}
+.gl div b{font-size:15px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
+.chip{background:#fff;border:1.5px solid var(--line);border-radius:999px;padding:5px 11px;font-size:12px;font-weight:700}
+.quote{border-left:4px solid var(--y);padding-left:14px}
+.foot{font-size:12px;font-weight:600;margin-top:14px;opacity:.75}
+</style></head><body>
+<h1>Product details: 3 options</h1>
+<p class="lead">Each mockup is the section under Add to cart on the product page, shown with Chivas Regal 12. Tasting notes stay as their own band further down the page.</p>
+<div class="opts">
+
+<div class="opt"><h2>A · Icon tiles</h2>
+<p class="what">The key facts as six small tiles with icons, quick to scan on a phone. Brand, category and code sit on one small line. The description shows 4 lines with "Read more".</p>
+<div class="frame">
+  <div class="sec">At a glance</div>
+  <div class="tiles">
+    <div class="t"><span class="ic">🥃</span><small>Alcohol</small><b>40%</b></div>
+    <div class="t"><span class="ic">🍾</span><small>Volume</small><b>700ml</b></div>
+    <div class="t"><span class="ic">📍</span><small>Origin</small><b>Scotland</b></div>
+    <div class="t"><span class="ic">🎨</span><small>Colour</small><b>Warm amber</b></div>
+    <div class="t"><span class="ic">🎁</span><small>Gift box</small><b>No</b></div>
+    <div class="t"><span class="ic">🏷️</span><small>Type</small><b>Blended</b></div>
+  </div>
+  <div class="meta"><span>Brand <b><u>Chivas Regal</u></b></span><span>Code <b>WHS-CREG-700-01</b></span></div>
+  <div class="sec">About this whisky</div>
+  <p class="desc clamp">The name Chivas Regal is derived from Schivas Castle on the River Ythan in the Scottish province of Aberdeenshire. Chivas Regal Scotch 12 Years Old blends many malts and grain Scotch whiskies. A maturation of at least 12 years is required to bottle this blend with style, substance, and tradition. Chivas 12 is smooth, rich and generous.</p>
+  <span class="more">Read more</span>
+</div></div>
+
+<div class="opt"><h2>B · Tabs + table</h2>
+<p class="what">One tab bar switches between Details, Description and Delivery, so only one block shows at a time. Details is a soft striped table with no dotted lines.</p>
+<div class="frame">
+  <div class="tabs"><span class="on">Details</span><span>Description</span><span>Delivery</span></div>
+  <dl class="tbl">
+    <div><dt>Alcohol</dt><dd>40%</dd></div>
+    <div><dt>Volume</dt><dd>700ml</dd></div>
+    <div><dt>Brand</dt><dd><a>Chivas Regal</a></dd></div>
+    <div><dt>Country of origin</dt><dd>Scotland</dd></div>
+    <div><dt>Colour</dt><dd>Bright warm amber</dd></div>
+    <div><dt>Gift box</dt><dd>No</dd></div>
+    <div><dt>Category</dt><dd><a>Blended whisky</a></dd></div>
+    <div><dt>Product code</dt><dd>WHS-CREG-700-01</dd></div>
+  </dl>
+</div></div>
+
+<div class="opt"><h2>C · Story card</h2>
+<p class="what">A dark "At a glance" card with the four facts that matter most, then the description as a short story with quick chips for the rest. Feels premium; works well for whisky and wine.</p>
+<div class="frame">
+  <div class="glance"><h3>At a glance</h3>
+    <div class="gl">
+      <div><small>Alcohol</small><b>40%</b></div>
+      <div><small>Volume</small><b>700ml</b></div>
+      <div><small>Origin</small><b>Scotland</b></div>
+      <div><small>Colour</small><b>Bright warm amber</b></div>
+    </div>
+  </div>
+  <div class="chips"><span class="chip">Blended Scotch</span><span class="chip">Chivas Regal</span><span class="chip">No gift box</span></div>
+  <div class="quote"><p class="desc clamp">The name Chivas Regal is derived from Schivas Castle on the River Ythan in the Scottish province of Aberdeenshire. Chivas Regal Scotch 12 Years Old blends many malts and grain Scotch whiskies. A maturation of at least 12 years is required to bottle this blend with style, substance, and tradition.</p>
+  <span class="more">Read the full story</span></div>
+  <p class="foot">Product code WHS-CREG-700-01</p>
+</div></div>
+
+</div>
+</body></html>

@@ -938,3 +938,24 @@ footer.ft .totop { width: 46px; height: 46px; border-radius: 50%; background: va
 .dlist { margin: 0 0 20px; padding-left: 18px; display: grid; gap: 8px; font-size: 15px; line-height: 1.5; }
 .dlist a { text-decoration: underline; }
 @media (max-width: 860px) { .pdp2 { grid-template-columns: 1fr; gap: 20px; } .pdp2 .pic { position: static; aspect-ratio: 1; padding: 16px; } .pmain { max-width: none; } }
+.pdp2 .stock { margin-top: 2px; }
+.pearn .coin { width: 26px; height: 26px; border-radius: 50%; background: var(--yellow); color: var(--ink); border: 2px solid var(--ink); display: grid; place-items: center; font-family: var(--display); font-weight: 900; font-size: 10px; letter-spacing: -.03em; }
+.dinfo { display: grid; gap: 14px; padding-bottom: 20px; }
+.dinfo > div { display: flex; gap: 14px; align-items: flex-start; }
+.dinfo .di, .tnotes .ti { width: 44px; height: 44px; border-radius: 50%; background: var(--white); border: 1.5px solid var(--line); display: grid; place-items: center; flex: none; }
+.dinfo p, .tnotes p { margin: 0; font-size: 15px; line-height: 1.5; }
+.dinfo b, .tnotes b { display: block; font-weight: 800; }
+.dinfo a { text-decoration: underline; }
+.tnotes { background: var(--white); border-radius: 24px; padding: 28px 32px; margin: 0 0 40px; }
+.tnotes h2 { font-family: var(--display); font-weight: 900; font-size: 22px; margin: 0 0 20px; padding-bottom: 12px; border-bottom: 3px solid var(--yellow); display: inline-block; }
+.tgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+.tgrid > div { display: flex; gap: 14px; align-items: flex-start; }
+.tnotes .ti { width: 52px; height: 52px; background: var(--paper); }
+.tnotes b { font-family: var(--display); font-size: 17px; margin-bottom: 4px; }
+@media (max-width: 760px) { .tgrid { grid-template-columns: 1fr; gap: 18px; } .tnotes { padding: 22px 18px; } }
+.incart { display: flex; align-items: center; gap: 12px; padding: 10px 10px 10px 12px; margin: 0 0 4px; border-radius: 14px; background: var(--white); border: 1.5px solid var(--line); }
+.incart .ok { width: 30px; height: 30px; border-radius: 50%; background: var(--green); color: var(--white); display: grid; place-items: center; font-weight: 900; font-size: 14px; flex: none; }
+.incart > span:nth-child(2) { flex: 1; min-width: 0; font-size: 14px; line-height: 1.3; }
+.incart b { display: block; font-weight: 800; }
+.incart small { font-size: 12px; font-weight: 500; }
+.incart button { height: 36px; padding: 0 14px; border-radius: 999px; border: 2px solid var(--ink); background: var(--yellow); font: inherit; font-weight: 800; font-size: 13px; color: var(--ink); cursor: pointer; white-space: nowrap; }

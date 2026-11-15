@@ -5,9 +5,19 @@ import { BuyBox } from "@/components/BuyBox";
 import { ProductCard } from "@/components/ProductCard";
 import { allProducts, inSub, lite, productBySlug, sectionOf } from "@/lib/catalogue";
 import { freeGoals } from "@/lib/delivery";
-import { pointsFor } from "@/lib/loyalty";
 import { money } from "@/lib/money";
 import { getSetting } from "@/lib/settings";
+
+const svg = (d: React.ReactNode) => <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{d}</svg>;
+const TRUCK = svg(<><path d="M3 6h11v10H3z" /><path d="M14 9h4l3 3v4h-7" /><circle cx="7" cy="17.5" r="1.8" /><circle cx="17" cy="17.5" r="1.8" /></>);
+const STORE = svg(<><path d="M4 10v10h16V10" /><path d="M3 10l2-6h14l2 6z" /><path d="M10 20v-5h4v5" /></>);
+const CARD = svg(<><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M3 10h18M7 15h4" /></>);
+const NOTE_ICON: Record<string, React.ReactNode> = {
+  taste: svg(<><path d="M7 3h10l-1 7a4 4 0 0 1-8 0z" /><path d="M12 14v6M8 21h8" /></>),
+  palate: svg(<><path d="M7 3h10l-1 7a4 4 0 0 1-8 0z" /><path d="M12 14v6M8 21h8" /></>),
+  nose: svg(<><path d="M5 9c2-2 4-2 6 0s4 2 6 0" /><path d="M5 14c2-2 4-2 6 0s4 2 6 0" /><path d="M8 19c1.5-1.2 3-1.2 4.5 0" /></>),
+  finish: svg(<><path d="M7 3h10M7 21h10" /><path d="M8 3c0 5 8 5 8 9s-8 4-8 9M16 3c0 5-8 5-8 9" /></>),
+};
 
 type P = { params: Promise<{ slug: string }> };
 
@@ -27,7 +37,6 @@ export default async function ProductPage({ params }: P) {
     return m ? [m[1], m[2]] : ["", l];
   });
   const [loyalty, delivery] = await Promise.all([getSetting("loyalty"), getSetting("delivery")]);
-  const earn = loyalty.enabled ? pointsFor(p.price, loyalty) : 0;
   const free = freeGoals(delivery)[0];
   const off = p.was > p.price ? Math.round((1 - p.price / p.was) * 100) : 0;
   const related = (await allProducts())
@@ -51,15 +60,9 @@ export default async function ProductPage({ params }: P) {
         <div className="pmain">
           <Link className="brand" href={section ? `/${section.slug}?brand=${encodeURIComponent(p.brand)}` : "/"}>{p.brand}</Link>
           <h1>{p.name}</h1>
-          <div className="pmeta">
-            <span className={`stock ${p.inStock ? "" : "out"}`}><i />{p.inStock ? "In stock" : "Sold out"}</span>
-            {p.size && <span>{p.size}</span>}
-            {p.abv != null && p.abv > 0 && <span>{p.abv}% ABV</span>}
-            {p.origin && <span>{p.origin}</span>}
-          </div>
+          <span className={`stock ${p.inStock ? "" : "out"}`}><i />{p.inStock ? "In stock" : "Sold out"}</span>
           <div className="pprice">{money(p.price)}{off > 0 && <><s>{money(p.was)}</s><em>Save {off}%</em></>}</div>
-          {earn > 0 && <p className="pearn"><span>P</span><b>{earn} loyalty points</b> with this bottle</p>}
-          <BuyBox p={lite(p)} />
+          <BuyBox p={lite(p)} earnRate={loyalty.enabled ? loyalty.earnPerDollar : 0} />
           {free && <p className="pfree"><span>🚚</span>Free {free.label} on orders from {money(free.threshold)}</p>}
 
           <details className="acc" open>
@@ -81,22 +84,26 @@ export default async function ProductPage({ params }: P) {
               <div className="dtext">{p.description.split(/\n{2,}/).map((t, i) => <p key={i}>{t}</p>)}</div>
             </details>
           )}
-          {notes.length > 0 && (
-            <details className="acc" open>
-              <summary>Tasting notes</summary>
-              <dl className="chars">{notes.map(([k, v], i) => <div key={i}>{k ? <><dt>{k}</dt><dd>{v}</dd></> : <dd>{v}</dd>}</div>)}</dl>
-            </details>
-          )}
           <details className="acc">
             <summary>Delivery &amp; payment</summary>
-            <ul className="dlist">
-              <li><b>Next-day, same-day, 2-hour express or a 3-hour time slot.</b> Or collect it yourself. <Link href="/delivery">How delivery works</Link></li>
-              <li><b>Secure payment</b> by PayNow QR, cards, Apple Pay or Google Pay.</li>
-              <li><b>18+ only.</b> We check ID on delivery or collection.</li>
-            </ul>
+            <div className="dinfo">
+              <div><span className="di">{TRUCK}</span><p><b>Delivered your way</b>Next-day, same-day, 2-hour express or a 3-hour time slot. <Link href="/delivery">How delivery works</Link></p></div>
+              <div><span className="di">{STORE}</span><p><b>Self-collection</b>Collect from 65 Ubi Road 1 at no charge.</p></div>
+              <div><span className="di">{CARD}</span><p><b>Secure payment</b>PayNow QR, cards, Apple Pay or Google Pay.</p></div>
+            </div>
           </details>
         </div>
       </div>
+      {notes.length > 0 && (
+        <section className="tnotes">
+          <h2>Tasting notes</h2>
+          <div className="tgrid">
+            {notes.map(([k, v], i) => (
+              <div key={i}><span className="ti">{NOTE_ICON[k.toLowerCase()] ?? NOTE_ICON.taste}</span><p><b>{k || "Notes"}</b>{v}</p></div>
+            ))}
+          </div>
+        </section>
+      )}
       {related.length > 0 && (
         <section style={{ paddingBottom: 24 }}>
           <div className="head-row"><h2 className="display">You may also like</h2>{section && <Link href={sub && section ? `/${section.slug}/${sub.slug}` : `/${section.slug}`}>See all</Link>}</div>

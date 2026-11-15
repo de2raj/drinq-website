@@ -3,7 +3,7 @@ import details from "../../data/product-details.json";
 import { invalidateCatalogue } from "./catalogue";
 import { db } from "./db";
 
-type Details = { chars: Record<string, string>; sections: Record<string, string> };
+type Details = { chars: Record<string, string>; sections: Record<string, string>; notes?: [string, string][] };
 const KEY = "productDetailsVersion";
 // Shown in their own fields, so not repeated in the extra characteristics.
 const OWN = /^(brand|.*volume.*|product weight.*|alcohol percentage|abv|country of origin|origin|gift box)$/i;
@@ -26,7 +26,8 @@ export async function applyProductDetails() {
     const c = Object.fromEntries(Object.entries(d.chars).map(([k, v]) => [k.toLowerCase(), v]));
     const secs = Object.entries(d.sections);
     const desc = secs.filter(([t]) => !/tasting/i.test(t)).map(([t, b]) => (/^description$/i.test(t) ? b : `${t}\n\n${b}`)).join("\n\n");
-    const notes = secs.filter(([t]) => /tasting/i.test(t)).map(([, b]) => b.split(/\n+/).join("\n")).join("\n");
+    const notes = (d.notes ?? []).map(([k, v]) => `${k}: ${v}`).join("\n")
+      || secs.filter(([t]) => /tasting/i.test(t)).map(([, b]) => b.split(/\n+/).join("\n")).join("\n");
     const abv = parseFloat((c["alcohol percentage"] ?? c["abv"] ?? "").replace(",", "."));
     const specs = Object.entries(d.chars).filter(([k, v]) => !OWN.test(k.trim()) && v && !/^(n\/?a|-)$/i.test(v));
     const patch = {

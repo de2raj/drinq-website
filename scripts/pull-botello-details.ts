@@ -17,7 +17,7 @@ const text = (html: string) =>
     .replace(/&#038;/g, "&").replace(/&quot;/g, '"').replace(/&#0?39;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">")
     .split("\n").map((l) => l.replace(/\s+/g, " ").trim()).filter(Boolean).join("\n\n");
 
-type Details = { chars: Record<string, string>; sections: Record<string, string> };
+type Details = { chars: Record<string, string>; sections: Record<string, string>; notes: [string, string][] };
 
 function parse(html: string): Details {
   const chars: Record<string, string> = {};
@@ -33,7 +33,13 @@ function parse(html: string): Details {
     const body = text(m[2]);
     if (body) sections[title] = body;
   }
-  return { chars, sections };
+  // "Tasting notes" tab: Taste / Nose / Finish boxes.
+  const notes: [string, string][] = [];
+  for (const m of html.matchAll(/<div class="tasting-note-info">\s*<h6[^>]*>([\s\S]*?)<\/h6>\s*<p[^>]*>([\s\S]*?)<\/p>/g)) {
+    const k = text(m[1]), v = text(m[2]);
+    if (k && v) notes.push([k, v]);
+  }
+  return { chars, sections, notes };
 }
 
 async function main() {
@@ -53,7 +59,7 @@ async function main() {
       try {
         const html = await (await fetch(p.permalink)).text();
         const d = parse(html);
-        if (Object.keys(d.chars).length || Object.keys(d.sections).length) result[p.id] = d;
+        if (Object.keys(d.chars).length || Object.keys(d.sections).length || d.notes.length) result[p.id] = d;
       } catch (e) {
         console.error("failed", p.permalink, (e as Error).message);
       }
@@ -61,7 +67,7 @@ async function main() {
       await new Promise((r) => setTimeout(r, 150));
     }
   }));
-  writeFileSync(out, JSON.stringify({ version: new Date().toISOString().slice(0, 10), products: result }, null, 0));
+  writeFileSync(out, JSON.stringify({ version: new Date().toISOString().slice(0, 16), products: result }, null, 0));
   console.log(`saved details for ${Object.keys(result).length} products`);
 }
 main();

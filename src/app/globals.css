@@ -1005,3 +1005,9 @@ footer.ft .fpay .plogo { border: 0; }
 footer.ft .social a { background: none; width: auto; height: auto; }
 .slogo { width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; }
 footer.ft .social a:hover .slogo { filter: brightness(1.1); }
+/* checkout payments: one clean list, no box inside a box */
+.pays { gap: 0; border: 2px solid var(--ink); border-radius: 16px; overflow: hidden; }
+.pays .pay { border: 0; border-radius: 0; border-bottom: 1px solid var(--line); background: var(--white); padding: 14px 16px; }
+.pays .pay:last-child { border-bottom: 0; }
+.pays .pay[aria-checked="true"] { background: var(--yellow); }
+.pays .plogo { border: 0; background: transparent; padding: 0; min-width: 64px; justify-content: flex-start; }

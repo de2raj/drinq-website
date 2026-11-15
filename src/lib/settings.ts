@@ -81,7 +81,7 @@ export const DEFAULT_PAYMENTS: PaymentSettings = {
   testMode: true,
   options: [
     { id: "PAYNOW", name: "PayNow QR", detail: "Scan with any Singapore banking app", enabled: true },
-    { id: "CARD", name: "Credit / Debit Card", detail: "Visa, Mastercard, AMEX", enabled: true },
+    { id: "CARD", name: "Credit / Debit Card", detail: "Visa & Mastercard", enabled: true },
     { id: "APPLE_PAY", name: "Apple Pay", detail: "Pay with Face ID or Touch ID", enabled: true },
     { id: "GOOGLE_PAY", name: "Google Pay", detail: "Pay with your Google account", enabled: true },
     { id: "GRABPAY", name: "GrabPay", detail: "Pay with your Grab wallet", enabled: true },
@@ -148,6 +148,11 @@ export async function getSetting<K extends Key>(key: K): Promise<Value<K>> {
     if (saved.some((m) => !m.hours)) return DEFAULTS[key];
     // Options added later (e.g. Timed Delivery) appear even if not saved yet.
     return DEFAULT_DELIVERY.map((d) => ({ ...d, ...(saved.find((m) => m.id === d.id) ?? {}) })) as Value<K>;
+  }
+  if (key === "payments" && v && typeof v === "object") {
+    // We only take Visa and Mastercard (older saved text mentioned AMEX).
+    const pv = v as PaymentSettings;
+    return { ...pv, options: pv.options.map((o) => (o.id === "CARD" && /amex/i.test(o.detail) ? { ...o, detail: "Visa & Mastercard" } : o)) } as Value<K>;
   }
   // New fields added to the defaults later still show up.
   if (!Array.isArray(v) && typeof v === "object") return { ...DEFAULTS[key], ...v } as Value<K>;

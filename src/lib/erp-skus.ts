@@ -1,11 +1,14 @@
 import "server-only";
+import erpList from "../../data/erp-sku-list.json";
 import map from "../../data/erp-skus.json";
 import { invalidateCatalogue } from "./catalogue";
 import { db } from "./db";
 import { decode } from "./text";
 
-/** An ERP product code, e.g. WHS-CREG-700-01. */
-export const isErpSku = (s: string) => /^[A-Z]{3}-[A-Z0-9]+-[A-Z0-9]+-\d{2}$/.test(s);
+/** Every SKU in the ERP (data/erp-sku-list.json, refreshed when the ERP is connected). */
+const ERP_SKUS = new Set<string>(erpList as string[]);
+/** An ERP product code, e.g. WHS-CREG-700-01 or BAR-ICE-02: in the ERP list, or shaped like one (added since). */
+export const isErpSku = (s: string) => ERP_SKUS.has(s) || /^[A-Z]{3}(-[A-Z0-9]+){1,2}-\d{2}$/.test(s);
 
 const KEY = "erpSkuVersion";
 

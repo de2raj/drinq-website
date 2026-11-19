@@ -92,7 +92,7 @@ export default async function Settings({ searchParams }: { searchParams: Promise
                   <div key={key} className="wrow">
                     <span>{label}</span>
                     <label className="agree"><input type="checkbox" className="check" name={k(`${key}.service`)} defaultChecked={m.serviceDays[key]} aria-label={`${label} ${dayName}`} /></label>
-                    <input name={k(`${key}.hours`)} defaultValue={(m.hours[key] ?? []).map((r) => `${r.from}-${r.to}`).join(", ")} aria-label={`${label} ${hoursName}`} />
+                    <input name={k(`${key}.hours`)} defaultValue={(m.hours[key] ?? []).map((r) => `${r.from}-${r.to}`).join(", ")} aria-label={`${label} ${hoursName}`} placeholder={`${hoursName}, e.g. 09:00-23:59`} />
                   </div>
                 ))}
               </div>

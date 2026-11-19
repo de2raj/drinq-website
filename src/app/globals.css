@@ -1031,3 +1031,9 @@ footer.ft .social a:hover .slogo { filter: brightness(1.1); }
 .sz:not(.on):hover { background: var(--yellow); }
 .sz.out { opacity: .55; }
 .sz small { font-weight: 600; font-size: 12px; }
+/* Settings → Delivery on phones: hours get a full-width line under each day */
+@media (max-width: 640px) {
+  .wins2 { grid-template-columns: 1fr auto; gap: 4px 12px; }
+  .wins2 .wh:nth-of-type(3) { display: none; }
+  .wins2 .wrow > input:not([type="checkbox"]) { grid-column: 1 / -1; width: 100%; margin-bottom: 10px; }
+}

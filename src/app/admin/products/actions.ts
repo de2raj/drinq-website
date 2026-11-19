@@ -16,7 +16,7 @@ export async function quickSave(fd: FormData) {
   const id = String(fd.get("id") ?? "");
   const price = toCents(fd.get("price"));
   const was = toCents(fd.get("was"));
-  if (!id || price === null || Number.isNaN(price) || price <= 0) return;
+  if (!id || price === null || Number.isNaN(price) || price < 0) return;
   await db.product.update({
     where: { id },
     data: {
@@ -60,7 +60,7 @@ export async function saveProduct(_prev: ProductFormState, fd: FormData): Promis
 
   const errors: ProductFormState["errors"] = {};
   if (!name) errors.name = "Please enter the product name.";
-  if (price === null || Number.isNaN(price) || price <= 0) errors.price = "Please enter a price, e.g. 56 or 56.90.";
+  if (price === null || Number.isNaN(price) || price < 0) errors.price = "Please enter a price, e.g. 56 or 56.90 (0 for a free item).";
   if (was !== null && (Number.isNaN(was) || (price && was < price))) errors.was = "The usual price must be blank or more than the selling price.";
   if (abv !== null && !(abv >= 0 && abv <= 100)) errors.abv = "Alcohol % must be a number from 0 to 100.";
   if (!categories.length) errors.categories = "Tick at least one category, so the product shows in the menu.";

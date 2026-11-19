@@ -48,7 +48,7 @@ export default async function ProductPage({ params }: P) {
     ["Colour", colour ?? ""],
   ] as [string, string][]).filter(([, v]) => v);
   const extra = p.specs.filter(([k]) => !/colou?r/i.test(k));
-  const off = p.was > p.price ? Math.round((1 - p.price / p.was) * 100) : 0;
+  const off = p.price > 0 && p.was > p.price ? Math.round((1 - p.price / p.was) * 100) : 0;
   const related = (await allProducts())
     .filter((x) => x.id !== p.id && x.inStock && (sub ? inSub(x, sub) : x.categories.some((c) => p.categories.includes(c))))
     .sort((a, b) => Number(b.brand === p.brand) - Number(a.brand === p.brand) || a.rank - b.rank)
@@ -71,7 +71,7 @@ export default async function ProductPage({ params }: P) {
           <Link className="brand" href={section ? `/${section.slug}?brand=${encodeURIComponent(p.brand)}` : "/"}>{p.brand}</Link>
           <h1>{p.name}</h1>
           <span className={`stock ${p.inStock ? "" : "out"}`}><i />{p.inStock ? "In stock" : "Sold out"}</span>
-          <div className="pprice">{money(p.price)}{off > 0 && <><s>{money(p.was)}</s><em>Save {off}%</em></>}</div>
+          <div className="pprice">{p.price === 0 ? "Free" : money(p.price)}{off > 0 && <><s>{money(p.was)}</s><em>Save {off}%</em></>}</div>
           <BuyBox p={lite(p)} earnRate={loyalty.enabled ? loyalty.earnPerDollar : 0} />
           {free && <p className="pfree"><span>🚚</span>Free {free.label} on orders from {money(free.threshold)}</p>}
 

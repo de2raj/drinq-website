@@ -1020,3 +1020,14 @@ footer.ft .social a:hover .slogo { filter: brightness(1.1); }
 /* category tiles: photo blends into the tile, so no white box on hover */
 .tile { background: var(--paper); }
 .tile img { mix-blend-mode: multiply; }
+/* other sizes of this product */
+.psizes { margin: 18px 0 4px; }
+.psizes h4 { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; margin: 0 0 8px; }
+.szs { display: flex; flex-wrap: wrap; gap: 8px; }
+.sz { display: inline-flex; align-items: center; gap: 8px; height: 42px; padding: 0 16px 0 12px; border: 2px solid var(--ink); border-radius: 999px; font-weight: 800; font-size: 14px; background: transparent; }
+.sz i { width: 16px; height: 16px; border-radius: 50%; border: 2px solid currentColor; flex: none; position: relative; }
+.sz.on { background: var(--ink); color: var(--yellow); }
+.sz.on i::after { content: ""; position: absolute; inset: 2px; border-radius: 50%; background: var(--yellow); }
+.sz:not(.on):hover { background: var(--yellow); }
+.sz.out { opacity: .55; }
+.sz small { font-weight: 600; font-size: 12px; }

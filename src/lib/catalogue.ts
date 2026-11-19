@@ -108,3 +108,31 @@ export async function seedProductsIfEmpty() {
   invalidateCatalogue();
   return rows.length;
 }
+
+/** The product name without its size, e.g. "Johnnie Walker Black Label 700ML" → "johnnie walker black label". */
+const baseName = (n: string) => n.toLowerCase()
+  .replace(/[–-]\s*\d+\s*(cans?|bottles?|btls?|packets?|pcs|pack)\s*x\s*[\d.]+\s*(ml|l|cl|g|kg)\b/i, "")
+  .replace(/\b\d+(\.\d+)?\s*(ml|l|cl|ltr|litre|liter)\b/gi, "")
+  .replace(/\(bcrs\)/gi, "")
+  .replace(/[^a-z0-9()]+/g, " ").trim();
+const isPromo = (n: string) => /\b(sale|promo|curated pours)\b/i.test(n);
+/** Rough millilitres in a listing, for sorting sizes (packs count every bottle). */
+const totalMl = (size: string) => {
+  const m = size.match(/(?:(\d+)\s*×\s*)?([\d.]+)\s*(ml|l|cl)/i);
+  if (!m) return 0;
+  const one = parseFloat(m[2]) * (/^l$/i.test(m[3]) ? 1000 : /^cl$/i.test(m[3]) ? 10 : 1);
+  return one * (m[1] ? Number(m[1]) : 1);
+};
+
+/** Other sizes of the same product (same brand and name), smallest first, including this one. */
+export async function sizesOf(p: Product) {
+  if (isPromo(p.name)) return [];
+  const key = baseName(p.name);
+  const seen = new Set<string>();
+  const list = (await allProducts())
+    .filter((x) => x.brand.toLowerCase() === p.brand.toLowerCase() && !isPromo(x.name) && baseName(x.name) === key && x.size)
+    .sort((a, b) => Number(b.id === p.id) - Number(a.id === p.id)) // keep this product if a size is listed twice
+    .filter((x) => (seen.has(x.size.toLowerCase()) ? false : (seen.add(x.size.toLowerCase()), true)))
+    .sort((a, b) => totalMl(a.size) - totalMl(b.size));
+  return list.length > 1 ? list.map((x) => ({ slug: x.slug, size: x.size, price: x.price, inStock: x.inStock, current: x.id === p.id })) : [];
+}

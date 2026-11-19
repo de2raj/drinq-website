@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { BuyBox } from "@/components/BuyBox";
 import { ProductCard } from "@/components/ProductCard";
 import { ReadMore } from "@/components/ReadMore";
-import { allProducts, inSub, lite, productBySlug, sectionOf } from "@/lib/catalogue";
+import { allProducts, inSub, lite, productBySlug, sectionOf, sizesOf } from "@/lib/catalogue";
 import { freeGoals } from "@/lib/delivery";
 import { money } from "@/lib/money";
 import { getSetting } from "@/lib/settings";
@@ -37,7 +37,7 @@ export default async function ProductPage({ params }: P) {
     const m = l.match(/^([A-Za-z ]{2,20}):\s*(.+)$/);
     return m ? [m[1], m[2]] : ["", l];
   });
-  const [loyalty, delivery] = await Promise.all([getSetting("loyalty"), getSetting("delivery")]);
+  const [loyalty, delivery, sizes] = await Promise.all([getSetting("loyalty"), getSetting("delivery"), sizesOf(p)]);
   const free = freeGoals(delivery)[0];
   // The four facts that matter most, then the rest as chips.
   const colour = p.specs.find(([k]) => /colou?r/i.test(k))?.[1];
@@ -71,6 +71,18 @@ export default async function ProductPage({ params }: P) {
           <Link className="brand" href={section ? `/${section.slug}?brand=${encodeURIComponent(p.brand)}` : "/"}>{p.brand}</Link>
           <h1>{p.name}</h1>
           <span className={`stock ${p.inStock ? "" : "out"}`}><i />{p.inStock ? "In stock" : "Sold out"}</span>
+          {sizes.length > 0 && (
+            <div className="psizes">
+              <h4>Other sizes of this product</h4>
+              <div className="szs">
+                {sizes.map((z) => (
+                  <Link key={z.slug} href={`/p/${z.slug}`} className={`sz ${z.current ? "on" : ""} ${z.inStock ? "" : "out"}`} aria-current={z.current ? "page" : undefined} scroll={false}>
+                    <i aria-hidden="true" />{z.size} · {z.price === 0 ? "Free" : money(z.price)}{!z.inStock && <small> sold out</small>}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
           <div className="pprice">{p.price === 0 ? "Free" : money(p.price)}{off > 0 && <><s>{money(p.was)}</s><em>Save {off}%</em></>}</div>
           <BuyBox p={lite(p)} earnRate={loyalty.enabled ? loyalty.earnPerDollar : 0} />
           {free && <p className="pfree"><span>🚚</span>Free {free.label} on orders from {money(free.threshold)}</p>}
